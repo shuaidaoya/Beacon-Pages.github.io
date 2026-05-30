@@ -86,7 +86,7 @@
 
   // ── HTML template ──
   const HTML = `
-<div class="module collapsed" id="sec-module-root">
+<div class="module collapsed advanced-module" id="sec-module-root">
   <div class="module-title" onclick="toggleModule(this)">
     🛡️ 安全管理
     <svg class="collapse-icon" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
