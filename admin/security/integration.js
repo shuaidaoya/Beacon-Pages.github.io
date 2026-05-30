@@ -15,68 +15,69 @@
   function $(sel) { return document.querySelector(sel); }
   function $$(sel) { return document.querySelectorAll(sel); }
 
-  // ── CSS injection ──
+  // ── CSS injection — uses admin page CSS variables for theme support ──
   const CSS = `
 <style id="sec-module-style">
-.sec-module .sec-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px;padding:6px;background:#0b1220;border:1px solid #1e293b;border-radius:14px}
-.sec-module .sec-tab{background:transparent;border:none;color:#cbd5e1;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
-.sec-module .sec-tab:hover{color:#e2e8f0}
-.sec-module .sec-tab.active{background:linear-gradient(135deg,#1e40af,#7c3aed);color:#fff}
-.sec-module .sec-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-.sec-module .sec-stat{background:#111c31;border:1px solid #1e293b;border-radius:14px;padding:16px;text-align:center}
-.sec-module .sec-stat-num{font-size:28px;font-weight:800;color:#f1f5f9;line-height:1.2}
-.sec-module .sec-stat-label{font-size:12px;color:#94a3b8;margin-top:4px}
-.sec-module .sec-stat.sec-stat-warn .sec-stat-num{color:#fbbf24}
+.sec-module .sec-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px;padding:6px;background:var(--input-bg,#f3f4f6);border:1px solid var(--input-border,#e5e7eb);border-radius:14px}
+.sec-module .sec-tab{background:transparent;border:none;color:var(--text-secondary,#666);padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.sec-module .sec-tab:hover{color:var(--text-primary,#1f2937);background:rgba(250,171,65,.08)}
+.sec-module .sec-tab.active{background:linear-gradient(135deg,#faab41,#f6821f);color:#fff}
+.sec-module .sec-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.sec-module .sec-stat{background:var(--input-bg,#f3f4f6);border:1px solid var(--input-border,#e5e7eb);border-radius:14px;padding:16px;text-align:center}
+.sec-module .sec-stat-num{font-size:28px;font-weight:800;color:var(--text-primary,#1f2937);line-height:1.2}
+.sec-module .sec-stat-label{font-size:12px;color:var(--text-secondary,#666);margin-top:4px}
+.sec-module .sec-stat.sec-stat-warn .sec-stat-num{color:#f59e0b}
 .sec-module .sec-stat.sec-stat-danger .sec-stat-num{color:#ef4444}
 .sec-module .sec-stat.sec-stat-ok .sec-stat-num{color:#22c55e}
 .sec-module .sec-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
-.sec-module .sec-filter input,.sec-module .sec-filter select{background:#020817;border:1px solid #334155;border-radius:10px;padding:8px 12px;color:#e2e8f0;font-size:13px;outline:none}
-.sec-module .sec-filter input:focus,.sec-module .sec-filter select:focus{border-color:#3b82f6}
+.sec-module .sec-filter input,.sec-module .sec-filter select{background:var(--input-bg,#f3f4f6);border:1px solid var(--input-border,#e5e7eb);border-radius:10px;padding:8px 12px;color:var(--text-primary,#1f2937);font-size:13px;outline:none}
+.sec-module .sec-filter input:focus,.sec-module .sec-filter select:focus{border-color:#faab41;box-shadow:0 0 0 2px rgba(250,171,65,.15)}
 .sec-module .sec-filter input{min-width:200px}
-.sec-module .sec-btn{background:transparent;border:1px solid #334155;color:#cbd5e1;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
-.sec-module .sec-btn:hover:not(:disabled){background:#1e293b;border-color:#475569}
+.sec-module .sec-btn{background:transparent;border:1px solid var(--input-border,#e5e7eb);color:var(--text-primary,#1f2937);padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.sec-module .sec-btn:hover:not(:disabled){background:var(--input-bg,#f3f4f6)}
 .sec-module .sec-btn:disabled{opacity:.4;cursor:not-allowed}
-.sec-module .sec-btn-primary{background:linear-gradient(135deg,#1e40af,#7c3aed);color:#fff;border-color:transparent}
-.sec-module .sec-btn-primary:hover:not(:disabled){opacity:.9}
-.sec-module .sec-btn-danger{color:#fca5a5;border-color:rgba(239,68,68,.3)}
-.sec-module .sec-btn-danger:hover:not(:disabled){background:rgba(239,68,68,.12)}
+.sec-module .sec-btn-primary{background:linear-gradient(135deg,#faab41,#f6821f);color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(250,171,65,.25)}
+.sec-module .sec-btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 14px rgba(250,171,65,.35)}
+.sec-module .sec-btn-danger{color:#ef4444;border-color:rgba(239,68,68,.3)}
+.sec-module .sec-btn-danger:hover:not(:disabled){background:rgba(239,68,68,.08)}
 .sec-module .sec-btn-sm{padding:5px 10px;font-size:12px}
-.sec-module .sec-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid #1e293b}
+.sec-module .sec-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--input-border,#e5e7eb)}
 .sec-module .sec-table{width:100%;border-collapse:collapse;font-size:13px}
-.sec-module .sec-table th{background:#111c31;color:#94a3b8;padding:10px 12px;text-align:left;font-weight:600;font-size:12px;white-space:nowrap;border-bottom:1px solid #1e293b}
-.sec-module .sec-table td{padding:10px 12px;border-bottom:1px solid #0f172a;color:#cbd5e1;white-space:nowrap}
-.sec-module .sec-table tr:hover td{background:rgba(59,130,246,.04)}
+.sec-module .sec-table th{background:var(--input-bg,#f3f4f6);color:var(--text-secondary,#666);padding:10px 12px;text-align:left;font-weight:600;font-size:12px;white-space:nowrap;border-bottom:1px solid var(--input-border,#e5e7eb)}
+.sec-module .sec-table td{padding:10px 12px;border-bottom:1px solid var(--input-border,#e5e7eb);color:var(--text-primary,#1f2937);white-space:nowrap}
+.sec-module .sec-table tr:hover td{background:rgba(250,171,65,.04)}
 .sec-module .sec-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block}
-.sec-module .sec-badge-active{background:rgba(34,197,94,.15);color:#86efac}
-.sec-module .sec-badge-banned{background:rgba(239,68,68,.15);color:#fca5a5}
-.sec-module .sec-badge-high{background:rgba(239,68,68,.15);color:#fca5a5}
-.sec-module .sec-badge-medium{background:rgba(251,191,36,.15);color:#fde68a}
-.sec-module .sec-badge-low{background:rgba(148,163,184,.15);color:#cbd5e1}
+.sec-module .sec-badge-active{background:rgba(34,197,94,.12);color:#16a34a}
+.sec-module .sec-badge-banned{background:rgba(239,68,68,.12);color:#dc2626}
+.sec-module .sec-badge-high{background:rgba(239,68,68,.1);color:#dc2626}
+.sec-module .sec-badge-medium{background:rgba(245,158,11,.12);color:#d97706}
+.sec-module .sec-badge-low{background:rgba(107,114,128,.1);color:var(--text-secondary,#666)}
 .sec-module .sec-pagination{display:flex;gap:8px;align-items:center;justify-content:center;padding:12px}
 .sec-module .sec-timeline{display:flex;flex-direction:column;gap:8px;max-height:500px;overflow-y:auto}
-.sec-module .sec-timeline-item{background:#111c31;border:1px solid #1e293b;border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+.sec-module .sec-timeline-item{background:var(--input-bg,#f3f4f6);border:1px solid var(--input-border,#e5e7eb);border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
 .sec-module .sec-timeline-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
 .sec-module .sec-timeline-body{flex:1;min-width:0}
-.sec-module .sec-timeline-type{font-weight:700;font-size:13px;margin-bottom:2px}
-.sec-module .sec-timeline-detail{font-size:12px;color:#94a3b8;word-break:break-all}
-.sec-module .sec-timeline-time{font-size:11px;color:#64748b}
+.sec-module .sec-timeline-type{font-weight:700;font-size:13px;margin-bottom:2px;color:var(--text-primary,#1f2937)}
+.sec-module .sec-timeline-detail{font-size:12px;color:var(--text-secondary,#666);word-break:break-all}
+.sec-module .sec-timeline-time{font-size:11px;color:var(--text-secondary,#666)}
 .sec-module .sec-config-grid{display:grid;gap:24px}
-.sec-module .sec-config-group h4{font-size:14px;color:#93c5fd;margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid #1e293b}
+.sec-module .sec-config-group h4{font-size:14px;color:var(--text-primary,#1f2937);margin:0 0 12px;padding-bottom:6px;border-bottom:1px solid var(--input-border,#e5e7eb)}
 .sec-module .sec-config-row{display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
-.sec-module .sec-config-row label{font-size:12px;color:#94a3b8;min-width:80px}
-.sec-module .sec-config-row input{background:#020817;border:1px solid #334155;border-radius:8px;padding:6px 10px;color:#e2e8f0;font-size:13px;width:90px;text-align:right}
-.sec-module .sec-config-row input:focus{border-color:#3b82f6;outline:none}
-.sec-module .sec-empty{padding:40px;text-align:center;color:#64748b;font-size:14px}
-.sec-module .sec-loading{display:flex;align-items:center;justify-content:center;padding:40px;gap:10px;color:#94a3b8}
-.sec-module .sec-spinner{width:18px;height:18px;border:2px solid rgba(148,163,184,.3);border-top-color:#60a5fa;border-radius:50%;animation:sec-spin .6s linear infinite}
+.sec-module .sec-config-row label{font-size:12px;color:var(--text-secondary,#666);min-width:80px}
+.sec-module .sec-config-row input{background:var(--input-bg,#f3f4f6);border:1px solid var(--input-border,#e5e7eb);border-radius:8px;padding:6px 10px;color:var(--text-primary,#1f2937);font-size:13px;width:90px;text-align:right}
+.sec-module .sec-config-row select{background:var(--input-bg,#f3f4f6);border:1px solid var(--input-border,#e5e7eb);border-radius:8px;padding:6px 10px;color:var(--text-primary,#1f2937);font-size:13px}
+.sec-module .sec-config-row input:focus,.sec-module .sec-config-row select:focus{border-color:#faab41;outline:none;box-shadow:0 0 0 2px rgba(250,171,65,.15)}
+.sec-module .sec-empty{padding:40px;text-align:center;color:var(--text-secondary,#666);font-size:14px}
+.sec-module .sec-loading{display:flex;align-items:center;justify-content:center;padding:40px;gap:10px;color:var(--text-secondary,#666)}
+.sec-module .sec-spinner{width:18px;height:18px;border:2px solid var(--input-border,#e5e7eb);border-top-color:#faab41;border-radius:50%;animation:sec-spin .6s linear infinite}
 @keyframes sec-spin{to{transform:rotate(360deg)}}
-.sec-module .sec-drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px}
-.sec-module .sec-drawer{background:#0f172a;border:1px solid #1e293b;border-radius:20px;padding:24px;max-width:560px;width:100%;max-height:75vh;overflow-y:auto}
-.sec-module .sec-drawer h3{font-size:16px;margin:0 0 12px}
-.sec-module .sec-drawer pre{background:#020817;border-radius:10px;padding:12px;overflow-x:auto;font-size:12px;color:#cbd5e1;white-space:pre-wrap}
-.sec-module .sec-drawer-close{float:right;background:transparent;border:none;color:#94a3b8;font-size:20px;cursor:pointer}
-.sec-module .sec-drawer-close:hover{color:#e2e8f0}
-.sec-module .sec-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;padding:10px 24px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:sec-fade .3s;pointer-events:none}
+.sec-module .sec-drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px}
+.sec-module .sec-drawer{background:var(--bg-primary,#fff);border:1px solid var(--input-border,#e5e7eb);border-radius:16px;padding:24px;max-width:560px;width:100%;max-height:75vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.sec-module .sec-drawer h3{font-size:16px;margin:0 0 12px;color:var(--text-primary,#1f2937)}
+.sec-module .sec-drawer pre{background:var(--input-bg,#f3f4f6);border-radius:10px;padding:12px;overflow-x:auto;font-size:12px;color:var(--text-primary,#1f2937);white-space:pre-wrap}
+.sec-module .sec-drawer-close{float:right;background:transparent;border:none;color:var(--text-secondary,#666);font-size:20px;cursor:pointer}
+.sec-module .sec-drawer-close:hover{color:var(--text-primary,#1f2937)}
+.sec-module .sec-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;padding:10px 24px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:sec-fade .3s;pointer-events:none}
 .sec-module .sec-toast-ok{background:#16a34a;color:#fff}
 .sec-module .sec-toast-err{background:#dc2626;color:#fff}
 @keyframes sec-fade{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
@@ -612,8 +613,8 @@
     try {
       const cfg = await api('/config.json');
 
-      function input(name, val, min, max, step) {
-        return '<div class="sec-config-row"><label>'+name+'</label><input type="number" id="cfg-'+name.replace(/[^a-z]/gi,'')+'" value="'+(val||0)+'" min="'+min+'" max="'+max+'" step="'+(step||1)+'"></div>';
+      function input(label, idSuffix, val, min, max, step) {
+        return '<div class="sec-config-row"><label>'+label+'</label><input type="number" id="cfg-'+idSuffix+'" value="'+(val||0)+'" min="'+min+'" max="'+max+'" step="'+(step||1)+'"></div>';
       }
 
       let html = '<div class="sec-config-grid">';
@@ -621,60 +622,60 @@
       // thresholds - uuid
       html += '<div class="sec-config-group"><h4>UUID 速率阈值</h4>';
       const ut = cfg.thresholds?.uuid || {};
-      html += input('每秒','cfg-ut-s', ut.second, 10, 10000);
-      html += input('每分钟','cfg-ut-m', ut.minute, 100, 100000);
-      html += input('每小时','cfg-ut-h', ut.hour, 1000, 500000);
+      html += input('每秒','uts', ut.second, 10, 10000);
+      html += input('每分钟','utm', ut.minute, 100, 100000);
+      html += input('每小时','uth', ut.hour, 1000, 500000);
       html += '</div>';
 
       // thresholds - ip
       html += '<div class="sec-config-group"><h4>IP 速率阈值</h4>';
       const it = cfg.thresholds?.ip || {};
-      html += input('每秒','cfg-it-s', it.second, 5, 10000);
-      html += input('每分钟','cfg-it-m', it.minute, 50, 100000);
-      html += input('每小时','cfg-it-h', it.hour, 500, 500000);
+      html += input('每秒','its', it.second, 5, 10000);
+      html += input('每分钟','itm', it.minute, 50, 100000);
+      html += input('每小时','ith', it.hour, 500, 500000);
       html += '</div>';
 
       // thresholds - endpoint
       html += '<div class="sec-config-group"><h4>端点 UUID 阈值</h4>';
       const eu = cfg.thresholds?.endpoint?.uuid || {};
-      html += input('每秒','cfg-eu-s', eu.second, 5, 10000);
-      html += input('每分钟','cfg-eu-m', eu.minute, 50, 100000);
-      html += input('每小时','cfg-eu-h', eu.hour, 500, 500000);
+      html += input('每秒','eus', eu.second, 5, 10000);
+      html += input('每分钟','eum', eu.minute, 50, 100000);
+      html += input('每小时','euh', eu.hour, 500, 500000);
       html += '</div>';
 
       html += '<div class="sec-config-group"><h4>端点 IP 阈值</h4>';
       const ei = cfg.thresholds?.endpoint?.ip || {};
-      html += input('每秒','cfg-ei-s', ei.second, 3, 10000);
-      html += input('每分钟','cfg-ei-m', ei.minute, 30, 100000);
-      html += input('每小时','cfg-ei-h', ei.hour, 300, 500000);
+      html += input('每秒','eis', ei.second, 3, 10000);
+      html += input('每分钟','eim', ei.minute, 30, 100000);
+      html += input('每小时','eih', ei.hour, 300, 500000);
       html += '</div>';
 
       // ban
       html += '<div class="sec-config-group"><h4>封禁策略</h4>';
       const ban = cfg.ban || {};
-      html += input('基础秒数','cfg-ban-b', ban.baseSeconds, 60, 86400);
-      html += input('倍率','cfg-ban-m', ban.multiplier, 1, 10, 0.5);
-      html += input('最大秒数','cfg-ban-max', ban.maxSeconds, 3600, 604800);
-      html += input('回溯秒数','cfg-ban-lb', ban.lookbackSeconds, 3600, 2592000);
+      html += input('基础秒数','banb', ban.baseSeconds, 60, 86400);
+      html += input('倍率','banm', ban.multiplier, 1, 10, 0.5);
+      html += input('最大秒数','banmax', ban.maxSeconds, 3600, 604800);
+      html += input('回溯秒数','banlb', ban.lookbackSeconds, 3600, 2592000);
       html += '</div>';
 
       // subscription
       html += '<div class="sec-config-group"><h4>订阅限流</h4>';
       const sub = cfg.subscription || {};
-      html += input('每小时限制','cfg-sub-hl', sub.hourlyLimit, 1, 100);
-      html += input('无效Token每小时','cfg-sub-ihl', sub.invalidTokenHourlyLimit, 1, 50);
-      html += input('唯一IP告警数','cfg-sub-uia', sub.uniqueIpAlertLimit, 1, 50);
+      html += input('每小时限制','subhl', sub.hourlyLimit, 1, 100);
+      html += input('无效Token每小时','subihl', sub.invalidTokenHourlyLimit, 1, 50);
+      html += input('唯一IP告警数','subuia', sub.uniqueIpAlertLimit, 1, 50);
       html += '</div>';
 
       // register
       html += '<div class="sec-config-group"><h4>注册设置</h4>';
       const reg = cfg.register || {};
-      html += '<div class="sec-config-row"><label>启用</label><select id="cfg-reg-enabled"><option value="1"'+(reg.enabled?' selected':'')+'>是</option><option value="0"'+(reg.enabled?'':' selected')+'>否</option></select></div>';
+      html += '<div class="sec-config-row"><label>启用</label><select id="cfg-regenabled"><option value="1"'+(reg.enabled?' selected':'')+'>是</option><option value="0"'+(reg.enabled?'':' selected')+'>否</option></select></div>';
       html += '</div>';
 
       // adminApi
       html += '<div class="sec-config-group"><h4>管理API</h4>';
-      html += input('列表限制','cfg-api-ll', cfg.adminApi?.listLimit, 10, 200);
+      html += input('列表限制','apill', cfg.adminApi?.listLimit, 10, 200);
       html += '</div>';
 
       html += '</div>';
