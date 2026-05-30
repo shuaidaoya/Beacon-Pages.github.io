@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>安全管理 · Beacon 灯塔</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:#020817;color:#e2e8f0;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+}
+/* ── header ── */
+.topbar{
+  width:100%;max-width:1200px;display:flex;align-items:center;justify-content:space-between;
+  padding:20px 24px 0;gap:16px;flex-wrap:wrap;
+}
+.topbar h1{font-size:22px;font-weight:800;background:linear-gradient(135deg,#60a5fa,#c084fc);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0}
+.topbar-actions{display:flex;gap:8px;flex-wrap:wrap}
+.topbar-btn{
+  border:1px solid #334155;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;
+  cursor:pointer;background:#0f172a;color:#cbd5e1;transition:all .2s;white-space:nowrap
+}
+.topbar-btn:hover{background:#1e293b;border-color:#475569;color:#e2e8f0}
+.topbar-btn.active{background:linear-gradient(135deg,#2563eb,#7c3aed);border-color:transparent;color:#fff}
+/* ── tabs ── */
+.tabs{
+  width:100%;max-width:1200px;display:flex;gap:4px;padding:20px 24px 0;
+  flex-wrap:wrap;border-bottom:1px solid #1e293b;margin-bottom:0;
+}
+.tab{
+  border:none;background:transparent;color:#94a3b8;padding:10px 18px;font-size:14px;font-weight:600;
+  cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap
+}
+.tab:hover{color:#e2e8f0}
+.tab.active{color:#60a5fa;border-bottom-color:#3b82f6}
+/* ── main container ── */
+.main{
+  width:100%;max-width:1200px;padding:20px 24px 40px;flex:1;
+}
+.panel{display:none}
+.panel.active{display:block}
+/* ── stat cards ── */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{
+  background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:20px;
+  display:flex;flex-direction:column;gap:6px
+}
+.stat-card .stat-num{font-size:32px;font-weight:800;line-height:1}
+.stat-card .stat-label{font-size:13px;color:#94a3b8}
+.stat-card.stat-users .stat-num{color:#3b82f6}
+.stat-card.stat-bans .stat-num{color:#ef4444}
+.stat-card.stat-events .stat-num{color:#f59e0b}
+.stat-card.stat-risks .stat-num{color:#8b5cf6}
+/* ── tables ── */
+.table-wrap{overflow-x:auto;border-radius:14px;border:1px solid #1e293b}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 14px;background:#0f172a;color:#94a3b8;font-weight:600;font-size:12px;white-space:nowrap}
+td{padding:10px 14px;border-top:1px solid #1e293b;white-space:nowrap}
+tr:hover td{background:rgba(59,130,246,.04)}
+.mono{font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:#cbd5e1}
+.badge{
+  display:inline-block;padding:3px 10px;border-radius:8px;font-size:11px;font-weight:700;
+}
+.badge-active{background:rgba(34,197,94,.15);color:#4ade80}
+.badge-banned{background:rgba(239,68,68,.15);color:#f87171}
+.badge-high{background:rgba(239,68,68,.15);color:#f87171}
+.badge-medium{background:rgba(251,191,36,.15);color:#fbbf24}
+.badge-low{background:rgba(59,130,246,.15);color:#60a5fa}
+/* ── filter bar ── */
+.filter-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filter-bar input,.filter-bar select{
+  background:#020817;border:1px solid #334155;border-radius:10px;padding:10px 14px;
+  color:#f8fafc;font-size:13px;outline:none
+}
+.filter-bar input:focus,.filter-bar select:focus{border-color:#3b82f6}
+.filter-bar input{flex:1;min-width:160px}
+/* ── buttons ── */
+.btn{
+  border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s
+}
+.btn-primary{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff}
+.btn-primary:hover:not(:disabled){opacity:.9}
+.btn-danger{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.25)}
+.btn-danger:hover:not(:disabled){background:rgba(239,68,68,.25)}
+.btn-outline{background:transparent;border:1px solid #334155;color:#cbd5e1}
+.btn-outline:hover:not(:disabled){background:#1e293b;border-color:#475569}
+.btn-sm{padding:6px 10px;font-size:11px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+/* ── pagination ── */
+.pagination{display:flex;gap:8px;align-items:center;margin-top:14px;justify-content:center}
+/* ── drawer ── */
+.drawer-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;display:none;
+  align-items:center;justify-content:center
+}
+.drawer-overlay.show{display:flex}
+.drawer{
+  background:#0f172a;border:1px solid #1e293b;border-radius:20px;padding:28px;
+  max-width:600px;width:calc(100% - 32px);max-height:80vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.5)
+}
+.drawer h2{font-size:18px;margin:0 0 16px}
+.drawer-close{float:right;background:transparent;border:none;color:#94a3b8;font-size:22px;cursor:pointer}
+.drawer-close:hover{color:#e2e8f0}
+.drawer-section{margin-bottom:16px}
+.drawer-section h4{font-size:12px;color:#93c5fd;margin:0 0 6px}
+.drawer-section pre{background:#020817;border-radius:10px;padding:12px;overflow-x:auto;font-size:12px;color:#cbd5e1;white-space:pre-wrap}
+/* ── timeline ── */
+.timeline{display:flex;flex-direction:column;gap:8px}
+.timeline-item{
+  background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:14px 16px;
+  display:flex;gap:12px;align-items:flex-start
+}
+.timeline-dot{width:10px;height:10px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.timeline-body{flex:1;min-width:0}
+.timeline-type{font-weight:700;font-size:13px;margin-bottom:2px}
+.timeline-detail{font-size:12px;color:#94a3b8;word-break:break-all}
+.timeline-time{font-size:11px;color:#64748b;white-space:nowrap}
+/* ── loading / empty ── */
+.loading-wrap{display:flex;align-items:center;justify-content:center;padding:40px;color:#94a3b8;gap:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-spinner{width:20px;height:20px;border:2px solid rgba(148,163,184,.3);border-top-color:#60a5fa;border-radius:50%;animation:spin .6s linear infinite}
+.empty{padding:40px;text-align:center;color:#64748b;font-size:14px}
+/* ── toast ── */
+.toast{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;
+  padding:10px 24px;border-radius:12px;font-size:14px;font-weight:600;pointer-events:none;
+  animation:fadeIn .3s;box-shadow:0 8px 24px rgba(0,0,0,.4)
+}
+.toast-success{background:#16a34a;color:#fff}
+.toast-error{background:#dc2626;color:#fff}
+/* ── animations ── */
+@keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+/* ── responsive ── */
+@media(max-width:768px){
+  .topbar{padding:16px 16px 0}
+  .tabs{padding:14px 16px 0;gap:2px}
+  .tab{padding:8px 12px;font-size:13px}
+  .main{padding:14px 16px 30px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .filter-bar input{min-width:120px}
+}
+@media(max-width:480px){
+  .stats{grid-template-columns:1fr 1fr}
+  .stat-card{padding:14px}
+  .stat-card .stat-num{font-size:24px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🛡️ 安全管理</h1>
+  <div class="topbar-actions">
+    <a href="/admin" class="topbar-btn">← 返回管理面板</a>
+    <button class="topbar-btn" onclick="location.reload()">🔄 刷新</button>
+  </div>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" data-panel="overview">📊 总览</button>
+  <button class="tab" data-panel="users">👥 用户管理</button>
+  <button class="tab" data-panel="audit">📋 审计日志</button>
+  <button class="tab" data-panel="registration">📝 注册管控</button>
+  <button class="tab" data-panel="config">⚙️ 策略配置</button>
+</div>
+
+<div class="main" id="main">
+
+  <!-- ═══════════ 总览 ═══════════ -->
+  <div class="panel active" id="panel-overview">
+    <div class="stats" id="overviewStats"></div>
+    <h3 style="margin:20px 0 12px">🔒 活跃封禁</h3>
+    <div id="overviewBans"></div>
+    <h3 style="margin:20px 0 12px">⚠️ 订阅风险排行</h3>
+    <div id="overviewRisks"></div>
+    <h3 style="margin:20px 0 12px">📋 最近事件</h3>
+    <div id="overviewEvents"></div>
+  </div>
+
+  <!-- ═══════════ 用户管理 ═══════════ -->
+  <div class="panel" id="panel-users">
+    <div class="filter-bar">
+      <input type="text" id="userSearch" placeholder="搜索 UUID / 用户名 / 邮箱 / IP ...">
+      <select id="userStatusFilter">
+        <option value="">全部状态</option>
+        <option value="active">活跃</option>
+        <option value="banned">已封禁</option>
+      </select>
+      <button class="btn btn-primary" onclick="loadUsers()">🔍 搜索</button>
+      <button class="btn btn-outline btn-sm" id="batchBanBtn" disabled onclick="batchAction('ban')">批量封禁</button>
+      <button class="btn btn-outline btn-sm" id="batchRestoreBtn" disabled onclick="batchAction('restore')">批量解禁</button>
+      <button class="btn btn-outline btn-sm" id="batchResetBtn" disabled onclick="batchAction('reset-subscription')">批量重置</button>
+    </div>
+    <div style="margin-bottom:8px;font-size:12px;color:#64748b" id="usersSummary"></div>
+    <div class="table-wrap" id="usersTable"></div>
+    <div class="pagination" id="usersPagination"></div>
+  </div>
+
+  <!-- ═══════════ 审计日志 ═══════════ -->
+  <div class="panel" id="panel-audit">
+    <div class="filter-bar">
+      <select id="auditTypeFilter">
+        <option value="">全部事件类型</option>
+        <option value="subscription">订阅请求</option>
+        <option value="limit">限流触发</option>
+        <option value="ban">封禁操作</option>
+        <option value="restore">解禁操作</option>
+        <option value="config">配置变更</option>
+        <option value="registration">注册相关</option>
+      </select>
+      <button class="btn btn-primary" onclick="loadAudit()">🔍 筛选</button>
+    </div>
+    <div class="timeline" id="auditTimeline"></div>
+  </div>
+
+  <!-- ═══════════ 注册管控 ═══════════ -->
+  <div class="panel" id="panel-registration">
+    <div class="stats" id="regStats"></div>
+    <h3 style="margin:14px 0 10px">📋 注册状态</h3>
+    <div id="regStatus" style="margin-bottom:16px"></div>
+    <div class="filter-bar" style="margin-bottom:10px">
+      <button class="btn btn-primary" id="regToggleBtn" onclick="toggleRegistration()">切换注册开关</button>
+      <button class="btn btn-outline" onclick="showScheduleForm()">📅 定时注册</button>
+    </div>
+    <div id="regScheduleForm" style="display:none;margin-bottom:16px;padding:16px;background:#0f172a;border:1px solid #1e293b;border-radius:14px">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:end">
+        <div class="field" style="display:grid;gap:6px">
+          <label style="font-size:12px;color:#94a3b8">开始时间</label>
+          <input type="datetime-local" id="regStartAt" style="background:#020817;border:1px solid #334155;border-radius:10px;padding:8px 12px;color:#f8fafc;font-size:13px">
+        </div>
+        <div class="field" style="display:grid;gap:6px">
+          <label style="font-size:12px;color:#94a3b8">结束时间</label>
+          <input type="datetime-local" id="regEndAt" style="background:#020817;border:1px solid #334155;border-radius:10px;padding:8px 12px;color:#f8fafc;font-size:13px">
+        </div>
+        <button class="btn btn-primary" onclick="saveSchedule()">保存定时</button>
+        <button class="btn btn-outline" onclick="clearSchedule()">清除定时</button>
+        <button class="btn btn-outline" onclick="document.getElementById('regScheduleForm').style.display='none'">取消</button>
+      </div>
+    </div>
+    <h3 style="margin:14px 0 10px">⏰ 定时任务</h3>
+    <div id="regTasks"></div>
+    <h3 style="margin:14px 0 10px">📜 注册日志</h3>
+    <div id="regLogs"></div>
+  </div>
+
+  <!-- ═══════════ 策略配置 ═══════════ -->
+  <div class="panel" id="panel-config">
+    <div style="margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="saveConfig()">💾 保存配置</button>
+      <button class="btn btn-outline" onclick="resetConfig()">🔄 重置推荐值</button>
+    </div>
+    <div id="configForm" style="display:grid;gap:16px"></div>
+  </div>
+
+</div>
+
+<!-- user detail drawer -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="if(event.target===this)closeDrawer()">
+  <div class="drawer" id="drawer"></div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
+
+  // ── API helper ──
+  async function api(path, opts = {}) {
+    const resp = await fetch('/admin/system' + path, {
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', ...(opts.headers||{}) },
+      ...opts,
+    });
+    if (!resp.ok) {
+      if (resp.status === 302) { location.href = '/login'; throw new Error('auth_redirect'); }
+      throw new Error('HTTP ' + resp.status);
+    }
+    return resp.json();
+  }
+
+  // ── toast ──
+  function toast(msg, type) {
+    const t = document.createElement('div');
+    t.className = 'toast toast-' + (type||'success');
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; }, 2000);
+    setTimeout(() => t.remove(), 2500);
+  }
+
+  // ── tab switching ──
+  $$('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      $$('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      $$('.panel').forEach(p => p.classList.remove('active'));
+      $('#panel-' + tab.dataset.panel).classList.add('active');
+      // lazy load
+      const loaders = {
+        overview: loadOverview, users: loadUsers, audit: loadAudit,
+        registration: loadRegistration, config: loadConfig,
+      };
+      if (loaders[tab.dataset.panel]) loaders[tab.dataset.panel]();
+    });
+  });
+
+  // ══════════════════════════════════════════
+  //  1. 总览
+  // ══════════════════════════════════════════
+  let overviewLoaded = false;
+  async function loadOverview() {
+    if (overviewLoaded) return;
+    overviewLoaded = true;
+    try {
+      const data = await api('?limit=30');
+      const s = data.summary || {};
+      $('#overviewStats').innerHTML = `
+        <div class="stat-card stat-users"><div class="stat-num">${s.userCount||0}</div><div class="stat-label">总用户数</div></div>
+        <div class="stat-card stat-bans"><div class="stat-num">${s.activeBanCount||0}</div><div class="stat-label">活跃封禁</div></div>
+        <div class="stat-card stat-events"><div class="stat-num">${s.recentEventCount||0}</div><div class="stat-label">最近事件</div></div>
+        <div class="stat-card stat-risks"><div class="stat-num">${s.highRiskSubscriptionCount||0}</div><div class="stat-label">高风险订阅</div></div>
+      `;
+      // bans table
+      renderTable($('#overviewBans'), ['类型','目标','原因','创建时间','过期时间'], (data.activeBans||[]).map(b => [
+        esc(b.subjectType), mono(b.subjectId), esc(b.reasonType||'-'),
+        fmtTime(b.createdAt), fmtTime(b.expiresAt),
+      ]));
+      // risks table
+      renderTable($('#overviewRisks'), ['用户','风险等级','评分','账户','最后活跃'], (data.topSubscriptionRisks||[]).map(r => [
+        mono(r.uuid), riskBadge(r.subscription?.risk?.level),
+        r.subscription?.risk?.score||0, esc(r.profile?.account||'-'), fmtTime(r.lifecycle?.lastSeenAt),
+      ]));
+      // events timeline
+      renderTimeline($('#overviewEvents'), data.recentEvents||[]);
+    } catch(e) {
+      overviewLoaded = false;
+      if (e.message !== 'auth_redirect') toast('加载总览失败: ' + e.message, 'error');
+    }
+  }
+
+  // ══════════════════════════════════════════
+  //  2. 用户管理
+  // ══════════════════════════════════════════
+  let usersState = { cursor: null, hasMore: false, users: [], selected: new Set() };
+
+  async function loadUsers(cursor) {
+    const q = $('#userSearch').value.trim();
+    const status = $('#userStatusFilter').value;
+    let path = '/users?limit=80';
+    if (q) path += '&q=' + encodeURIComponent(q);
+    if (status) path += '&status=' + encodeURIComponent(status);
+    if (cursor) path += '&cursor=' + encodeURIComponent(cursor);
+
+    try {
+      const data = await api(path);
+      if (cursor) {
+        usersState.users = [...usersState.users, ...(data.users||[])];
+      } else {
+        usersState.users = data.users||[];
+      }
+      usersState.cursor = data.cursor;
+      usersState.hasMore = !!data.hasMore;
+      usersState.selected.clear();
+
+      const summary = data.summary || {};
+      $('#usersSummary').innerHTML =
+        `共 ${summary.filtered||summary.total||0} 条 · 活跃 ${summary.active??'-'} · 封禁 ${summary.banned??'-'}`;
+
+      renderUsersTable();
+      renderUsersPagination();
+    } catch(e) {
+      if (e.message !== 'auth_redirect') toast('加载用户失败: ' + e.message, 'error');
+    }
+  }
+
+  function renderUsersTable() {
+    const users = usersState.users;
+    if (!users.length) {
+      $('#usersTable').innerHTML = '<div class="empty">暂无用户数据</div>';
+      return;
+    }
+    const rows = users.map(u => [
+      '<input type="checkbox" class="user-cb" data-uuid="' + escAttr(u.uuid) + '">',
+      mono(u.uuid),
+      esc(u.profile?.account||'-'),
+      esc(u.profile?.email||'-'),
+      statusBadge(u.status),
+      u.subscription?.risk?.level ? riskBadge(u.subscription.risk.level) : '-',
+      esc(u.lastIp||'-'),
+      fmtTime(u.lastSeenAt),
+      '<button class="btn btn-outline btn-sm" onclick="showUserDetail(\'' + escAttr(u.uuid) + '\')">详情</button>' +
+      (u.status==='banned'
+        ? ' <button class="btn btn-outline btn-sm" onclick="userAction(\'restore\',\''+escAttr(u.uuid)+'\')">解禁</button>'
+        : ' <button class="btn btn-danger btn-sm" onclick="userAction(\'ban\',\''+escAttr(u.uuid)+'\')">封禁</button>') +
+      ' <button class="btn btn-outline btn-sm" onclick="userAction(\'reset-subscription\',\''+escAttr(u.uuid)+'\')">重置</button>',
+    ]);
+    renderTable($('#usersTable'), ['','UUID','账户','邮箱','状态','风险','最后IP','最后活跃','操作'], rows);
+
+    // checkbox events
+    $$('.user-cb').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const uuid = cb.dataset.uuid;
+        if (cb.checked) usersState.selected.add(uuid);
+        else usersState.selected.delete(uuid);
+        updateBatchBtns();
+      });
+    });
+    updateBatchBtns();
+  }
+
+  function updateBatchBtns() {
+    const n = usersState.selected.size;
+    ['batchBanBtn','batchRestoreBtn','batchResetBtn'].forEach(id => {
+      $(`#${id}`).disabled = n === 0;
+      $(`#${id}`).textContent = $(`#${id}`).textContent.replace(/\(\d+\)/,'') + (n ? ` (${n})` : '');
+    });
+  }
+
+  function renderUsersPagination() {
+    let html = '';
+    if (usersState.hasMore) {
+      html = '<button class="btn btn-outline" onclick="loadUsers(\'' + escAttr(usersState.cursor) + '\')">加载更多</button>';
+    }
+    $('#usersPagination').innerHTML = html;
+  }
+
+  async function userAction(action, uuid) {
+    if (!confirm('确认对用户 ' + uuid + ' 执行 ' + action + '？')) return;
+    try {
+      const endpoint = action === 'ban' ? '/users/ban'
+        : action === 'restore' ? '/users/restore'
+        : '/users/reset-subscription';
+      const data = await api(endpoint, {
+        method: 'POST',
+        body: JSON.stringify({ uuid, reason: 'admin-ui' }),
+      });
+      if (data.success) {
+        toast(action==='ban'?'用户已封禁':action==='restore'?'用户已解禁':'订阅已重置');
+        loadUsers();
+      } else {
+        toast(data.error||'操作失败', 'error');
+      }
+    } catch(e) {
+      if (e.message !== 'auth_redirect') toast('操作失败: ' + e.message, 'error');
+    }
+  }
+
+  async function batchAction(action) {
+    const uuids = [...usersState.selected];
+    if (!uuids.length) return;
+    if (!confirm('确认对 ' + uuids.length + ' 个用户执行 ' + action + '？')) return;
+    try {
+      const data = await api('/users/batch', {
+        method: 'POST',
+        body: JSON.stringify({ action, uuids, reason: 'admin-ui-batch' }),
+      });
+      if (data.success) {
+        toast('批量操作完成: ' + (data.successCount||0) + '/' + uuids.length + ' 成功');
+        loadUsers();
+      } else {
+        toast(data.error||'批量操作失败', 'error');
+      }
+    } catch(e) {
+      if (e.message !== 'auth_redirect') toast('批量操作失败: ' + e.message, 'error');
+    }
+  }
+
+  async function showUserDetail(uuid) {
+    try {
+      const [auditData] = await Promise.all([
+        api('/users/audit?limit=12&uuid=' + encodeURIComponent(uuid)),
+      ]);
+      const events = auditData.events || [];
+      const html = `
+        <button class="drawer-close" onclick="closeDrawer()">✕</button>
+        <h2>用户详情</h2>
+        <div class="drawer-section"><h4>UUID</h4><pre>${esc(uuid)}</pre></div>
+        <div class="drawer-section"><h4>最近事件 (${events.length})</h4>
+          <div class="timeline">${events.map(e => `
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:#3b82f6"></div>
+              <div class="timeline-body">
+                <div class="timeline-type">${esc(e.eventType||e.type||'-')}</div>
+                <div class="timeline-detail">${esc(JSON.stringify(e.detail||e).substring(0,200))}</div>
+              </div>
+              <div class="timeline-time">${fmtTime(e.createdAt)}</div>
+            </div>
+          `).join('')||'<div class="empty">暂无事件</div>'}</div>
+        </div>
+      `;
+      $('#drawer').innerHTML = html;
+      $('#drawerOverlay').classList.add('show');
+    } catch(e) {
+      if (e.message !== 'auth_redirect') toast('加载详情失败: ' + e.message, 'error');
+    }
+  }
+
+  function closeDrawer() {
+    $('#drawerOverlay').classList.remove('show');
+  }
+
+  // ══════════════════════════════════════════
+  //  3. 审计日志
+  // ══════════════════════════════════════════
+  async function loadAudit() {
+    try {
+      const typeFilter = $('#auditTypeFilter').value;
+      const data = await api('/events?limit=50');
+      let events = data.events || [];
+      if (typeFilter) {
+        events = events.filter(e => {
+          const t = (e.eventType||'').toLowerCase();
+          return t.includes(typeFilter.toLowerCase());
+        });
+      }
+      renderTimeline($('#auditTimeline'), events);
+    } catch(e) {
+      if (e.message !== 'auth_redirect') toast('加载审计日志失败: ' + e.message, 'error');
+    }
+  }
+
+  // ══════════════════════════════════════════
+  //  4. 注册管控
+  // ══════════════════════════════════════════
+  let regState = {};
+  async function loadRegistration() {
+    try {
+      const data = await api('/registration');
+      regState = data;
+      const status = data.status || {};
+      const cfg = data.config || {};
+
+      $('#regStats').innerHTML = `
+        <div class="stat-card stat-users"><div class="stat-num">${status.open ? '🟢' : '🔴'}</div><div class="stat-label">注册${status.open?'已开放':'已关闭'}</div></div>
+        <div class="stat-card stat-events"><div class="stat-num">${status.enabled ? '✅' : '⛔'}</div><div class="stat-label">手动开关</div></div>
+        <div class="stat-card stat-risks"><div class="stat-num">${status.scheduleEnabled ? '⏰' : '—'}</div><div class="stat-label">定时注册</div></div>
+        <div class="stat-card stat-bans"><div class="stat-num">${(data.pendingTasks||[]).length}</div><div class="stat-label">待执行任务</div></div>
+      `;
+
+      $('#regStatus').innerHTML = `
+        <div style="background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:14px 16px;font-size:13px;line-height:1.6">
+          <strong>当前状态：</strong>${esc(status.message||'-')}<br>
+          <strong>原因：</strong>${esc(status.reason||'-')}<br>
+          ${status.startAt ? '<strong>定时开始：</strong>'+fmtTime(status.startAt)+'<br>' : ''}
+          ${status.endAt ? '<strong>定时结束：</strong>'+fmtTime(status.endAt)+'<br>' : ''}
+        </div>
+      `;
+
+      $('#regToggleBtn').textContent = status.enabled ? '🔴 关闭注册' : '🟢 开启注册';
+
+      // tasks
+      const tasks = [...(data.pendingTasks||[]), ...(data.historyTasks||[])];
+      renderTable($('#regTasks'), ['类型','执行时间','状态','创建时间','操作'], tasks.map(t => [
+        esc(t.操作类型||t.action||'-'),
+        fmtTime(t.执行时间||t.executeAt),
+        statusBadge(t.状态||t.status),
+        fmtTime(t.createdAt),
+        (t.状态==='pending'||t.status==='pending')
+          ? '<button class="btn btn-danger btn-sm" onclick="cancelTask(\''+escAttr(t.taskId)+'\')">取消</button>'
+          : '-',
+      ]));
+
+      // load logs too
+      const logData = await api('/registration/logs?limit=30');
+      const logs = logData.logs || [];
+      const logSummary = logData.summary || {};
+      let logHtml = '<div style="margin-bottom:8px;font-size:12px;color:#64748b">';
+      logHtml += '成功 '+(logSummary.success||0)+' · 拒绝 '+(logSummary.rejected||0);
+      logHtml += ' · 校验失败 '+(logSummary.validation_failed||0)+' · 重复 '+(logSummary.duplicate||0);
+      logHtml += '</div>';
+      renderTable($('#regLogs'), ['结果','UUID','IP','详情','时间'], logs.map(l => [
+        regResultBadge(l.结果),
+        mono(l.uuid||'-'),
+        esc(l.ip||'-'),
+        esc(JSON.stringify(l.详情||{}).substring(0,100)),
+        fmtTime(l.createdAt),
+      ]));
+      $('#regLogs').innerHTML = logHtml + $('#regLogs').innerHTML;
+    } catch(e) {
+      if (e.message !== 'auth_redirect') toast('加载注册管控失败: ' + e.message, 'error');
+    }
+  }
+
+  async function toggleRegistration() {
+    const current = regState.status?.enabled;
+    try {
+      const data = await api('/registration/toggle', {
+        method: 'POST',
+        body: JSON.stringify({ enabled: !current }),
+      });
+      toast(data.message||'已切换');
+      regState = null;
+      loadRegistration();
+    } catch(e) {
+      if (e.message !== 'auth_redirect') toast('切换失败: ' + e.message, 'error');
+    }
+  }
+
+  function showScheduleForm() {
+    const s = regState.config || {};
+    if (s.startAt) $('#regStartAt').value = new Date(s.startAt).toISOString().slice(0,16);
+    if (s.endAt)   $('#regEndAt').value   = new Date(s.endAt).toISOString().slice(0,16);
+    $('#regScheduleForm').style.display = 'block';
+  }
+
+  async function saveSchedule() {
+    const startAt = $('#regStartAt').value ? new Date($('#regStartAt').value).getTime() : null;
+    const endAt   = $('#regEndAt').value   ? new Date($('#regEndAt').value).getTime()   : null;
+    try {
+      const data = await api('/registration/schedule', {
+        method: 'POST',
+        body: JSON.stringify({ scheduleEnabled: true, startAt, endAt }),
+      });
+      toast(data.message||'定时已保存');
+      $('#regScheduleForm').style.display = 'none';
+      loadRegistration();
+    } catch(e) {
+      if (e.message !== 'auth_redirect') toast('保存失败: ' + e.message, 'error');
+    }
+  }
+
+  async function clearSchedule() {
+    try {
+      const data = await api('/registration/schedule', {
+        method: 'POST',
+        body: JSON.stringify({ scheduleEnabled: false, startAt: null, endAt: null }),
+      });
+      toast(data.message||'定时已清除');
+      $('#regScheduleForm').style.display = 'none';
+      loadRegistration();
+    } catch(e) {
+      if (e.message !== 'auth_redirect') toast('清除失败: ' + e.message, 'error');
+    }
+  }
+
+  async function cancelTask(taskId) {
+    if (!confirm('确认取消此定时任务？')) return;
+    try {
+      const data = await api('/registration/tasks/' + encodeURIComponent(taskId), { method: 'DELETE' });
+      toast(data.message||'任务已取消');
+      loadRegistration();
+    } catch(e) {
+      if (e.message !== 'auth_redirect') toast('取消失败: ' + e.message, 'error');
+    }
+  }
+
+  function regResultBadge(r) {
+    const map = { success:'badge-active', rejected:'badge-banned', validation_failed:'badge-medium', duplicate:'badge-low' };
+    return '<span class="badge '+(map[r]||'')+'">' + esc(r||'-') + '</span>';
+  }
+
+  // ══════════════════════════════════════════
+  //  5. 策略配置
+  // ══════════════════════════════════════════
+  let configData = null;
+  async function loadConfig() {
+    if (configData) return;
+    try {
+      configData = await api('/config.json');
+      renderConfigForm(configData);
+    } catch(e) {
+      if (e.message !== 'auth_redirect') toast('加载配置失败: ' + e.message, 'error');
+    }
+  }
+
+  function renderConfigForm(cfg) {
+    const thresholds = cfg.thresholds || {};
+    const ban = cfg.ban || {};
+    const sub = cfg.subscription || {};
+    const abuse = cfg.abuse || {};
+    const register = cfg.register || {};
+
+    const fields = [
+      { section: '🔑 UUID 限流阈值', fields: [
+        ['uuid_second', '每秒', thresholds.uuid?.second, 1, 10000],
+        ['uuid_minute', '每分钟', thresholds.uuid?.minute, 1, 100000],
+        ['uuid_hour', '每小时', thresholds.uuid?.hour, 1, 1000000],
+      ]},
+      { section: '🌐 IP 限流阈值', fields: [
+        ['ip_second', '每秒', thresholds.ip?.second, 1, 10000],
+        ['ip_minute', '每分钟', thresholds.ip?.minute, 1, 100000],
+        ['ip_hour', '每小时', thresholds.ip?.hour, 1, 1000000],
+      ]},
+      { section: '📡 端点限流阈值 (UUID)', fields: [
+        ['endpoint_uuid_second', '每秒', thresholds.endpoint?.uuid?.second, 1, 10000],
+        ['endpoint_uuid_minute', '每分钟', thresholds.endpoint?.uuid?.minute, 1, 100000],
+        ['endpoint_uuid_hour', '每小时', thresholds.endpoint?.uuid?.hour, 1, 500000],
+      ]},
+      { section: '📡 端点限流阈值 (IP)', fields: [
+        ['endpoint_ip_second', '每秒', thresholds.endpoint?.ip?.second, 1, 10000],
+        ['endpoint_ip_minute', '每分钟', thresholds.endpoint?.ip?.minute, 1, 100000],
+        ['endpoint_ip_hour', '每小时', thresholds.endpoint?.ip?.hour, 1, 500000],
+      ]},
+      { section: '⛔ 封禁策略', fields: [
+        ['ban_base', '基础封禁时长(秒)', ban.baseSeconds, 60, 86400],
+        ['ban_mult', '封禁倍数', ban.multiplier, 1, 100],
+        ['ban_max', '最大封禁时长(秒)', ban.maxSeconds, 60, 604800],
+        ['ban_lookback', '回溯窗口(秒)', ban.lookbackSeconds, 60, 2592000],
+      ]},
+      { section: '📊 订阅监控', fields: [
+        ['sub_hourly', '每小时请求上限', sub.hourlyLimit, 1, 1000],
+        ['sub_invalid', '无效Token上限', sub.invalidTokenHourlyLimit, 1, 1000],
+        ['sub_ip_alert', '多IP告警阈值', sub.uniqueIpAlertLimit, 1, 1000],
+      ]},
+      { section: '📝 注册', fields: [
+        ['reg_enabled', '启用注册', register.enabled, null, null, 'checkbox'],
+      ]},
+    ];
+
+    let html = '';
+    fields.forEach(group => {
+      html += '<h3 style="margin:0;color:#93c5fd;font-size:14px">' + group.section + '</h3>';
+      html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">';
+      group.fields.forEach(([key, label, val, min, max, type]) => {
+        if (type === 'checkbox') {
+          html += '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#cbd5e1">' +
+            '<input type="checkbox" data-config="' + key + '" ' + (val?'checked':'') + '> ' + label + '</label>';
+        } else {
+          html += '<div style="display:grid;gap:4px">' +
+            '<label style="font-size:12px;color:#94a3b8">' + label + '</label>' +
+            '<input type="number" data-config="' + key + '" value="' + (val||0) + '" ' +
+            'min="'+min+'" max="'+max+'" style="background:#020817;border:1px solid #334155;border-radius:10px;padding:8px 12px;color:#f8fafc;font-size:13px">' +
+            '</div>';
+        }
+      });
+      html += '</div>';
+    });
+    $('#configForm').innerHTML = html;
+  }
+
+  function collectConfig() {
+    const out = {};
+    $$('[data-config]').forEach(el => {
+      const key = el.dataset.config;
+      const val = el.type === 'checkbox' ? el.checked : Number(el.value);
+      // reconstruct nested structure
+      const pathMap = {
+        uuid_second: ['thresholds','uuid','second'], uuid_minute: ['thresholds','uuid','minute'], uuid_hour: ['thresholds','uuid','hour'],
+        ip_second: ['thresholds','ip','second'], ip_minute: ['thresholds','ip','minute'], ip_hour: ['thresholds','ip','hour'],
+        endpoint_uuid_second: ['thresholds','endpoint','uuid','second'], endpoint_uuid_minute: ['thresholds','endpoint','uuid','minute'], endpoint_uuid_hour: ['thresholds','endpoint','uuid','hour'],
+        endpoint_ip_second: ['thresholds','endpoint','ip','second'], endpoint_ip_minute: ['thresholds','endpoint','ip','minute'], endpoint_ip_hour: ['thresholds','endpoint','ip','hour'],
+        ban_base: ['ban','baseSeconds'], ban_mult: ['ban','multiplier'], ban_max: ['ban','maxSeconds'], ban_lookback: ['ban','lookbackSeconds'],
+        sub_hourly: ['subscription','hourlyLimit'], sub_invalid: ['subscription','invalidTokenHourlyLimit'], sub_ip_alert: ['subscription','uniqueIpAlertLimit'],
+        reg_enabled: ['register','enabled'],
+      };
+      const path = pathMap[key];
+      if (!path) return;
+      let obj = out;
+      for (let i = 0; i < path.length - 1; i++) {
+        if (!obj[path[i]]) obj[path[i]] = {};
+        obj = obj[path[i]];
+      }
+      obj[path[path.length-1]] = val;
+    });
+    return out;
+  }
+
+  async function saveConfig() {
+    const partial = collectConfig();
+    try {
+      const data = await api('/config.json', {
+        method: 'POST',
+        body: JSON.stringify(partial),
+      });
+      if (data.success) {
+        configData = data.config;
+        toast('配置已保存');
+      } else {
+        toast(data.error||'保存失败', 'error');
+      }
+    } catch(e) {
+      if (e.message !== 'auth_redirect') toast('保存失败: ' + e.message, 'error');
+    }
+  }
+
+  function resetConfig() {
+    if (!confirm('确认重置为推荐值？')) return;
+    configData = null;
+    loadConfig().then(() => toast('已加载当前配置'));
+  }
+
+  // ══════════════════════════════════════════
+  //  Shared render helpers
+  // ══════════════════════════════════════════
+  function renderTable(container, headers, rows) {
+    if (!rows.length) {
+      container.innerHTML = '<div class="empty">暂无数据</div>';
+      return;
+    }
+    const thead = '<thead><tr>' + headers.map(h => '<th>' + esc(h) + '</th>').join('') + '</tr></thead>';
+    const tbody = '<tbody>' + rows.map(r => '<tr>' + r.map(c => '<td>' + c + '</td>').join('') + '</tr>').join('') + '</tbody>';
+    container.innerHTML = '<table>' + thead + tbody + '</table>';
+  }
+
+  function renderTimeline(container, events) {
+    if (!events.length) {
+      container.innerHTML = '<div class="empty">暂无事件</div>';
+      return;
+    }
+    container.innerHTML = events.map(e => `
+      <div class="timeline-item">
+        <div class="timeline-dot" style="background:#3b82f6"></div>
+        <div class="timeline-body">
+          <div class="timeline-type">${esc(e.eventType||e.type||'-')}</div>
+          <div class="timeline-detail">${esc(typeof e.detail === 'object' ? JSON.stringify(e.detail).substring(0,200) : String(e.detail||'').substring(0,200))}</div>
+        </div>
+        <div class="timeline-time">${fmtTime(e.createdAt||e.time)}</div>
+      </div>
+    `).join('');
+  }
+
+  function statusBadge(s) {
+    const cls = s === 'active' ? 'badge-active' : s === 'banned' ? 'badge-banned'
+      : s === 'pending' ? 'badge-medium' : s === 'completed' ? 'badge-active' : '';
+    return '<span class="badge ' + cls + '">' + esc(s||'-') + '</span>';
+  }
+
+  function riskBadge(level) {
+    const cls = level === 'high' ? 'badge-high' : level === 'medium' ? 'badge-medium' : level === 'low' ? 'badge-low' : '';
+    return '<span class="badge ' + cls + '">' + esc(level||'-') + '</span>';
+  }
+
+  function fmtTime(ts) {
+    if (!ts) return '-';
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return '-';
+    return d.toLocaleString('zh-CN', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  }
+
+  function mono(s) {
+    return '<span class="mono">' + esc(String(s||'-').substring(0,16)) + '</span>';
+  }
+
+  function esc(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function escAttr(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;');
+  }
+
+  // ── init ──
+  loadOverview();
+})();
+</script>
+</body>
+</html>
