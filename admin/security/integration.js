@@ -71,15 +71,15 @@
 .sec-module .sec-loading{display:flex;align-items:center;justify-content:center;padding:40px;gap:10px;color:#9ca3af}
 .sec-module .sec-spinner{width:18px;height:18px;border:2px solid #e5e7eb;border-top-color:#faab41;border-radius:50%;animation:sec-spin .6s linear infinite}
 @keyframes sec-spin{to{transform:rotate(360deg)}}
-.sec-module .sec-drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px}
-.sec-module .sec-drawer{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;max-width:560px;width:100%;max-height:75vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.1)}
-.sec-module .sec-drawer h3{font-size:16px;margin:0 0 12px;color:#1f2937}
-.sec-module .sec-drawer pre{background:#f9fafb;border-radius:10px;padding:12px;overflow-x:auto;font-size:12px;color:#1f2937;white-space:pre-wrap}
-.sec-module .sec-drawer-close{float:right;background:transparent;border:none;color:#9ca3af;font-size:20px;cursor:pointer}
-.sec-module .sec-drawer-close:hover{color:#1f2937}
-.sec-module .sec-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;padding:10px 24px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.15);animation:sec-fade .3s;pointer-events:none}
-.sec-module .sec-toast-ok{background:#16a34a;color:#fff}
-.sec-module .sec-toast-err{background:#dc2626;color:#fff}
+.sec-drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px}
+.sec-drawer{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;max-width:560px;width:100%;max-height:75vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.1)}
+.sec-drawer h3{font-size:16px;margin:0 0 12px;color:#1f2937}
+.sec-drawer pre{background:#f9fafb;border-radius:10px;padding:12px;overflow-x:auto;font-size:12px;color:#1f2937;white-space:pre-wrap}
+.sec-drawer-close{float:right;background:transparent;border:none;color:#9ca3af;font-size:20px;cursor:pointer}
+.sec-drawer-close:hover{color:#1f2937}
+.sec-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;padding:10px 24px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.15);animation:sec-fade .3s;pointer-events:none}
+.sec-toast-ok{background:#16a34a;color:#fff}
+.sec-toast-err{background:#dc2626;color:#fff}
 @keyframes sec-fade{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 @media(max-width:768px){.sec-module .sec-stats{grid-template-columns:repeat(2,1fr)}.sec-module .sec-filter input{min-width:120px}}
 @media(max-width:480px){.sec-module .sec-stats{grid-template-columns:1fr 1fr}}
@@ -235,6 +235,10 @@
   }
 
   function renderUsers(users, summary) {
+    // store user map for detail lookup
+    usersState.userMap = usersState.userMap || {};
+    users.forEach(u => { if (u.uuid) usersState.userMap[u.uuid] = u; });
+
     const s = summary || {};
     const sumEl = $('#sec-users-summary');
     if (sumEl) sumEl.textContent = '共 '+(s.total||users.length)+' 用户'+(s.active!=null?' · 活跃 '+s.active:'')+(s.banned!=null?' · 封禁 '+s.banned:'');
@@ -360,16 +364,41 @@
 
   async function userDetail(uuid) {
     try {
-      const data = await api('/users/audit?limit=12&uuid='+encodeURIComponent(uuid));
+      // fetch audit events + look up user from cache
+      const [data, user] = await Promise.all([
+        api('/users/audit?limit=12&uuid='+encodeURIComponent(uuid)),
+        Promise.resolve((usersState.userMap||{})[uuid] || null),
+      ]);
       const events = data.events || [];
+      const profile = user?.profile || {};
+      const sub = user?.subscription || {};
+      const ban = user?.activeBan;
+
       let html = '<div class="sec-drawer-overlay" id="sec-drawer"><div class="sec-drawer">';
       html += '<button class="sec-drawer-close" onclick="document.getElementById(\'sec-drawer\').remove()">✕</button>';
       html += '<h3>用户详情</h3>';
-      html += '<div class="sec-drawer-section"><h4>UUID</h4><pre>'+esc(uuid)+'</pre></div>';
+
+      // user info
+      html += '<div class="sec-drawer-section"><h4>基本信息</h4>';
+      html += '<pre>UUID:   '+esc(uuid||'-')+'\n账户:   '+esc(profile.account||'-')+'\n邮箱:   '+esc(profile.email||'-')+'\n状态:   '+esc(user?.status||'-')+'\n风险:   '+esc(sub.risk?.level||'-')+(sub.risk?.score!=null?' ('+sub.risk.score+')':'')+'\n最后IP: '+esc(user?.lastIp||'-')+'\n最后活跃: '+ago(user?.lastSeenAt||user?.lifecycle?.lastSeenAt)+'</pre></div>';
+
+      // ban info
+      if (ban) {
+        html += '<div class="sec-drawer-section"><h4>封禁信息</h4>';
+        html += '<pre>类型: '+esc(ban.reasonType||'-')+'\n详情: '+esc(ban.reasonDetail||'-')+'\n过期: '+ts(ban.expiresAt)+'</pre></div>';
+      }
+
+      // subscription
+      if (sub.monitor) {
+        html += '<div class="sec-drawer-section"><h4>订阅监控</h4>';
+        html += '<pre>每小时: '+esc(String(sub.monitor.hourlyCount||0))+'/'+esc(String(sub.monitor.hourlyLimit||'-'))+'\n无效Token: '+esc(String(sub.monitor.hourlyInvalidTokenCount||0))+'\n唯一IP: '+esc(String(sub.monitor.uniqueIpCount||0))+'\n最后请求: '+ts(sub.monitor.lastRequestAt)+'</pre></div>';
+      }
+
+      // audit events
       html += '<h4 style="margin-top:16px">审计事件 ('+events.length+')</h4>';
       if (!events.length) html += '<div class="sec-empty">暂无事件</div>';
       else {
-        html += '<div class="sec-timeline">';
+        html += '<div class="sec-timeline" style="max-height:300px">';
         events.forEach(e => {
           html += '<div class="sec-timeline-item"><div class="sec-timeline-dot" style="background:#3b82f6"></div><div class="sec-timeline-body"><div class="sec-timeline-type">'+esc(e.eventType||e.type||'事件')+'</div><div class="sec-timeline-detail">'+esc(JSON.stringify(e).slice(0,200))+'</div><div class="sec-timeline-time">'+ts(e.createdAt||e.time)+'</div></div></div>';
         });
