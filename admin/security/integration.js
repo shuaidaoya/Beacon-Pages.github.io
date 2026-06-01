@@ -446,6 +446,18 @@
   // ══════════════════════════════════════════
   //  4. 注册管控
   // ══════════════════════════════════════════
+  const DURATION_OPTIONS = [
+    { label:'5 分钟',  ms: 5*60*1000 },
+    { label:'10 分钟', ms: 10*60*1000 },
+    { label:'15 分钟', ms: 15*60*1000 },
+    { label:'30 分钟', ms: 30*60*1000 },
+    { label:'1 小时',  ms: 60*60*1000 },
+    { label:'2 小时',  ms: 2*60*60*1000 },
+    { label:'6 小时',  ms: 6*60*60*1000 },
+    { label:'12 小时', ms: 12*60*60*1000 },
+    { label:'24 小时', ms: 24*60*60*1000 },
+  ];
+
   async function loadRegistration() {
     const el = $('#sec-content');
     el.innerHTML = '<div class="sec-loading"><span class="sec-spinner"></span>加载中...</div>';
@@ -453,68 +465,35 @@
       const data = await api('/registration');
       const status = data.status || {};
       const config = data.config || {};
-      const pending = data.pendingTasks || [];
-      const history = data.historyTasks || [];
 
       let html = '<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px">';
       html += '<span style="font-size:14px;font-weight:600">状态:</span>';
       html += '<span class="sec-badge '+(status.open?'sec-badge-active':'sec-badge-banned')+'">'+(status.open?'已开放':'已关闭')+'</span>';
-      html += '<span style="font-size:13px;color:#94a3b8">'+esc(status.message||'')+'</span>';
+      html += '<span style="font-size:13px;color:#6b7280">'+esc(status.message||'')+'</span>';
       html += '</div>';
 
       html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">';
       html += '<button class="sec-btn '+(status.enabled?'sec-btn-danger':'sec-btn-primary')+'" onclick="window._secToggleReg()">'+(status.enabled?'关闭注册':'开启注册')+'</button>';
       html += '<button class="sec-btn" onclick="window._secShowSchedule()">📅 定时设置</button>';
-      html += '<button class="sec-btn" onclick="window._secShowTaskForm()">⏰ 创建定时任务</button>';
       html += '</div>';
 
       // schedule form (hidden)
-      html += '<div id="sec-sched-form" style="display:none;margin-bottom:16px;padding:16px;background:#111c31;border:1px solid #1e293b;border-radius:14px">';
-      html += '<h4 style="margin:0 0 12px;color:#93c5fd">定时注册窗口</h4>';
+      html += '<div id="sec-sched-form" style="display:none;margin-bottom:16px;padding:16px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:14px">';
+      html += '<h4 style="margin:0 0 12px;color:#1f2937">定时注册窗口</h4>';
       html += '<div class="sec-config-row"><label>开始时间</label><input type="datetime-local" id="sec-sched-start" style="width:auto;flex:1;max-width:240px"></div>';
-      html += '<div class="sec-config-row"><label>结束时间</label><input type="datetime-local" id="sec-sched-end" style="width:auto;flex:1;max-width:240px"></div>';
+      html += '<div class="sec-config-row"><label>开放时长</label><select id="sec-sched-dur">';
+      DURATION_OPTIONS.forEach(o => {
+        html += '<option value="'+o.ms+'">'+o.label+'</option>';
+      });
+      html += '</select></div>';
       html += '<div style="margin-top:10px;display:flex;gap:8px">';
       html += '<button class="sec-btn sec-btn-primary" onclick="window._secSaveSchedule()">保存</button>';
       html += '<button class="sec-btn sec-btn-danger sec-btn-sm" onclick="window._secClearSchedule()">清除定时</button>';
       html += '<button class="sec-btn sec-btn-sm" onclick="document.getElementById(\'sec-sched-form\').style.display=\'none\'">取消</button>';
       html += '</div></div>';
 
-      // task form (hidden)
-      html += '<div id="sec-task-form" style="display:none;margin-bottom:16px;padding:16px;background:#111c31;border:1px solid #1e293b;border-radius:14px">';
-      html += '<h4 style="margin:0 0 12px;color:#93c5fd">创建定时任务</h4>';
-      html += '<div class="sec-config-row"><label>操作</label><select id="sec-task-action"><option value="enable">开启注册</option><option value="disable">关闭注册</option><option value="schedule_enable">按窗口开启</option><option value="schedule_disable">按窗口关闭</option></select></div>';
-      html += '<div class="sec-config-row"><label>执行时间</label><input type="datetime-local" id="sec-task-time" style="width:auto;flex:1;max-width:240px"></div>';
-      html += '<div class="sec-config-row"><label>窗口开始</label><input type="datetime-local" id="sec-task-wstart" style="width:auto;flex:1;max-width:240px"></div>';
-      html += '<div class="sec-config-row"><label>窗口结束</label><input type="datetime-local" id="sec-task-wend" style="width:auto;flex:1;max-width:240px"></div>';
-      html += '<div style="margin-top:10px;display:flex;gap:8px">';
-      html += '<button class="sec-btn sec-btn-primary" onclick="window._secCreateTask()">创建</button>';
-      html += '<button class="sec-btn sec-btn-sm" onclick="document.getElementById(\'sec-task-form\').style.display=\'none\'">取消</button>';
-      html += '</div></div>';
-
-      // pending tasks
-      html += '<h4 style="margin:16px 0 8px;color:#93c5fd">⏳ 待执行任务</h4>';
-      if (!pending.length) html += '<div class="sec-empty">暂无待执行任务</div>';
-      else {
-        html += '<div class="sec-table-wrap"><table class="sec-table"><tr><th>操作</th><th>执行时间</th><th>参数</th><th>操作</th></tr>';
-        pending.forEach(t => {
-          html += '<tr><td>'+esc(t.操作类型||t.action||'-')+'</td><td>'+ts(t.执行时间||t.executeAt)+'</td><td>'+esc(JSON.stringify(t.参数||t.params||{}))+'</td><td><button class="sec-btn sec-btn-sm sec-btn-danger" onclick="window._secCancelTask(\''+escAttr(t.taskId)+'\')">取消</button></td></tr>';
-        });
-        html += '</table></div>';
-      }
-
-      // history
-      html += '<h4 style="margin:16px 0 8px;color:#94a3b8">📋 历史任务</h4>';
-      if (!history.length) html += '<div class="sec-empty">暂无历史</div>';
-      else {
-        html += '<div class="sec-table-wrap"><table class="sec-table"><tr><th>操作</th><th>执行时间</th><th>状态</th></tr>';
-        history.forEach(t => {
-          html += '<tr><td>'+esc(t.操作类型||t.action||'-')+'</td><td>'+ts(t.执行完成时间||t.executeCompletedAt)+'</td><td><span class="sec-badge sec-badge-'+(t.状态==='completed'?'active':'medium')+'">'+esc(t.状态||t.status||'-')+'</span></td></tr>';
-        });
-        html += '</table></div>';
-      }
-
       // reg logs
-      html += '<h4 style="margin:16px 0 8px;color:#93c5fd">📜 注册日志 <button class="sec-btn sec-btn-sm" onclick="window._secLoadRegLogs()" style="margin-left:8px">加载</button></h4>';
+      html += '<h4 style="margin:16px 0 8px;color:#1f2937">📜 注册日志 <button class="sec-btn sec-btn-sm" onclick="window._secLoadRegLogs()" style="margin-left:8px">加载</button></h4>';
       html += '<div id="sec-reg-logs"><div class="sec-empty">点击"加载"查看</div></div>';
 
       el.innerHTML = html;
@@ -522,9 +501,6 @@
       // pre-fill schedule
       if (config.startAt) {
         const inp = $('#sec-sched-start'); if (inp) inp.value = new Date(config.startAt).toISOString().slice(0,16);
-      }
-      if (config.endAt) {
-        const inp = $('#sec-sched-end'); if (inp) inp.value = new Date(config.endAt).toISOString().slice(0,16);
       }
     } catch(e) {
       if (e.message !== 'auth_redirect') el.innerHTML = '<div class="sec-empty">加载失败: '+esc(e.message)+'</div>';
@@ -555,7 +531,9 @@
 
   async function saveSchedule() {
     const startAt = $('#sec-sched-start')?.value ? new Date($('#sec-sched-start').value).getTime() : null;
-    const endAt = $('#sec-sched-end')?.value ? new Date($('#sec-sched-end').value).getTime() : null;
+    if (!startAt) { toast('请选择开始时间', 'error'); return; }
+    const durMs = parseInt($('#sec-sched-dur')?.value) || DURATION_OPTIONS[0].ms;
+    const endAt = startAt + durMs;
     try {
       const data = await api('/registration/schedule', { method:'POST', body: JSON.stringify({ scheduleEnabled: true, startAt, endAt }) });
       toast(data.message||'定时设置已保存');
@@ -574,40 +552,6 @@
       loadRegistration();
     } catch(e) {
       if (e.message !== 'auth_redirect') toast('清除失败: '+e.message, 'error');
-    }
-  }
-
-  function showTaskForm() {
-    const el = $('#sec-task-form');
-    if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
-  }
-
-  async function createTask() {
-    const action = $('#sec-task-action')?.value || 'enable';
-    const executeAt = $('#sec-task-time')?.value ? new Date($('#sec-task-time').value).getTime() : null;
-    const startAt = $('#sec-task-wstart')?.value ? new Date($('#sec-task-wstart').value).getTime() : null;
-    const endAt = $('#sec-task-wend')?.value ? new Date($('#sec-task-wend').value).getTime() : null;
-    if (!executeAt) { toast('请选择执行时间', 'error'); return; }
-    try {
-      const body = { action, executeAt };
-      if (action.startsWith('schedule_')) { body.startAt = startAt; body.endAt = endAt; }
-      const data = await api('/registration/tasks', { method:'POST', body: JSON.stringify(body) });
-      toast(data.message||'任务已创建');
-      $('#sec-task-form').style.display = 'none';
-      loadRegistration();
-    } catch(e) {
-      if (e.message !== 'auth_redirect') toast('创建失败: '+e.message, 'error');
-    }
-  }
-
-  async function cancelTask(taskId) {
-    if (!confirm('确认取消此定时任务？')) return;
-    try {
-      const data = await api('/registration/tasks/'+encodeURIComponent(taskId), { method:'DELETE' });
-      toast(data.message||'任务已取消');
-      loadRegistration();
-    } catch(e) {
-      if (e.message !== 'auth_redirect') toast('取消失败: '+e.message, 'error');
     }
   }
 
@@ -875,9 +819,6 @@
     _secShowSchedule: showSchedule,
     _secSaveSchedule: saveSchedule,
     _secClearSchedule: clearSchedule,
-    _secShowTaskForm: showTaskForm,
-    _secCreateTask: createTask,
-    _secCancelTask: cancelTask,
     _secLoadRegLogs: loadRegLogs,
     _secLoadConfig: loadConfig,
     _secSaveConfig: saveConfig,
