@@ -203,7 +203,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
       </div>
       <div class="rules-modal-footer">
         <label class="rules-check">
-          <input type="checkbox" id="rulesCheckbox" onchange="document.getElementById('rulesAgreeBtn').classList.toggle('enabled', this.checked)">
+          <input type="checkbox" id="rulesCheckbox" onchange="var b=document.getElementById('rulesAgreeBtn');b.classList.toggle('enabled',this.checked);b.disabled=!this.checked">
           我已阅读并同意以上使用须知
         </label>
         <button class="rules-agree-btn" id="rulesAgreeBtn" disabled onclick="agreeRules()">同意并继续</button>
