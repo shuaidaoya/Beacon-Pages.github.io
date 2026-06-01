@@ -671,6 +671,7 @@
       html += '<div class="sec-config-group"><h4>注册设置</h4>';
       const reg = cfg.register || {};
       html += '<div class="sec-config-row"><label>启用</label><select id="cfg-regenabled"><option value="1"'+(reg.enabled?' selected':'')+'>是</option><option value="0"'+(reg.enabled?'':' selected')+'>否</option></select></div>';
+      html += '<div class="sec-config-row"><label>使用须知弹窗</label><select id="cfg-regrules"><option value="always"'+(reg.rulesFrequency!=='once'?' selected':'')+'>每次都弹窗</option><option value="once"'+(reg.rulesFrequency==='once'?' selected':'')+'>仅首次弹窗</option></select></div>';
       html += '</div>';
 
       // TG notification (fetched separately)
@@ -745,6 +746,7 @@
 
     cfg.register = cfg.register || {};
     cfg.register.enabled = ($('#cfg-regenabled')?.value === '1');
+    cfg.register.rulesFrequency = $('#cfg-regrules')?.value || 'always';
 
     cfg.adminApi = cfg.adminApi || {};
     cfg.adminApi.listLimit = v('cfg-apill', cfg.adminApi.listLimit);
@@ -802,6 +804,7 @@
     setVal('cfg-subhl', 6); setVal('cfg-subihl', 4); setVal('cfg-subuia', 6);
     setVal('cfg-apill', 50);
     const regSel = $('#cfg-regenabled'); if (regSel) regSel.value = '0';
+    const rulesSel = $('#cfg-regrules'); if (rulesSel) rulesSel.value = 'always';
     window._secCfgData = defaults;
     toast('已重置为推荐值，点击"保存配置"生效');
   }

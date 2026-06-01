@@ -90,35 +90,51 @@ button:disabled{opacity:.5;cursor:not-allowed}
   border-radius:50%;animation:spin .6s linear infinite;display:none}
 .spinner.show{display:inline-block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-/* ── rules panel ── */
-.rules-toggle{
-  display:flex;align-items:center;justify-content:space-between;gap:8px;
-  padding:12px 18px;margin-bottom:0;background:#0b1220;border:1px solid #1e293b;
-  border-radius:14px 14px 0 0;cursor:pointer;font-size:13px;font-weight:700;color:#cbd5e1;
-  transition:all .2s;
+/* ── rules modal ── */
+.rules-overlay{
+  position:fixed;inset:0;z-index:10000;background:rgba(2,8,23,.85);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  animation:fadeIn .3s;
 }
-.rules-toggle:hover{color:#e2e8f0;background:#111827}
-.rules-toggle.open{border-radius:14px 14px 0 0}
-.rules-arrow{width:16px;height:16px;fill:#64748b;transition:transform .2s;flex-shrink:0}
-.rules-toggle.open .rules-arrow{transform:rotate(180deg)}
-.rules-panel{
-  display:none;margin:0 0 16px;padding:16px 18px 20px;
-  background:linear-gradient(135deg,rgba(59,130,246,.06),rgba(139,92,246,.04));
-  border:1px solid rgba(99,102,241,.15);border-top:none;border-radius:0 0 14px 14px;
+.rules-overlay.hidden{display:none}
+.rules-modal{
+  background:#0f172a;border:1px solid #1e293b;border-radius:20px;
+  max-width:540px;width:100%;max-height:85vh;display:flex;flex-direction:column;
+  box-shadow:0 25px 80px rgba(0,0,0,.5);overflow:hidden;
+}
+.rules-modal-header{
+  padding:24px 24px 0;display:flex;align-items:center;gap:10px;
+}
+.rules-modal-header h2{font-size:18px;font-weight:800;color:#f1f5f9;margin:0}
+.rules-modal-body{
+  padding:16px 24px;overflow-y:auto;flex:1;
   font-size:12px;line-height:1.7;color:#94a3b8;
 }
-.rules-panel.show{display:block}
-.rules-list{margin:0;padding:0 0 0 16px;list-style:none}
-.rules-list li{position:relative;margin-bottom:6px;color:#cbd5e1;font-size:12px}
-.rules-list li::before{content:'·';position:absolute;left:-14px;color:#3b82f6;font-weight:700}
-.rules-limit{margin-top:10px;padding-top:10px;border-top:1px solid rgba(148,163,184,.12)}
-.rules-limit-title{font-weight:600;color:#fbbf24;display:flex;align-items:center;gap:5px;margin-bottom:8px;font-size:13px}
-.rules-limit-group{margin-bottom:10px}
-.rules-limit-group:last-child{margin-bottom:0}
-.rules-limit-subtitle{font-weight:600;color:#94a3b8;font-size:11px;margin-bottom:4px}
-.rules-limit-item{display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:11px}
-.limit-num{background:rgba(251,191,36,.15);color:#fbbf24;padding:2px 8px;border-radius:6px;font-weight:700;font-size:10px;white-space:nowrap}
-.limit-num.banned{background:rgba(239,68,68,.15);color:#ef4444}
+.rules-modal-body .rules-list{margin:0;padding:0 0 0 16px;list-style:none}
+.rules-modal-body .rules-list li{position:relative;margin-bottom:6px;color:#cbd5e1;font-size:12px}
+.rules-modal-body .rules-list li::before{content:'·';position:absolute;left:-14px;color:#3b82f6;font-weight:700}
+.rules-modal-body .rules-limit{margin-top:10px;padding-top:10px;border-top:1px solid rgba(148,163,184,.12)}
+.rules-modal-body .rules-limit-title{font-weight:600;color:#fbbf24;display:flex;align-items:center;gap:5px;margin-bottom:8px;font-size:13px}
+.rules-modal-body .rules-limit-group{margin-bottom:10px}
+.rules-modal-body .rules-limit-group:last-child{margin-bottom:0}
+.rules-modal-body .rules-limit-subtitle{font-weight:600;color:#94a3b8;font-size:11px;margin-bottom:4px}
+.rules-modal-body .rules-limit-item{display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:11px}
+.rules-modal-body .limit-num{background:rgba(251,191,36,.15);color:#fbbf24;padding:2px 8px;border-radius:6px;font-weight:700;font-size:10px;white-space:nowrap}
+.rules-modal-body .limit-num.banned{background:rgba(239,68,68,.15);color:#ef4444}
+.rules-modal-footer{
+  padding:16px 24px 24px;display:flex;flex-direction:column;gap:12px;
+  border-top:1px solid #1e293b;
+}
+.rules-check{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#cbd5e1}
+.rules-check input[type=checkbox]{width:18px;height:18px;accent-color:#faab41;cursor:pointer}
+.rules-agree-btn{
+  width:100%;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;
+  background:linear-gradient(135deg,#374151,#4b5563);color:#9ca3af;cursor:not-allowed;transition:all .2s;
+}
+.rules-agree-btn.enabled{
+  background:linear-gradient(135deg,#faab41,#f6821f);color:#fff;cursor:pointer;box-shadow:0 4px 15px rgba(250,171,65,.3);
+}
+.rules-agree-btn.enabled:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(250,171,65,.4)}
 /* ── responsive ── */
 @media(max-width:520px){
   body{padding:16px 12px}.hero{padding:20px 16px}.hero-slogan{font-size:22px}
@@ -142,44 +158,55 @@ button:disabled{opacity:.5;cursor:not-allowed}
     </div>
   </div>
 
-  <!-- 使用须知 -->
-  <div class="rules-toggle" id="rulesToggle" onclick="document.getElementById('rulesPanel').classList.toggle('show'); this.classList.toggle('open')">
-    <span>📋 使用须知</span>
-    <svg class="rules-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
-  </div>
-  <div class="rules-panel" id="rulesPanel">
-    <ul class="rules-list">
-      <li>本服务节点为固定节点不需要更新也不推荐更新！！！</li>
-      <li>本服务为公益性质，仅供个人学习、研究使用</li>
-      <li>请勿用于任何商业用途或非法活动</li>
-      <li>禁止分享、转卖账号或订阅链接给他人</li>
-      <li>请合理使用资源，避免频繁请求造成服务不稳定</li>
-      <li>管理员保留随时封禁违规账号的权利</li>
-    </ul>
-    <div class="rules-limit">
-      <div class="rules-limit-title">⚠️ 使用限制与安全策略</div>
-      <div class="rules-limit-group">
-        <div class="rules-limit-subtitle">📊 订阅频率限制</div>
-        <div class="rules-limit-item"><span class="limit-num">6次/小时</span>每小时订阅拉取上限</div>
+  <!-- 使用须知弹窗 -->
+  <div class="rules-overlay" id="rulesOverlay">
+    <div class="rules-modal">
+      <div class="rules-modal-header">
+        <span style="font-size:24px">📋</span>
+        <h2>使用须知</h2>
       </div>
-      <div class="rules-limit-group">
-        <div class="rules-limit-subtitle">🌐 IP使用限制</div>
-        <div class="rules-limit-item"><span class="limit-num">6个/小时</span>每小时最多6个不同IP访问</div>
-        <div class="rules-limit-item"><span class="limit-num banned">自动封禁</span>超出6个不同IP后立即封禁账号</div>
+      <div class="rules-modal-body">
+        <ul class="rules-list">
+          <li>本服务节点为固定节点不需要更新也不推荐更新！！！</li>
+          <li>本服务为公益性质，仅供个人学习、研究使用</li>
+          <li>请勿用于任何商业用途或非法活动</li>
+          <li>禁止分享、转卖账号或订阅链接给他人</li>
+          <li>请合理使用资源，避免频繁请求造成服务不稳定</li>
+          <li>管理员保留随时封禁违规账号的权利</li>
+        </ul>
+        <div class="rules-limit">
+          <div class="rules-limit-title">⚠️ 使用限制与安全策略</div>
+          <div class="rules-limit-group">
+            <div class="rules-limit-subtitle">📊 订阅频率限制</div>
+            <div class="rules-limit-item"><span class="limit-num">6次/小时</span>每小时订阅拉取上限</div>
+          </div>
+          <div class="rules-limit-group">
+            <div class="rules-limit-subtitle">🌐 IP使用限制</div>
+            <div class="rules-limit-item"><span class="limit-num">6个/小时</span>每小时最多6个不同IP访问</div>
+            <div class="rules-limit-item"><span class="limit-num banned">自动封禁</span>超出6个不同IP后立即封禁账号</div>
+          </div>
+          <div class="rules-limit-group">
+            <div class="rules-limit-subtitle">🔑 无效令牌检测</div>
+            <div class="rules-limit-item"><span class="limit-num">4次</span>无效令牌触发告警次数</div>
+            <div class="rules-limit-item"><span class="limit-num banned">直接封禁</span>达到阈值后立即封禁账号</div>
+          </div>
+          <div class="rules-limit-group">
+            <div class="rules-limit-subtitle">🛡️ 路径访问安全</div>
+            <div class="rules-limit-item"><span class="limit-num">12条</span>每30秒内最大独立路径数</div>
+            <div class="rules-limit-item"><span class="limit-num">6次</span>敏感路径（/admin、/login）访问上限</div>
+          </div>
+          <div class="rules-limit-group">
+            <div class="rules-limit-subtitle">🤖 用户代理检测</div>
+            <div class="rules-limit-item"><span class="limit-num banned">自动拦截</span>扫描工具（sqlmap/nmap/curl等）将被拒绝</div>
+          </div>
+        </div>
       </div>
-      <div class="rules-limit-group">
-        <div class="rules-limit-subtitle">🔑 无效令牌检测</div>
-        <div class="rules-limit-item"><span class="limit-num">4次</span>无效令牌触发告警次数</div>
-        <div class="rules-limit-item"><span class="limit-num banned">直接封禁</span>达到阈值后立即封禁账号</div>
-      </div>
-      <div class="rules-limit-group">
-        <div class="rules-limit-subtitle">🛡️ 路径访问安全</div>
-        <div class="rules-limit-item"><span class="limit-num">12条</span>每30秒内最大独立路径数</div>
-        <div class="rules-limit-item"><span class="limit-num">6次</span>敏感路径（/admin、/login）访问上限</div>
-      </div>
-      <div class="rules-limit-group">
-        <div class="rules-limit-subtitle">🤖 用户代理检测</div>
-        <div class="rules-limit-item"><span class="limit-num banned">自动拦截</span>扫描工具（sqlmap/nmap/curl等）将被拒绝</div>
+      <div class="rules-modal-footer">
+        <label class="rules-check">
+          <input type="checkbox" id="rulesCheckbox" onchange="document.getElementById('rulesAgreeBtn').classList.toggle('enabled', this.checked)">
+          我已阅读并同意以上使用须知
+        </label>
+        <button class="rules-agree-btn" id="rulesAgreeBtn" disabled onclick="agreeRules()">同意并继续</button>
       </div>
     </div>
   </div>
@@ -242,6 +269,26 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <script>
 (function(){
   'use strict';
+
+  // ── rules modal ──
+  window.agreeRules = function() {
+    document.getElementById('rulesOverlay').classList.add('hidden');
+    localStorage.setItem('beacon_rules_agreed', '1');
+  };
+
+  (async function initRules() {
+    try {
+      const resp = await fetch('/register/config');
+      const cfg = await resp.json();
+      const freq = cfg.rulesFrequency || 'always';
+      if (freq === 'once' && localStorage.getItem('beacon_rules_agreed') === '1') {
+        document.getElementById('rulesOverlay').classList.add('hidden');
+      }
+      // 'always' → modal stays visible (default)
+    } catch(e) {
+      // on error, show modal (safe default)
+    }
+  })();
 
   // ── state ──
   const state = {
