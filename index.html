@@ -285,8 +285,19 @@ button:disabled{opacity:.5;cursor:not-allowed}
         showMsg('msg-warn', 'ℹ️ ' + meta.title, message);
         setTimeout(() => switchMode('signin'), 1200);
       } else if (code === 'AUTH_SIGNIN_SUCCESS') {
-        // signin OK → show subscription info
-        showResult(data);
+        // signin OK → store in sessionStorage, redirect to user dashboard
+        const user = data.data || {};
+        const node = user.node || {};
+        sessionStorage.setItem('beacon_user', JSON.stringify({
+          account: user.account || '',
+          email: user.email || '',
+          uuid: node.uuid || '',
+          token: node.token || '',
+          subUrl: node.subscriptionUrl || '',
+          verUrl: node.versionUrl || '',
+        }));
+        location.href = '/user';
+        return;
       } else if (code === 'AUTH_VALIDATION_ERROR') {
         // field-level errors
         const errors = (data.data && data.data.errors) || {};

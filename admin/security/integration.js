@@ -673,6 +673,18 @@
       html += '<div class="sec-config-row"><label>启用</label><select id="cfg-regenabled"><option value="1"'+(reg.enabled?' selected':'')+'>是</option><option value="0"'+(reg.enabled?'':' selected')+'>否</option></select></div>';
       html += '</div>';
 
+      // TG notification (fetched separately)
+      let tgCfg = { botToken:'', chatId:'', panelId:'A', securityNotifyEnabled:false };
+      try {
+        tgCfg = await api('/tg-config');
+      } catch(e) { /* use defaults */ }
+      window._secTgCfg = tgCfg;
+
+      html += '<div class="sec-config-group"><h4>TG 通知</h4>';
+      html += '<div class="sec-config-row"><label>面板选择</label><select id="cfg-tgpanel"><option value="A"'+(tgCfg.panelId==='B'?'':' selected')+'>面板 A</option><option value="B"'+(tgCfg.panelId==='B'?' selected':'')+'>面板 B</option></select></div>';
+      html += '<div class="sec-config-row"><label>安全事件通知</label><select id="cfg-tgsecurity"><option value="1"'+(tgCfg.securityNotifyEnabled?' selected':'')+'>开启</option><option value="0"'+(tgCfg.securityNotifyEnabled?'':' selected')+'>关闭</option></select></div>';
+      html += '</div>';
+
       // adminApi
       html += '<div class="sec-config-group"><h4>管理API</h4>';
       html += input('列表限制','apill', cfg.adminApi?.listLimit, 10, 200);
@@ -739,8 +751,23 @@
 
     try {
       await api('/config.json', { method:'POST', body: JSON.stringify(cfg) });
-      toast('配置已保存');
       window._secCfgData = cfg;
+
+      // also save TG settings
+      const tgCfg = window._secTgCfg || {};
+      const tgPanel = $('#cfg-tgpanel')?.value || 'A';
+      const tgSecurity = ($('#cfg-tgsecurity')?.value === '1');
+      await api('/tg-config', {
+        method: 'POST',
+        body: JSON.stringify({
+          BotToken: tgCfg.botToken || '',
+          ChatID: tgCfg.chatId || '',
+          PanelID: tgPanel,
+          securityNotifyEnabled: tgSecurity,
+        }),
+      });
+
+      toast('配置已保存');
     } catch(e) {
       if (e.message !== 'auth_redirect') toast('保存失败: '+e.message, 'error');
     }
