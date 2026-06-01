@@ -222,6 +222,7 @@
           '<button class="sec-btn sec-btn-danger sec-btn-sm" id="sec-batch-ban" disabled>批量封禁</button>' +
           '<button class="sec-btn sec-btn-sm" id="sec-batch-restore" disabled>批量解禁</button>' +
           '<button class="sec-btn sec-btn-sm" id="sec-batch-reset" disabled>批量重置</button>' +
+          '<button class="sec-btn sec-btn-danger sec-btn-sm" id="sec-batch-delete" disabled>批量删除</button>' +
           '</div>' +
           '<div style="margin-bottom:8px;font-size:12px;color:#64748b" id="sec-users-summary"></div>' +
           '<div id="sec-users-table"></div>' +
@@ -262,7 +263,8 @@
       (u.status==='banned'
         ? ' <button class="sec-btn sec-btn-sm" onclick="window._secUserAction(\'restore\',\''+escAttr(u.uuid)+'\')">解禁</button>'
         : ' <button class="sec-btn sec-btn-sm sec-btn-danger" onclick="window._secUserAction(\'ban\',\''+escAttr(u.uuid)+'\')">封禁</button>') +
-      ' <button class="sec-btn sec-btn-sm" onclick="window._secUserAction(\'reset-subscription\',\''+escAttr(u.uuid)+'\')">重置</button>',
+      ' <button class="sec-btn sec-btn-sm" onclick="window._secUserAction(\'reset-subscription\',\''+escAttr(u.uuid)+'\')">重置</button>' +
+      ' <button class="sec-btn sec-btn-sm sec-btn-danger" onclick="window._secUserAction(\'delete\',\''+escAttr(u.uuid)+'\')">删除</button>',
     ]);
 
     const tblEl = $('#sec-users-table');
@@ -310,7 +312,8 @@
       (u.status==='banned'
         ? ' <button class="sec-btn sec-btn-sm" onclick="window._secUserAction(\'restore\',\''+escAttr(u.uuid)+'\')">解禁</button>'
         : ' <button class="sec-btn sec-btn-sm sec-btn-danger" onclick="window._secUserAction(\'ban\',\''+escAttr(u.uuid)+'\')">封禁</button>') +
-      ' <button class="sec-btn sec-btn-sm" onclick="window._secUserAction(\'reset-subscription\',\''+escAttr(u.uuid)+'\')">重置</button>',
+      ' <button class="sec-btn sec-btn-sm" onclick="window._secUserAction(\'reset-subscription\',\''+escAttr(u.uuid)+'\')">重置</button>' +
+      ' <button class="sec-btn sec-btn-sm sec-btn-danger" onclick="window._secUserAction(\'delete\',\''+escAttr(u.uuid)+'\')">删除</button>',
     ]);
     rows.forEach(r => {
       const tr = document.createElement('tr');
@@ -336,7 +339,7 @@
 
   function updateBatchBtns() {
     const n = usersState.selected.size;
-    ['sec-batch-ban','sec-batch-restore','sec-batch-reset'].forEach(id => {
+    ['sec-batch-ban','sec-batch-restore','sec-batch-reset','sec-batch-delete'].forEach(id => {
       const btn = $('#'+id); if (btn) btn.disabled = n === 0;
     });
   }
@@ -344,8 +347,11 @@
   async function batchAction(action) {
     const uuids = [...usersState.selected];
     if (!uuids.length) return;
-    const labels = { ban:'封禁', restore:'解禁', 'reset-subscription':'重置订阅' };
-    if (!confirm('确认批量'+labels[action]+'这 '+uuids.length+' 个用户？')) return;
+    const labels = { ban:'封禁', restore:'解禁', 'reset-subscription':'重置订阅', delete:'删除' };
+    const confirmText = action === 'delete'
+      ? ('确认彻底删除这 '+uuids.length+' 个用户？此操作不可恢复。')
+      : ('确认批量'+labels[action]+'这 '+uuids.length+' 个用户？');
+    if (!confirm(confirmText)) return;
     try {
       await api('/users/batch', { method:'POST', body: JSON.stringify({ action, uuids, reason:'admin-ui-batch' }) });
       toast('批量操作完成');
@@ -357,10 +363,19 @@
   }
 
   async function userAction(action, uuid) {
-    const labels = { ban:'封禁', restore:'解禁', 'reset-subscription':'重置订阅' };
-    if (!confirm('确认'+labels[action]+'该用户？')) return;
+    const labels = { ban:'封禁', restore:'解禁', 'reset-subscription':'重置订阅', delete:'删除' };
+    const confirmText = action === 'delete'
+      ? '确认彻底删除该用户？此操作不可恢复。'
+      : ('确认'+labels[action]+'该用户？');
+    if (!confirm(confirmText)) return;
     try {
-      const endpoint = action === 'restore' ? '/users/restore' : action === 'reset-subscription' ? '/users/reset-subscription' : '/users/ban';
+      const endpoint = action === 'restore'
+        ? '/users/restore'
+        : action === 'reset-subscription'
+          ? '/users/reset-subscription'
+          : action === 'delete'
+            ? '/users/delete'
+            : '/users/ban';
       await api(endpoint, { method:'POST', body: JSON.stringify({ uuid, reason:'admin-ui' }) });
       toast(labels[action]+'成功');
       loadUsers();
@@ -815,6 +830,7 @@
     _secBatchBan: () => batchAction('ban'),
     _secBatchRestore: () => batchAction('restore'),
     _secBatchReset: () => batchAction('reset-subscription'),
+    _secBatchDelete: () => batchAction('delete'),
     _secUserAction: userAction,
     _secUserDetail: userDetail,
     _secLoadAudit: loadAudit,
@@ -859,9 +875,11 @@
         const bb = $('#sec-batch-ban');
         const br = $('#sec-batch-restore');
         const bz = $('#sec-batch-reset');
+        const bd = $('#sec-batch-delete');
         if (bb) bb.addEventListener('click', () => batchAction('ban'));
         if (br) br.addEventListener('click', () => batchAction('restore'));
         if (bz) bz.addEventListener('click', () => batchAction('reset-subscription'));
+        if (bd) bd.addEventListener('click', () => batchAction('delete'));
       }, 100);
 
     }, 600);

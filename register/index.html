@@ -435,6 +435,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
           verUrl: node.versionUrl || '',
           traffic: u.traffic || 0,
           used_traffic: u.used_traffic || 0,
+          checkin: user.checkin || null,
         }));
         location.href = '/user';
         return;

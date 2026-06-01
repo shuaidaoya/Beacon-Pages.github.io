@@ -153,6 +153,7 @@ body{
   function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function escAttr(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function fmtBytes(b) { if (!b||b<=0) return '0 B'; const k=1024,u=['B','KB','MB','GB','TB']; const i=Math.floor(Math.log(b)/Math.log(k)); return parseFloat((b/Math.pow(k,i)).toFixed(1))+' '+u[i]; }
+  function fmtTime(ms) { if (!ms) return '-'; return new Date(ms).toLocaleString('zh-CN', { hour12:false }); }
 
   function setStatus(id, state) {
     const el = $(id);
@@ -358,6 +359,86 @@ body{
     if (totalEl) totalEl.textContent = d.traffic > 0 ? fmtBytes(d.traffic) : '不限';
   }
 
+  function updateCheckinDisplay(d, msg, isError) {
+    const btn = document.getElementById('checkinBtn');
+    const statusEl = document.getElementById('checkinStatus');
+    const metaEl = document.getElementById('checkinMeta');
+    const checkin = d.checkin || {};
+    const minGB = checkin.minRewardGB || 2;
+    const maxGB = checkin.maxRewardGB || 20;
+    if (metaEl) {
+      const parts = ['每日随机领取 ' + minGB + '-' + maxGB + ' GB'];
+      if (checkin.totalClaimDays) parts.push('累计签到 ' + checkin.totalClaimDays + ' 天');
+      metaEl.textContent = parts.join(' · ');
+    }
+    if (!btn || !statusEl) return;
+    statusEl.style.color = isError ? '#dc2626' : '#64748b';
+    if (!d.uuid || !d.token) {
+      btn.disabled = true;
+      btn.textContent = '无法签到';
+      statusEl.textContent = msg || '缺少用户凭证，请重新登录。';
+      return;
+    }
+    if (checkin.claimedToday) {
+      btn.disabled = true;
+      btn.textContent = '今日已签到';
+      statusEl.textContent = msg || ('今天已领取 ' + fmtBytes(checkin.rewardBytes || 0) + '，下次可签到时间：' + fmtTime(checkin.nextAt));
+      return;
+    }
+    btn.disabled = false;
+    btn.textContent = '签到领流量';
+    statusEl.textContent = msg || (checkin.claimedAt ? ('上次领取 ' + fmtBytes(checkin.rewardBytes || 0) + '，今天还可以再领一次。') : '今天还没签到，点击按钮领取流量。');
+  }
+
+  async function claimDailyCheckin() {
+    const btn = document.getElementById('checkinBtn');
+    const stored = sessionStorage.getItem('beacon_user');
+    if (!stored) return;
+    let current;
+    try {
+      current = JSON.parse(stored);
+    } catch (e) {
+      return;
+    }
+    if (!current.uuid || !current.token) {
+      updateCheckinDisplay(current, '缺少用户凭证，请重新登录。', true);
+      return;
+    }
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = '签到中...';
+    }
+    try {
+      const resp = await fetch('/register/checkin?uuid=' + encodeURIComponent(current.uuid) + '&token=' + encodeURIComponent(current.token), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const payload = await resp.json().catch(() => ({}));
+      const data = payload.data || {};
+      if (!resp.ok) throw new Error(payload.message || ('HTTP ' + resp.status));
+      const node = data.node || {};
+      const user = data.user || {};
+      const next = {
+        ...current,
+        account: data.account || current.account || '',
+        email: data.email || current.email || '',
+        uuid: node.uuid || current.uuid || '',
+        token: node.token || current.token || '',
+        subUrl: node.subscriptionUrl || current.subUrl || '',
+        verUrl: node.versionUrl || current.verUrl || '',
+        traffic: user.traffic || 0,
+        used_traffic: user.used_traffic || 0,
+        checkin: data.checkin || current.checkin || {},
+      };
+      sessionStorage.setItem('beacon_user', JSON.stringify(next));
+      updateTrafficDisplay(next);
+      updateCheckinDisplay(next, payload.message || ('签到成功，已领取 ' + fmtBytes(data.rewardBytes || 0) + '。'));
+    } catch (e) {
+      const currentState = current || {};
+      updateCheckinDisplay(currentState, '签到失败：' + (e.message || '未知错误'), true);
+    }
+  }
+
   async function refreshUserData() {
     const stored = sessionStorage.getItem('beacon_user');
     if (!stored) return;
@@ -383,9 +464,11 @@ body{
         verUrl: node.versionUrl || current.verUrl || '',
         traffic: user.traffic || 0,
         used_traffic: user.used_traffic || 0,
+        checkin: payload.checkin || current.checkin || {},
       };
       sessionStorage.setItem('beacon_user', JSON.stringify(next));
       updateTrafficDisplay(next);
+      updateCheckinDisplay(next);
       const userLabel = document.getElementById('userLabel');
       if (userLabel && next.account) userLabel.textContent = '👤 ' + next.account;
     } catch (e) {
@@ -485,6 +568,16 @@ body{
         </div>
       </div>
 
+      <div class="sec-title">🎁 每日签到</div>
+      <div class="network-card">
+        <div class="network-info-content" style="gap:12px">
+          <span class="ip-text" style="font-size:1.4rem;color:#f59e0b">随机领取 2-20 GB</span>
+          <div class="network-tip" id="checkinMeta">每日签到可增加总流量配额</div>
+          <div class="network-tip" id="checkinStatus">正在检查签到状态...</div>
+          <button id="checkinBtn" type="button" style="margin-top:6px;border:none;border-radius:999px;padding:10px 18px;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;font-weight:700;cursor:pointer">签到领流量</button>
+        </div>
+      </div>
+
       <div class="sec-title">🔗 订阅链接</div>
       <div class="links">
         ${subscriptionUrl ? `
@@ -516,6 +609,9 @@ body{
     main.querySelectorAll('.link-btn').forEach(btn => {
       btn.addEventListener('click', () => copy(btn.dataset.copy, btn));
     });
+    const checkinBtn = document.getElementById('checkinBtn');
+    if (checkinBtn) checkinBtn.addEventListener('click', claimDailyCheckin);
+    updateCheckinDisplay(d);
 
     // load network cards
     loadNetworkCards();
