@@ -246,6 +246,8 @@
     const sumEl = $('#sec-users-summary');
     if (sumEl) sumEl.textContent = '共 '+(s.total||users.length)+' 用户'+(s.active!=null?' · 活跃 '+s.active:'')+(s.banned!=null?' · 封禁 '+s.banned:'');
 
+    function fmtBytes(b) { if (!b||b<=0) return '-'; const k=1024,u=['B','KB','MB','GB','TB']; const i=Math.floor(Math.log(b)/Math.log(k)); return parseFloat((b/Math.pow(k,i)).toFixed(1))+' '+u[i]; }
+
     const rows = users.map(u => [
       '<input type="checkbox" class="sec-user-cb" data-uuid="'+escAttr(u.uuid||'')+'">',
       '<code style="font-size:11px">'+esc((u.uuid||'').slice(0,12)+'...')+'</code>',
@@ -253,6 +255,7 @@
       esc(u.profile?.email||'-'),
       '<span class="sec-badge sec-badge-'+(u.status==='banned'?'banned':'active')+'">'+esc(u.status||'-')+'</span>',
       (u.subscription?.risk?.level ? '<span class="sec-badge sec-badge-'+(u.subscription.risk.level==='high'?'high':u.subscription.risk.level==='medium'?'medium':'low')+'">'+esc(u.subscription.risk.level)+(u.subscription.risk.score?' '+u.subscription.risk.score:'')+'</span>' : '-'),
+      '<span style="font-size:11px">'+fmtBytes(u.used_traffic||0)+(u.traffic>0?'/'+fmtBytes(u.traffic):'')+'</span>',
       esc(u.lastIp||u.profile?.lastIp||'-'),
       ago(u.lastSeenAt||u.lifecycle?.lastSeenAt),
       '<button class="sec-btn sec-btn-sm" onclick="window._secUserDetail(\''+escAttr(u.uuid)+'\')">详情</button>' +
@@ -264,7 +267,7 @@
 
     const tblEl = $('#sec-users-table');
     if (tblEl) {
-      tblEl.innerHTML = '<div class="sec-table-wrap"><table class="sec-table"><tr><th></th><th>UUID</th><th>账户</th><th>邮箱</th><th>状态</th><th>风险</th><th>最后IP</th><th>最后活跃</th><th>操作</th></tr>' +
+      tblEl.innerHTML = '<div class="sec-table-wrap"><table class="sec-table"><tr><th></th><th>UUID</th><th>账户</th><th>邮箱</th><th>状态</th><th>风险</th><th>用量</th><th>最后IP</th><th>最后活跃</th><th>操作</th></tr>' +
         rows.map(r => '<tr>'+r.map(c => '<td>'+c+'</td>').join('')+'</tr>').join('') +
         '</table></div>';
 
@@ -300,6 +303,7 @@
       esc(u.profile?.email||'-'),
       '<span class="sec-badge sec-badge-'+(u.status==='banned'?'banned':'active')+'">'+esc(u.status||'-')+'</span>',
       (u.subscription?.risk?.level ? '<span class="sec-badge sec-badge-'+(u.subscription.risk.level==='high'?'high':u.subscription.risk.level==='medium'?'medium':'low')+'">'+esc(u.subscription.risk.level)+'</span>' : '-'),
+      '<span style="font-size:11px">'+fmtBytes(u.used_traffic||0)+(u.traffic>0?'/'+fmtBytes(u.traffic):'')+'</span>',
       esc(u.lastIp||'-'),
       ago(u.lastSeenAt),
       '<button class="sec-btn sec-btn-sm" onclick="window._secUserDetail(\''+escAttr(u.uuid)+'\')">详情</button>' +
@@ -383,7 +387,7 @@
 
       // user info
       html += '<div class="sec-drawer-section"><h4>基本信息</h4>';
-      html += '<pre>UUID:   '+esc(uuid||'-')+'\n账户:   '+esc(profile.account||'-')+'\n邮箱:   '+esc(profile.email||'-')+'\n状态:   '+esc(user?.status||'-')+'\n风险:   '+esc(sub.risk?.level||'-')+(sub.risk?.score!=null?' ('+sub.risk.score+')':'')+'\n最后IP: '+esc(user?.lastIp||'-')+'\n最后活跃: '+ago(user?.lastSeenAt||user?.lifecycle?.lastSeenAt)+'</pre></div>';
+      html += '<pre>UUID:   '+esc(uuid||'-')+'\n账户:   '+esc(profile.account||'-')+'\n邮箱:   '+esc(profile.email||'-')+'\n状态:   '+esc(user?.status||'-')+'\n风险:   '+esc(sub.risk?.level||'-')+(sub.risk?.score!=null?' ('+sub.risk.score+')':'')+'\n用量:   '+fmtBytes(user?.used_traffic||0)+(user?.traffic>0?' / '+fmtBytes(user.traffic):'')+'\n最后IP: '+esc(user?.lastIp||'-')+'\n最后活跃: '+ago(user?.lastSeenAt||user?.lifecycle?.lastSeenAt)+'</pre></div>';
 
       // ban info
       if (ban) {
