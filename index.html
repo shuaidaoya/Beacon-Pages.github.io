@@ -203,10 +203,12 @@ button:disabled{opacity:.5;cursor:not-allowed}
       </div>
       <div class="rules-modal-footer">
         <label class="rules-check">
-          <input type="checkbox" id="rulesCheckbox" onchange="var b=document.getElementById('rulesAgreeBtn');b.classList.toggle('enabled',this.checked);b.disabled=!this.checked">
-          我已阅读并同意以上使用须知
-        </label>
-        <button class="rules-agree-btn" id="rulesAgreeBtn" disabled onclick="agreeRules()">同意并继续</button>
+          <span style="font-size:12px;color:#fbbf24;text-align:center;display:block;margin-bottom:4px" id="rulesCountdown">请仔细阅读使用须知（5秒后可勾选同意）</span>
+          <label class="rules-check" style="opacity:.4;pointer-events:none" id="rulesCheckLabel">
+            <input type="checkbox" id="rulesCheckbox" disabled onchange="var b=document.getElementById('rulesAgreeBtn');b.classList.toggle('enabled',this.checked);b.disabled=!this.checked">
+            我已阅读并同意以上使用须知
+          </label>
+          <button class="rules-agree-btn" id="rulesAgreeBtn" disabled onclick="agreeRules()">同意并继续</button>
       </div>
     </div>
   </div>
@@ -283,11 +285,28 @@ button:disabled{opacity:.5;cursor:not-allowed}
       const freq = cfg.rulesFrequency || 'always';
       if (freq === 'once' && localStorage.getItem('beacon_rules_agreed') === '1') {
         document.getElementById('rulesOverlay').classList.add('hidden');
+        return;
       }
-      // 'always' → modal stays visible (default)
-    } catch(e) {
-      // on error, show modal (safe default)
-    }
+    } catch(e) { /* show modal on error */ }
+
+    // 5-second countdown before checkbox is enabled
+    let sec = 5;
+    const countdownEl = document.getElementById('rulesCountdown');
+    const checkLabel = document.getElementById('rulesCheckLabel');
+    const checkbox = document.getElementById('rulesCheckbox');
+    const timer = setInterval(() => {
+      sec--;
+      if (sec <= 0) {
+        clearInterval(timer);
+        countdownEl.textContent = '请勾选同意后继续';
+        countdownEl.style.color = '#94a3b8';
+        checkLabel.style.opacity = '1';
+        checkLabel.style.pointerEvents = 'auto';
+        checkbox.disabled = false;
+      } else {
+        countdownEl.textContent = '请仔细阅读使用须知（'+sec+'秒后可勾选同意）';
+      }
+    }, 1000);
   })();
 
   // ── state ──

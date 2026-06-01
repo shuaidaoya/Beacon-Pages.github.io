@@ -434,12 +434,6 @@ body{
           <span class="link-value">${esc(subscriptionUrl)}</span>
           <button class="link-btn" data-copy="${escAttr(subscriptionUrl)}">📋 复制</button>
         </div>` : ''}
-        ${versionUrl ? `
-        <div class="link-card">
-          <span class="link-label">📦 版本查询</span>
-          <span class="link-value">${esc(versionUrl)}</span>
-          <button class="link-btn" data-copy="${escAttr(versionUrl)}">📋 复制</button>
-        </div>` : ''}
         ${d.uuid ? `
         <div class="link-card">
           <span class="link-label">🆔 用户 UUID</span>
