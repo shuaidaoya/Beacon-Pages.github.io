@@ -60,11 +60,14 @@
 .sec-module .sec-timeline-type{font-weight:700;font-size:13px;margin-bottom:2px;color:#1f2937}
 .sec-module .sec-timeline-detail{font-size:12px;color:#6b7280;word-break:break-all}
 .sec-module .sec-timeline-time{font-size:11px;color:#9ca3af}
-.sec-module .sec-config-grid{display:grid;gap:24px}
-.sec-module .sec-config-group h4{font-size:14px;color:#1f2937;margin:0 0 12px;padding-bottom:6px;border-bottom:1px solid #e5e7eb}
+.sec-module .sec-config-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.sec-module .sec-config-group{background:#f9fafb;border:1px solid #e5e7eb;border-radius:14px;padding:16px 18px}
+.sec-module .sec-config-group h4{font-size:13px;color:#1f2937;margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid #e5e7eb}
+@media(max-width:900px){.sec-module .sec-config-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.sec-module .sec-config-grid{grid-template-columns:1fr}}
 .sec-module .sec-config-row{display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
 .sec-module .sec-config-row label{font-size:12px;color:#6b7280;min-width:80px}
-.sec-module .sec-config-row input{background:#fff;border:1px solid #d1d5db;border-radius:8px;padding:6px 10px;color:#1f2937;font-size:13px;width:90px;text-align:right}
+.sec-module .sec-config-row input{background:#fff;border:1px solid #d1d5db;border-radius:8px;padding:6px 8px;color:#1f2937;font-size:13px;width:80px;text-align:right}
 .sec-module .sec-config-row select{background:#fff;border:1px solid #d1d5db;border-radius:8px;padding:6px 10px;color:#1f2937;font-size:13px}
 .sec-module .sec-config-row input:focus,.sec-module .sec-config-row select:focus{border-color:#faab41;outline:none;box-shadow:0 0 0 2px rgba(250,171,65,.15)}
 .sec-module .sec-empty{padding:40px;text-align:center;color:#9ca3af;font-size:14px}
