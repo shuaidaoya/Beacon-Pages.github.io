@@ -152,6 +152,7 @@ body{
   function $(sel) { return document.querySelector(sel); }
   function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function escAttr(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function fmtBytes(b) { if (!b||b<=0) return '0 B'; const k=1024,u=['B','KB','MB','GB','TB']; const i=Math.floor(Math.log(b)/Math.log(k)); return parseFloat((b/Math.pow(k,i)).toFixed(1))+' '+u[i]; }
 
   function setStatus(id, state) {
     const el = $(id);
@@ -425,6 +426,23 @@ body{
           </div>
         </div>
       </div>
+
+      ${(d.traffic > 0 || d.used_traffic > 0) ? `
+      <div class="sec-title">📊 流量用量</div>
+      <div class="network-cards-container" style="grid-template-columns:repeat(2,1fr)">
+        <div class="network-card" style="text-align:center">
+          <div class="network-info-content">
+            <span class="ip-text" style="color:#16a34a">${fmtBytes(d.used_traffic||0)}</span>
+            <div class="network-tip">已使用流量</div>
+          </div>
+        </div>
+        <div class="network-card" style="text-align:center">
+          <div class="network-info-content">
+            <span class="ip-text">${d.traffic > 0 ? fmtBytes(d.traffic) : '不限'}</span>
+            <div class="network-tip">总流量配额</div>
+          </div>
+        </div>
+      </div>` : ''}
 
       <div class="sec-title">🔗 订阅链接</div>
       <div class="links">

@@ -425,6 +425,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
         // signin OK → store in sessionStorage, redirect to user dashboard
         const user = data.data || {};
         const node = user.node || {};
+        const u = user.user || {};
         sessionStorage.setItem('beacon_user', JSON.stringify({
           account: user.account || '',
           email: user.email || '',
@@ -432,6 +433,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
           token: node.token || '',
           subUrl: node.subscriptionUrl || '',
           verUrl: node.versionUrl || '',
+          traffic: u.traffic || 0,
+          used_traffic: u.used_traffic || 0,
         }));
         location.href = '/user';
         return;
