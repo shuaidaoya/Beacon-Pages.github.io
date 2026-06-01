@@ -80,6 +80,16 @@
 .sec-drawer pre{background:#f9fafb;border-radius:10px;padding:12px;overflow-x:auto;font-size:12px;color:#1f2937;white-space:pre-wrap}
 .sec-drawer-close{float:right;background:transparent;border:none;color:#9ca3af;font-size:20px;cursor:pointer}
 .sec-drawer-close:hover{color:#1f2937}
+.sec-modal-form{display:flex;flex-direction:column;gap:14px;margin-top:8px}
+.sec-modal-group{display:flex;flex-direction:column;gap:8px}
+.sec-modal-label{font-size:13px;font-weight:700;color:#1f2937}
+.sec-modal-help{font-size:12px;color:#6b7280}
+.sec-modal-radio{display:flex;gap:10px;flex-wrap:wrap}
+.sec-modal-radio label,.sec-modal-check label{display:flex;align-items:center;gap:8px;font-size:13px;color:#374151}
+.sec-modal-input{background:#fff;border:1px solid #d1d5db;border-radius:10px;padding:10px 12px;color:#1f2937;font-size:14px;outline:none}
+.sec-modal-input:focus{border-color:#faab41;box-shadow:0 0 0 2px rgba(250,171,65,.15)}
+.sec-modal-check{display:flex;flex-direction:column;gap:8px}
+.sec-modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:4px}
 .sec-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;padding:10px 24px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.15);animation:sec-fade .3s;pointer-events:none}
 .sec-toast-ok{background:#16a34a;color:#fff}
 .sec-toast-err{background:#dc2626;color:#fff}
@@ -125,6 +135,146 @@
     t.textContent = msg; $('#sec-module-root').appendChild(t);
     setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; }, 1800);
     setTimeout(() => t.remove(), 2200);
+  }
+
+  function closeTrafficLimitModal() {
+    const modal = document.getElementById('sec-traffic-modal');
+    if (modal) modal.remove();
+  }
+
+  function openTrafficLimitModal(user) {
+    if (!user || !user.uuid) {
+      toast('未找到用户信息', 'error');
+      return;
+    }
+    closeTrafficLimitModal();
+    const gb = 1024 * 1024 * 1024;
+    const currentTotal = user.traffic > 0 ? fmtBytes(user.traffic) : '不限量';
+    const currentUsed = fmtBytes(user.used_traffic || 0);
+    const fixedValue = user.traffic > 0 ? String(Math.max(0.01, Math.round((user.traffic / gb) * 100) / 100)) : '50';
+    const html =
+      '<div class="sec-drawer-overlay" id="sec-traffic-modal">' +
+        '<div class="sec-drawer">' +
+          '<button class="sec-drawer-close" type="button" id="sec-traffic-close">✕</button>' +
+          '<h3>设置总限额</h3>' +
+          '<div class="sec-modal-form">' +
+            '<div class="sec-modal-group">' +
+              '<div class="sec-modal-label">当前流量信息</div>' +
+              '<div class="sec-modal-help">当前总限额：' + esc(currentTotal) + ' / 当前已用流量：' + esc(currentUsed) + '</div>' +
+            '</div>' +
+            '<div class="sec-modal-group">' +
+              '<div class="sec-modal-label">限额模式</div>' +
+              '<div class="sec-modal-radio">' +
+                '<label><input type="radio" name="secTrafficMode" value="unlimited"' + (user.traffic > 0 ? '' : ' checked') + '> 不限量</label>' +
+                '<label><input type="radio" name="secTrafficMode" value="fixed"' + (user.traffic > 0 ? ' checked' : '') + '> 固定限额</label>' +
+              '</div>' +
+            '</div>' +
+            '<div class="sec-modal-group">' +
+              '<label class="sec-modal-label" for="sec-traffic-value">固定限额</label>' +
+              '<div style="display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:10px">' +
+                '<input class="sec-modal-input" id="sec-traffic-value" type="number" min="0.01" step="0.01" value="' + escAttr(fixedValue) + '">' +
+                '<select class="sec-modal-input" id="sec-traffic-unit"><option value="MB">MB</option><option value="GB" selected>GB</option><option value="TB">TB</option></select>' +
+              '</div>' +
+              '<div class="sec-modal-help">支持 MB / GB / TB，保存时会自动换算。</div>' +
+            '</div>' +
+            '<div class="sec-modal-check">' +
+              '<label><input type="checkbox" id="sec-reset-used-traffic"> 同时清零已用流量</label>' +
+              '<label><input type="checkbox" id="sec-show-apply-notice" checked> 保存后立即生效提示</label>' +
+            '</div>' +
+            '<div class="sec-modal-group">' +
+              '<div class="sec-modal-label">剩余可用流量预估</div>' +
+              '<div class="sec-modal-help" id="sec-traffic-preview">按当前已用流量计算，设置后剩余可用流量将在这里显示。</div>' +
+            '</div>' +
+            '<div class="sec-modal-actions">' +
+              '<button class="sec-btn" type="button" id="sec-traffic-cancel">取消</button>' +
+              '<button class="sec-btn sec-btn-primary" type="button" id="sec-traffic-save">保存设置</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    document.body.insertAdjacentHTML('beforeend', html);
+    const modal = document.getElementById('sec-traffic-modal');
+    const valueInput = document.getElementById('sec-traffic-value');
+    const unitInput = document.getElementById('sec-traffic-unit');
+    const previewEl = document.getElementById('sec-traffic-preview');
+    const resetUsedInput = document.getElementById('sec-reset-used-traffic');
+    const modeInputs = modal.querySelectorAll('input[name="secTrafficMode"]');
+    const formatByUnit = (value, unit) => {
+      const units = { MB: 1024 * 1024, GB: 1024 * 1024 * 1024, TB: 1024 * 1024 * 1024 * 1024 };
+      const base = units[unit] || units.GB;
+      return (Math.round((value / base) * 100) / 100) + ' ' + unit;
+    };
+    const sync = () => {
+      const mode = modal.querySelector('input[name="secTrafficMode"]:checked')?.value || 'fixed';
+      const disabled = mode !== 'fixed';
+      valueInput.disabled = disabled;
+      unitInput.disabled = disabled;
+      if (!previewEl) return;
+      if (mode === 'unlimited') {
+        previewEl.textContent = '设置为不限量后，剩余可用流量将不受总限额限制。';
+        return;
+      }
+      const value = Number(valueInput.value);
+      const unit = unitInput.value || 'GB';
+      const factor = unit === 'TB' ? 1024 : unit === 'MB' ? 1 / 1024 : 1;
+      const targetGB = value * factor;
+      if (!Number.isFinite(targetGB) || targetGB <= 0) {
+        previewEl.textContent = '请输入有效的固定限额数值后查看预估结果。';
+        return;
+      }
+      const targetBytes = targetGB * gb;
+      const usedBytes = resetUsedInput.checked ? 0 : Number(user.used_traffic || 0);
+      const remainingBytes = targetBytes - usedBytes;
+      if (remainingBytes >= 0) {
+        previewEl.textContent = '按当前已用流量计算，设置后剩余约 ' + formatByUnit(remainingBytes, unit) + '。';
+      } else {
+        previewEl.textContent = '按当前已用流量计算，设置后将超额约 ' + formatByUnit(Math.abs(remainingBytes), unit) + '。';
+      }
+    };
+    modeInputs.forEach(input => input.addEventListener('change', sync));
+    valueInput.addEventListener('input', sync);
+    unitInput.addEventListener('change', sync);
+    resetUsedInput.addEventListener('change', sync);
+    sync();
+    document.getElementById('sec-traffic-close').onclick = closeTrafficLimitModal;
+    document.getElementById('sec-traffic-cancel').onclick = closeTrafficLimitModal;
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeTrafficLimitModal(); });
+    document.getElementById('sec-traffic-save').onclick = async () => {
+      const mode = modal.querySelector('input[name="secTrafficMode"]:checked')?.value || 'fixed';
+      const resetUsedTraffic = !!document.getElementById('sec-reset-used-traffic')?.checked;
+      const showNotice = !!document.getElementById('sec-show-apply-notice')?.checked;
+      const body = {
+        uuid: user.uuid,
+        mode,
+        resetUsedTraffic,
+        reason: 'admin-ui-set-traffic',
+      };
+      if (mode === 'fixed') {
+        const value = Number(valueInput.value);
+        const unit = unitInput.value || 'GB';
+        const factor = unit === 'TB' ? 1024 : unit === 'MB' ? 1 / 1024 : 1;
+        body.trafficGB = value * factor;
+        if (!Number.isFinite(body.trafficGB) || body.trafficGB <= 0) {
+          toast('请输入有效的固定限额数值', 'error');
+          valueInput.focus();
+          return;
+        }
+      }
+      const confirmMessage = mode === 'unlimited'
+        ? ('确认将该用户的总限额设置为不限量吗？当前已用流量为 ' + currentUsed + '。')
+        : ('确认将该用户的总限额设置为 ' + valueInput.value + ' ' + unitInput.value + ' 吗？当前已用流量为 ' + currentUsed + (resetUsedTraffic ? '，并会同时清零已用流量。' : '。'));
+      if (!confirm(confirmMessage)) return;
+      try {
+        await api('/users/traffic', { method:'POST', body: JSON.stringify(body) });
+        closeTrafficLimitModal();
+        const msg = mode === 'unlimited' ? '总限额已设置为不限量' : ('总限额已设置为 ' + valueInput.value + ' ' + unitInput.value);
+        toast(msg);
+        if (showNotice) alert(msg + (resetUsedTraffic ? '，并已清零已用流量。' : '，已立即生效。'));
+        loadUsers();
+      } catch (e) {
+        if (e.message !== 'auth_redirect') toast('设置总限额失败: ' + e.message, 'error');
+      }
+    };
   }
 
   // ══════════════════════════════════════════
@@ -248,6 +398,7 @@
     if (sumEl) sumEl.textContent = '共 '+(s.total||users.length)+' 用户'+(s.active!=null?' · 活跃 '+s.active:'')+(s.banned!=null?' · 封禁 '+s.banned:'');
 
     function fmtBytes(b) { if (!b||b<=0) return '-'; const k=1024,u=['B','KB','MB','GB','TB']; const i=Math.floor(Math.log(b)/Math.log(k)); return parseFloat((b/Math.pow(k,i)).toFixed(1))+' '+u[i]; }
+    function fmtQuota(u) { return u && u.traffic > 0 ? fmtBytes(u.traffic) : '不限量'; }
 
     const rows = users.map(u => [
       '<input type="checkbox" class="sec-user-cb" data-uuid="'+escAttr(u.uuid||'')+'">',
@@ -256,13 +407,14 @@
       esc(u.profile?.email||'-'),
       '<span class="sec-badge sec-badge-'+(u.status==='banned'?'banned':'active')+'">'+esc(u.status||'-')+'</span>',
       (u.subscription?.risk?.level ? '<span class="sec-badge sec-badge-'+(u.subscription.risk.level==='high'?'high':u.subscription.risk.level==='medium'?'medium':'low')+'">'+esc(u.subscription.risk.level)+(u.subscription.risk.score?' '+u.subscription.risk.score:'')+'</span>' : '-'),
-      '<span style="font-size:11px">'+fmtBytes(u.used_traffic||0)+(u.traffic>0?'/'+fmtBytes(u.traffic):'')+'</span>',
+      '<span style="font-size:11px">'+fmtBytes(u.used_traffic||0)+' / '+fmtQuota(u)+'</span>',
       esc(u.lastIp||u.profile?.lastIp||'-'),
       ago(u.lastSeenAt||u.lifecycle?.lastSeenAt),
       '<button class="sec-btn sec-btn-sm" onclick="window._secUserDetail(\''+escAttr(u.uuid)+'\')">详情</button>' +
       (u.status==='banned'
         ? ' <button class="sec-btn sec-btn-sm" onclick="window._secUserAction(\'restore\',\''+escAttr(u.uuid)+'\')">解禁</button>'
         : ' <button class="sec-btn sec-btn-sm sec-btn-danger" onclick="window._secUserAction(\'ban\',\''+escAttr(u.uuid)+'\')">封禁</button>') +
+      ' <button class="sec-btn sec-btn-sm" onclick="window._secUserAction(\'set-traffic\',\''+escAttr(u.uuid)+'\')">总限额</button>' +
       ' <button class="sec-btn sec-btn-sm" onclick="window._secUserAction(\'reset-subscription\',\''+escAttr(u.uuid)+'\')">重置</button>' +
       ' <button class="sec-btn sec-btn-sm sec-btn-danger" onclick="window._secUserAction(\'delete\',\''+escAttr(u.uuid)+'\')">删除</button>',
     ]);
@@ -305,13 +457,14 @@
       esc(u.profile?.email||'-'),
       '<span class="sec-badge sec-badge-'+(u.status==='banned'?'banned':'active')+'">'+esc(u.status||'-')+'</span>',
       (u.subscription?.risk?.level ? '<span class="sec-badge sec-badge-'+(u.subscription.risk.level==='high'?'high':u.subscription.risk.level==='medium'?'medium':'low')+'">'+esc(u.subscription.risk.level)+'</span>' : '-'),
-      '<span style="font-size:11px">'+fmtBytes(u.used_traffic||0)+(u.traffic>0?'/'+fmtBytes(u.traffic):'')+'</span>',
+      '<span style="font-size:11px">'+fmtBytes(u.used_traffic||0)+' / '+fmtQuota(u)+'</span>',
       esc(u.lastIp||'-'),
       ago(u.lastSeenAt),
       '<button class="sec-btn sec-btn-sm" onclick="window._secUserDetail(\''+escAttr(u.uuid)+'\')">详情</button>' +
       (u.status==='banned'
         ? ' <button class="sec-btn sec-btn-sm" onclick="window._secUserAction(\'restore\',\''+escAttr(u.uuid)+'\')">解禁</button>'
         : ' <button class="sec-btn sec-btn-sm sec-btn-danger" onclick="window._secUserAction(\'ban\',\''+escAttr(u.uuid)+'\')">封禁</button>') +
+      ' <button class="sec-btn sec-btn-sm" onclick="window._secUserAction(\'set-traffic\',\''+escAttr(u.uuid)+'\')">总限额</button>' +
       ' <button class="sec-btn sec-btn-sm" onclick="window._secUserAction(\'reset-subscription\',\''+escAttr(u.uuid)+'\')">重置</button>' +
       ' <button class="sec-btn sec-btn-sm sec-btn-danger" onclick="window._secUserAction(\'delete\',\''+escAttr(u.uuid)+'\')">删除</button>',
     ]);
@@ -363,6 +516,10 @@
   }
 
   async function userAction(action, uuid) {
+    if (action === 'set-traffic') {
+      openTrafficLimitModal((usersState.userMap||{})[uuid] || { uuid });
+      return;
+    }
     const labels = { ban:'封禁', restore:'解禁', 'reset-subscription':'重置订阅', delete:'删除' };
     const confirmText = action === 'delete'
       ? '确认彻底删除该用户？此操作不可恢复。'
@@ -395,6 +552,7 @@
       const profile = user?.profile || {};
       const sub = user?.subscription || {};
       const ban = user?.activeBan;
+      const totalTraffic = user?.traffic > 0 ? fmtBytes(user.traffic) : '不限量';
 
       let html = '<div class="sec-drawer-overlay" id="sec-drawer"><div class="sec-drawer">';
       html += '<button class="sec-drawer-close" onclick="document.getElementById(\'sec-drawer\').remove()">✕</button>';
@@ -402,7 +560,8 @@
 
       // user info
       html += '<div class="sec-drawer-section"><h4>基本信息</h4>';
-      html += '<pre>UUID:   '+esc(uuid||'-')+'\n账户:   '+esc(profile.account||'-')+'\n邮箱:   '+esc(profile.email||'-')+'\n状态:   '+esc(user?.status||'-')+'\n风险:   '+esc(sub.risk?.level||'-')+(sub.risk?.score!=null?' ('+sub.risk.score+')':'')+'\n用量:   '+fmtBytes(user?.used_traffic||0)+(user?.traffic>0?' / '+fmtBytes(user.traffic):'')+'\n最后IP: '+esc(user?.lastIp||'-')+'\n最后活跃: '+ago(user?.lastSeenAt||user?.lifecycle?.lastSeenAt)+'</pre></div>';
+      html += '<pre>UUID:   '+esc(uuid||'-')+'\n账户:   '+esc(profile.account||'-')+'\n邮箱:   '+esc(profile.email||'-')+'\n状态:   '+esc(user?.status||'-')+'\n风险:   '+esc(sub.risk?.level||'-')+(sub.risk.score!=null?' ('+sub.risk.score+')':'')+'\n已用:   '+fmtBytes(user?.used_traffic||0)+'\n总限额: '+esc(totalTraffic)+'\n最后IP: '+esc(user?.lastIp||'-')+'\n最后活跃: '+ago(user?.lastSeenAt||user?.lifecycle?.lastSeenAt)+'</pre></div>';
+      html += '<div class="sec-drawer-section"><button class="sec-btn sec-btn-primary" onclick="window._secUserAction(\'set-traffic\',\''+escAttr(uuid)+'\')">设置总限额</button></div>';
 
       // ban info
       if (ban) {

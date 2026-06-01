@@ -131,7 +131,6 @@ body{
   <div class="topbar-actions">
     <span id="userLabel" style="font-size:13px;color:#6b7280"></span>
     <a href="/register" class="topbar-btn">🔄 切换账户</a>
-    <button class="topbar-btn primary" onclick="location.href='/'">🏠 首页</button>
   </div>
 </div>
 
@@ -379,6 +378,12 @@ body{
       statusEl.textContent = msg || '缺少用户凭证，请重新登录。';
       return;
     }
+    if (checkin.enabled === false || checkin.eligible === false) {
+      btn.disabled = true;
+      btn.textContent = '无需签到';
+      statusEl.textContent = msg || checkin.message || '无限制总配额用户无需签到。';
+      return;
+    }
     if (checkin.claimedToday) {
       btn.disabled = true;
       btn.textContent = '今日已签到';
@@ -402,6 +407,10 @@ body{
     }
     if (!current.uuid || !current.token) {
       updateCheckinDisplay(current, '缺少用户凭证，请重新登录。', true);
+      return;
+    }
+    if (current.checkin && (current.checkin.enabled === false || current.checkin.eligible === false)) {
+      updateCheckinDisplay(current, current.checkin.message || '无限制总配额用户无需签到。');
       return;
     }
     if (btn) {
