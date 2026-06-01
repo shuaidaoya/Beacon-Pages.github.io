@@ -42,20 +42,39 @@ body{
 }
 .hero h1{font-size:22px;font-weight:800;margin:0 0 4px;color:#1f2937}
 .hero p{font-size:14px;color:#6b7280;margin:0}
-/* ── stats ── */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
-.stat-card{
-  background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:18px;
-  box-shadow:0 1px 3px rgba(0,0,0,.04);text-align:center;
-}
-.stat-icon{font-size:24px;margin-bottom:6px}
-.stat-num{font-size:22px;font-weight:800;color:#1f2937;line-height:1.3;word-break:break-all}
-.stat-label{font-size:12px;color:#6b7280;margin-top:4px}
-/* ── section title ── */
+/* ── network cards ── */
 .sec-title{
   font-size:16px;font-weight:700;color:#1f2937;margin:0 0 12px;
   display:flex;align-items:center;gap:8px;
 }
+.network-cards-container{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;
+}
+.network-card{
+  background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:16px;
+  position:relative;overflow:hidden;transition:all .3s;
+  box-shadow:0 4px 6px rgba(0,0,0,.05);display:flex;flex-direction:column;justify-content:center;
+}
+.network-card:hover{transform:translateY(-4px);border-color:#f6821f;box-shadow:0 12px 20px rgba(246,130,31,.15)}
+.network-card-title{
+  font-size:14px;color:#1f2937;margin-bottom:12px;padding-bottom:8px;
+  border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:8px;font-weight:700;
+}
+.status-indicator{display:inline-block;width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.status-indicator.loading{background:#f59e0b;animation:pulse 1s infinite}
+.status-indicator.success{background:#16a34a}
+.status-indicator.error{background:#ef4444}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.title-text{display:flex;flex-direction:column;gap:2px}
+.title-main{font-size:14px}
+.title-subtitle{font-size:11px;color:#9ca3af;font-weight:500}
+.network-info-content{display:flex;flex-direction:column;gap:4px}
+.ip-text{font-size:18px;font-weight:700;color:#1f2937;font-family:'SF Mono','Monaco','Menlo',monospace}
+.ip-text.clickable{cursor:pointer}
+.ip-text.clickable:hover{color:#f6821f}
+.location-text{display:flex;align-items:center;gap:6px;font-size:12px;color:#6b7280;min-height:18px}
+.country-flag{width:20px;height:14px;border-radius:2px;object-fit:cover;flex-shrink:0}
+.network-tip{font-size:11px;color:#9ca3af;margin-top:4px}
 /* ── link cards ── */
 .links{display:grid;gap:10px;margin-bottom:24px}
 .link-card{
@@ -75,8 +94,7 @@ body{
   white-space:nowrap;transition:all .2s;
 }
 .link-btn:hover{opacity:.9;transform:translateY(-1px)}
-.link-btn:active{transform:scale(.97)}
-/* ── copy toast ── */
+/* ── toast ── */
 .toast{
   position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;
   background:#16a34a;color:#fff;padding:10px 24px;border-radius:12px;font-size:14px;
@@ -91,15 +109,14 @@ body{
 .empty p{font-size:13px;margin:0 0 16px}
 /* ── responsive ── */
 @media(max-width:768px){
-  .stats{grid-template-columns:repeat(2,1fr)}
+  .network-cards-container{grid-template-columns:repeat(2,1fr)}
   .topbar{padding:12px 16px}
   .main{padding:16px 12px 30px}
   .link-card{flex-direction:column;align-items:flex-start}
   .link-value{width:100%}
 }
 @media(max-width:480px){
-  .stats{grid-template-columns:1fr 1fr}
-  .stat-num{font-size:18px}
+  .network-cards-container{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -131,39 +148,212 @@ body{
 (function(){
   'use strict';
 
-  // ── read user data from URL params ──
-  const params = new URLSearchParams(location.search);
-  const account  = params.get('account') || '';
-  const email    = params.get('email') || '';
-  const uuid     = params.get('uuid') || '';
-  const token    = params.get('token') || '';
-  const subUrl   = params.get('sub') || '';
-  const verUrl   = params.get('version') || '';
+  // ── helpers ──
+  function $(sel) { return document.querySelector(sel); }
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function escAttr(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  // If no user data, try sessionStorage fallback
-  if (!account && !uuid) {
-    const stored = sessionStorage.getItem('beacon_user');
-    if (stored) {
-      try {
-        const d = JSON.parse(stored);
-        renderDashboard(d);
-      } catch(e) { /* stay on empty */ }
-    }
-    // still fetch network info
-    fetchNetworkInfo();
-    return;
+  function setStatus(id, state) {
+    const el = $(id);
+    if (!el) return;
+    el.className = 'status-indicator ' + state;
   }
 
-  const userData = { account, email, uuid, token, subUrl, verUrl };
-  sessionStorage.setItem('beacon_user', JSON.stringify(userData));
-  renderDashboard(userData);
-  fetchNetworkInfo();
+  function setIp(id, text) {
+    const el = $(id);
+    if (!el) return;
+    el.textContent = text || '未知';
+    el.dataset.rawValue = text || '';
+  }
 
+  function setLocation(id, text, flagUrl) {
+    const el = $(id);
+    if (!el) return;
+    let html = '';
+    if (flagUrl) html += '<img class="country-flag" src="'+escAttr(flagUrl)+'" alt=""> ';
+    html += esc(text || '未知');
+    el.innerHTML = html;
+  }
+
+  function setSubtitle(id, text) {
+    const el = $(id);
+    if (el) el.textContent = text || '';
+  }
+
+  // ── fetch helpers ──
+  async function fetchJson(url, timeoutMs) {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeoutMs || 6000);
+    try {
+      const resp = await fetch(url, { signal: ctrl.signal });
+      clearTimeout(t);
+      if (!resp.ok) throw new Error('HTTP '+resp.status);
+      return await resp.json();
+    } catch(e) { clearTimeout(t); throw e; }
+  }
+
+  async function fetchTrace(url, timeoutMs) {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeoutMs || 6000);
+    try {
+      const resp = await fetch(url, { signal: ctrl.signal });
+      clearTimeout(t);
+      if (!resp.ok) throw new Error('HTTP '+resp.status);
+      const text = await resp.text();
+      const trace = {};
+      text.split('\n').forEach(line => {
+        const idx = line.indexOf('=');
+        if (idx > 0) trace[line.slice(0,idx).trim()] = line.slice(idx+1).trim();
+      });
+      return trace;
+    } catch(e) { clearTimeout(t); throw e; }
+  }
+
+  // ═══════════════════════════════
+  //  1. 国内测试 (CN-Test)
+  // ═══════════════════════════════
+  async function fetchDomestic() {
+    setStatus('#status-ipip', 'loading');
+    try {
+      // Try multiple domestic-oriented APIs
+      const data = await fetchJson('https://api.ipapi.is?lang=zh-CN', 5000);
+      const ip = data.ip || '未知';
+      const cc = (data.location?.country_code || '').toLowerCase();
+      const city = data.location?.city || '';
+      const locText = [data.location?.country || '', city].filter(Boolean).join(' ');
+      const flagUrl = cc ? 'https://flagcdn.com/24x18/'+cc+'.png' : '';
+
+      setIp('#ipip-ip', ip);
+      setLocation('#ipip-country', locText, flagUrl);
+      setSubtitle('#ipip-provider', 'ipapi.is');
+      setStatus('#status-ipip', 'success');
+    } catch(e) {
+      // fallback: CF trace
+      try {
+        const trace = await fetchTrace('https://speed.cloudflare.com/cdn-cgi/trace', 4000);
+        setIp('#ipip-ip', trace.ip || '未知');
+        setLocation('#ipip-country', (trace.loc||'') + ' / ' + (trace.colo||''));
+        setSubtitle('#ipip-provider', 'Cloudflare');
+        setStatus('#status-ipip', 'success');
+      } catch(e2) {
+        setIp('#ipip-ip', '加载失败');
+        setStatus('#status-ipip', 'error');
+      }
+    }
+  }
+
+  // ═══════════════════════════════
+  //  2. 国外测试 (漏网之鱼)
+  // ═══════════════════════════════
+  async function fetchOverseas() {
+    setStatus('#status-overseas', 'loading');
+    try {
+      const data = await fetchJson('https://api.cmliussss.net/api/ipinfo?_t='+Date.now(), 5000);
+      const ip = data.ip || '未知';
+      const cc = (data.country_code || '').toLowerCase();
+      const locText = [data.country_code||'', data.asn||'', data.as_name||''].filter(Boolean).join(' ');
+      const flagUrl = cc ? 'https://flagcdn.com/24x18/'+cc+'.png' : '';
+
+      setIp('#overseas-ip', ip);
+      setLocation('#overseas-country', locText, flagUrl);
+      setSubtitle('#overseas-provider', 'cmliussss.net');
+      setStatus('#status-overseas', 'success');
+    } catch(e) {
+      // fallback to ipapi.is
+      try {
+        const data = await fetchJson('https://api.ipapi.is', 4000);
+        const ip = data.ip || '未知';
+        const cc = (data.location?.country_code || '').toLowerCase();
+        const locText = [data.location?.country_code||'', 'AS'+data.asn?.asn, data.asn?.org].filter(Boolean).join(' ');
+        const flagUrl = cc ? 'https://flagcdn.com/24x18/'+cc+'.png' : '';
+        setIp('#overseas-ip', ip);
+        setLocation('#overseas-country', locText, flagUrl);
+        setSubtitle('#overseas-provider', 'ipapi.is');
+        setStatus('#status-overseas', 'success');
+      } catch(e2) {
+        setIp('#overseas-ip', '加载失败');
+        setStatus('#status-overseas', 'error');
+      }
+    }
+  }
+
+  // ═══════════════════════════════
+  //  3. CloudFlare (ProxyIP)
+  // ═══════════════════════════════
+  async function fetchCloudFlare() {
+    setStatus('#status-cf', 'loading');
+    try {
+      const trace = await fetchTrace('https://speed.cloudflare.com/cdn-cgi/trace', 5000);
+      const ip = trace.ip || '未知';
+      const colo = trace.colo || '';
+      const loc = trace.loc || '';
+
+      setIp('#cf-ip', ip);
+      setLocation('#cf-country', loc + (colo ? ' / ' + colo : ''));
+      setSubtitle('#cf-provider', 'Cloudflare CDN');
+      setStatus('#status-cf', 'success');
+    } catch(e) {
+      setIp('#cf-ip', '加载失败');
+      setStatus('#status-cf', 'error');
+    }
+  }
+
+  // ═══════════════════════════════
+  //  4. 墙外测试 (!CN-Test)
+  // ═══════════════════════════════
+  async function fetchWallTest() {
+    setStatus('#status-twitter', 'loading');
+    try {
+      // Use a different endpoint to simulate wall-test perspective
+      const data = await fetchJson('https://api.ipapi.is?lang=en', 5000);
+      const ip = data.ip || '未知';
+      const cc = (data.location?.country_code || '').toLowerCase();
+      const org = data.asn?.org || '';
+      const locText = [data.location?.country||'', data.location?.city||'', org].filter(Boolean).join(' · ');
+      const flagUrl = cc ? 'https://flagcdn.com/24x18/'+cc+'.png' : '';
+
+      setIp('#twitter-ip', ip);
+      setLocation('#twitter-country', locText, flagUrl);
+      setSubtitle('#twitter-provider', 'ipapi.is');
+      setStatus('#status-twitter', 'success');
+    } catch(e) {
+      try {
+        const trace = await fetchTrace('https://speed.cloudflare.com/cdn-cgi/trace', 4000);
+        setIp('#twitter-ip', trace.ip || '未知');
+        setLocation('#twitter-country', (trace.loc||'') + ' / ' + (trace.colo||''));
+        setSubtitle('#twitter-provider', 'Cloudflare');
+        setStatus('#status-twitter', 'success');
+      } catch(e2) {
+        setIp('#twitter-ip', '加载失败');
+        setStatus('#status-twitter', 'error');
+      }
+    }
+  }
+
+  // ── load all cards ──
+  function loadNetworkCards() {
+    fetchDomestic();
+    fetchOverseas();
+    fetchCloudFlare();
+    fetchWallTest();
+  }
+
+  // ── copy helper ──
+  function copy(text, btn) {
+    const orig = btn.textContent;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => { btn.textContent='✅ 已复制'; setTimeout(()=>btn.textContent=orig,1500); });
+    } else {
+      const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+      document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+      btn.textContent='✅ 已复制';setTimeout(()=>btn.textContent=orig,1500);
+    }
+  }
+
+  // ── render dashboard ──
   function renderDashboard(d) {
     const main = document.getElementById('mainContent');
     const host = location.origin;
-
-    // subscription URL fallback
     const subscriptionUrl = d.subUrl || (d.uuid && d.token ? (host + '/sub?uuid=' + encodeURIComponent(d.uuid) + '&token=' + encodeURIComponent(d.token)) : '');
     const versionUrl     = d.verUrl || (d.uuid ? (host + '/version?uuid=' + encodeURIComponent(d.uuid)) : '');
 
@@ -173,11 +363,67 @@ body{
         <p>${esc(d.email || '')}${d.uuid ? ' · UUID: ' + esc(d.uuid.slice(0,8) + '...') : ''}</p>
       </div>
 
-      <div class="stats" id="statCards">
-        <div class="stat-card"><div class="stat-icon">🌐</div><div class="stat-num" id="stat-ip">检测中...</div><div class="stat-label">IP 地址</div></div>
-        <div class="stat-card"><div class="stat-icon">📍</div><div class="stat-num" id="stat-loc">检测中...</div><div class="stat-label">位置 / 数据中心</div></div>
-        <div class="stat-card"><div class="stat-icon">🔒</div><div class="stat-num" id="stat-tls">检测中...</div><div class="stat-label">连接加密</div></div>
-        <div class="stat-card"><div class="stat-icon">📡</div><div class="stat-num" id="stat-warp">检测中...</div><div class="stat-label">WARP / 网关</div></div>
+      <div class="sec-title">🌍 当前网络信息</div>
+      <div class="network-cards-container">
+        <div class="network-card">
+          <div class="network-card-title">
+            <span class="status-indicator loading" id="status-ipip"></span>
+            <div class="title-text">
+              <div class="title-main">国内测试</div>
+              <div class="title-subtitle" id="ipip-provider">CN-Test</div>
+            </div>
+          </div>
+          <div class="network-info-content">
+            <span id="ipip-ip" class="ip-text">-</span>
+            <div class="location-text"><span id="ipip-country">-</span></div>
+            <div class="network-tip">· 您访问国内站点所使用的IP</div>
+          </div>
+        </div>
+
+        <div class="network-card">
+          <div class="network-card-title">
+            <span class="status-indicator loading" id="status-overseas"></span>
+            <div class="title-text">
+              <div class="title-main">国外测试</div>
+              <div class="title-subtitle" id="overseas-provider">漏网之鱼</div>
+            </div>
+          </div>
+          <div class="network-info-content">
+            <span id="overseas-ip" class="ip-text">-</span>
+            <div class="location-text"><span id="overseas-country">-</span></div>
+            <div class="network-tip">· 您访问没有被封的国外站点所使用的IP</div>
+          </div>
+        </div>
+
+        <div class="network-card">
+          <div class="network-card-title">
+            <span class="status-indicator loading" id="status-cf"></span>
+            <div class="title-text">
+              <div class="title-main">CloudFlare</div>
+              <div class="title-subtitle" id="cf-provider">ProxyIP</div>
+            </div>
+          </div>
+          <div class="network-info-content">
+            <span id="cf-ip" class="ip-text">-</span>
+            <div class="location-text"><span id="cf-country">-</span></div>
+            <div class="network-tip">· 您访问CFCDN站点所使用的落地IP</div>
+          </div>
+        </div>
+
+        <div class="network-card">
+          <div class="network-card-title">
+            <span class="status-indicator loading" id="status-twitter"></span>
+            <div class="title-text">
+              <div class="title-main">墙外测试</div>
+              <div class="title-subtitle" id="twitter-provider">!CN-Test</div>
+            </div>
+          </div>
+          <div class="network-info-content">
+            <span id="twitter-ip" class="ip-text">-</span>
+            <div class="location-text"><span id="twitter-country">-</span></div>
+            <div class="network-tip">· 您访问墙外站点所使用的IP</div>
+          </div>
+        </div>
       </div>
 
       <div class="sec-title">🔗 订阅链接</div>
@@ -217,56 +463,20 @@ body{
     main.querySelectorAll('.link-btn').forEach(btn => {
       btn.addEventListener('click', () => copy(btn.dataset.copy, btn));
     });
+
+    // load network cards
+    loadNetworkCards();
   }
 
-  async function fetchNetworkInfo() {
+  // ── init ──
+  const stored = sessionStorage.getItem('beacon_user');
+  if (stored) {
     try {
-      const resp = await fetch('https://speed.cloudflare.com/cdn-cgi/trace');
-      const text = await resp.text();
-      const trace = {};
-      text.split('\n').forEach(line => {
-        const idx = line.indexOf('=');
-        if (idx > 0) trace[line.slice(0,idx).trim()] = line.slice(idx+1).trim();
-      });
-
-      const ip     = trace.ip || '-';
-      const colo   = trace.colo || '-';
-      const loc    = trace.loc || '-';
-      const tls    = trace.tls || '-';
-      const http   = trace.http || '-';
-      const warp   = trace.warp || '-';
-      const gateway = trace.gateway || '-';
-
-      setStat('stat-ip',   ip);
-      setStat('stat-loc',  (loc !== '-' ? loc + ' / ' : '') + colo);
-      setStat('stat-tls',  tls + (http !== '-' ? ' / ' + http.toUpperCase() : ''));
-      setStat('stat-warp', warp === 'on' ? 'WARP ✅' : 'WARP ' + (gateway === 'on' ? 'Gateway' : '直连'));
+      renderDashboard(JSON.parse(stored));
     } catch(e) {
-      ['stat-ip','stat-loc','stat-tls','stat-warp'].forEach(id => setStat(id, '不可用'));
+      // stay on empty state
     }
   }
-
-  function setStat(id, val) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = val;
-  }
-
-  function copy(text, btn) {
-    const orig = btn.textContent;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text).then(() => { btn.textContent = '✅ 已复制'; setTimeout(() => btn.textContent = orig, 1500); });
-    } else {
-      const ta = document.createElement('textarea');
-      ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
-      document.body.appendChild(ta); ta.select();
-      document.execCommand('copy'); document.body.removeChild(ta);
-      btn.textContent = '✅ 已复制'; setTimeout(() => btn.textContent = orig, 1500);
-    }
-  }
-
-  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-  function escAttr(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
 })();
 </script>
 </body>
