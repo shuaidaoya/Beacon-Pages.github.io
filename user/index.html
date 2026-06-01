@@ -351,6 +351,48 @@ body{
     }
   }
 
+  function updateTrafficDisplay(d) {
+    const usedEl = document.getElementById('usedTrafficValue');
+    const totalEl = document.getElementById('totalTrafficValue');
+    if (usedEl) usedEl.textContent = fmtBytes(d.used_traffic || 0);
+    if (totalEl) totalEl.textContent = d.traffic > 0 ? fmtBytes(d.traffic) : '不限';
+  }
+
+  async function refreshUserData() {
+    const stored = sessionStorage.getItem('beacon_user');
+    if (!stored) return;
+    let current;
+    try {
+      current = JSON.parse(stored);
+    } catch (e) {
+      return;
+    }
+    if (!current.uuid || !current.token) return;
+    try {
+      const resp = await fetchJson('/register/user?uuid=' + encodeURIComponent(current.uuid) + '&token=' + encodeURIComponent(current.token) + '&_t=' + Date.now(), 5000);
+      const payload = resp.data || {};
+      const node = payload.node || {};
+      const user = payload.user || {};
+      const next = {
+        ...current,
+        account: payload.account || current.account || '',
+        email: payload.email || current.email || '',
+        uuid: node.uuid || current.uuid || '',
+        token: node.token || current.token || '',
+        subUrl: node.subscriptionUrl || current.subUrl || '',
+        verUrl: node.versionUrl || current.verUrl || '',
+        traffic: user.traffic || 0,
+        used_traffic: user.used_traffic || 0,
+      };
+      sessionStorage.setItem('beacon_user', JSON.stringify(next));
+      updateTrafficDisplay(next);
+      const userLabel = document.getElementById('userLabel');
+      if (userLabel && next.account) userLabel.textContent = '👤 ' + next.account;
+    } catch (e) {
+      // Keep the last successful snapshot when refresh fails.
+    }
+  }
+
   // ── render dashboard ──
   function renderDashboard(d) {
     const main = document.getElementById('mainContent');
@@ -431,13 +473,13 @@ body{
       <div class="network-cards-container" style="grid-template-columns:repeat(2,1fr)">
         <div class="network-card" style="text-align:center">
           <div class="network-info-content">
-            <span class="ip-text" style="color:#16a34a">${fmtBytes(d.used_traffic||0)}</span>
+            <span class="ip-text" id="usedTrafficValue" style="color:#16a34a">${fmtBytes(d.used_traffic||0)}</span>
             <div class="network-tip">已使用流量</div>
           </div>
         </div>
         <div class="network-card" style="text-align:center">
           <div class="network-info-content">
-            <span class="ip-text">${d.traffic > 0 ? fmtBytes(d.traffic) : '不限'}</span>
+            <span class="ip-text" id="totalTrafficValue">${d.traffic > 0 ? fmtBytes(d.traffic) : '不限'}</span>
             <div class="network-tip">总流量配额</div>
           </div>
         </div>
@@ -484,6 +526,8 @@ body{
   if (stored) {
     try {
       renderDashboard(JSON.parse(stored));
+      refreshUserData();
+      setInterval(refreshUserData, 15000);
     } catch(e) {
       // stay on empty state
     }
