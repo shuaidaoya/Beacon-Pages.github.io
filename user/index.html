@@ -339,6 +339,26 @@ body{
     fetchWallTest();
   }
 
+  // ── global stats ──
+  async function fetchGlobalStats() {
+    try {
+      const resp = await fetch('/api/stats');
+      const data = await resp.json();
+      setText('globalUpValue', data.累计上行 || '--');
+      setText('globalDownValue', data.累计下行 || '--');
+      setText('globalUptimeValue', data.运行时间 || '--');
+    } catch(e) {
+      setText('globalUpValue', '--');
+      setText('globalDownValue', '--');
+      setText('globalUptimeValue', '--');
+    }
+  }
+
+  function setText(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  }
+
   // ── copy helper ──
   function copy(text, btn) {
     const orig = btn.textContent;
@@ -562,17 +582,37 @@ body{
       </div>
 
       <div class="sec-title">📊 流量用量</div>
-      <div class="network-cards-container" style="grid-template-columns:repeat(2,1fr)">
+      <div class="network-cards-container" style="grid-template-columns:repeat(3,1fr)">
         <div class="network-card" style="text-align:center">
           <div class="network-info-content">
             <span class="ip-text" id="usedTrafficValue" style="color:#16a34a">${fmtBytes(d.used_traffic||0)}</span>
-            <div class="network-tip">已使用流量</div>
+            <div class="network-tip">个人已用</div>
           </div>
         </div>
         <div class="network-card" style="text-align:center">
           <div class="network-info-content">
             <span class="ip-text" id="totalTrafficValue">${d.traffic > 0 ? fmtBytes(d.traffic) : '不限'}</span>
-            <div class="network-tip">总流量配额</div>
+            <div class="network-tip">个人配额</div>
+          </div>
+        </div>
+        <div class="network-card" style="text-align:center">
+          <div class="network-info-content">
+            <span class="ip-text" id="globalUpValue" style="color:#f59e0b">--</span>
+            <div class="network-tip" id="globalUpLabel">全站上行</div>
+          </div>
+        </div>
+      </div>
+      <div class="network-cards-container" style="grid-template-columns:repeat(2,1fr)">
+        <div class="network-card" style="text-align:center">
+          <div class="network-info-content">
+            <span class="ip-text" id="globalDownValue" style="color:#3b82f6">--</span>
+            <div class="network-tip" id="globalDownLabel">全站下行</div>
+          </div>
+        </div>
+        <div class="network-card" style="text-align:center">
+          <div class="network-info-content">
+            <span class="ip-text" id="globalUptimeValue" style="font-size:16px;color:#6b7280">--</span>
+            <div class="network-tip">节点运行时间</div>
           </div>
         </div>
       </div>
@@ -622,8 +662,9 @@ body{
     if (checkinBtn) checkinBtn.addEventListener('click', claimDailyCheckin);
     updateCheckinDisplay(d);
 
-    // load network cards
+    // load network cards + global stats
     loadNetworkCards();
+    fetchGlobalStats();
   }
 
   // ── init ──
