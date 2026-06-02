@@ -498,6 +498,7 @@ body{
       sessionStorage.setItem('beacon_user', JSON.stringify(next));
       updateTrafficDisplay(next);
       updateCheckinDisplay(next);
+      fetchGlobalStats(); // 实时更新在线人数+全站流量
       const userLabel = document.getElementById('userLabel');
       if (userLabel && next.account) userLabel.textContent = '👤 ' + next.account;
     } catch (e) {
