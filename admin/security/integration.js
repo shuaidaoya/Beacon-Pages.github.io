@@ -130,6 +130,8 @@
   function escAttr(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;'); }
   function ts(ms) { if (!ms) return '-'; return new Date(ms).toLocaleString('zh-CN'); }
   function ago(ms) { if (!ms) return '-'; const s = Math.floor((Date.now() - ms)/1000); if (s<60) return s+'秒前'; if (s<3600) return Math.floor(s/60)+'分钟前'; if (s<86400) return Math.floor(s/3600)+'小时前'; return Math.floor(s/86400)+'天前'; }
+  function fmtBytes(b) { if (!b||b<=0) return '-'; const k=1024,u=['B','KB','MB','GB','TB']; const i=Math.floor(Math.log(b)/Math.log(k)); return parseFloat((b/Math.pow(k,i)).toFixed(1))+' '+u[i]; }
+  function fmtQuota(u) { return u && u.traffic > 0 ? fmtBytes(u.traffic) : '不限量'; }
   function toast(msg, type) {
     const t = document.createElement('div'); t.className = 'sec-toast sec-toast-'+(type==='error'?'err':'ok');
     t.textContent = msg; $('#sec-module-root').appendChild(t);
@@ -140,6 +142,24 @@
   function closeTrafficLimitModal() {
     const modal = document.getElementById('sec-traffic-modal');
     if (modal) modal.remove();
+  }
+
+  function bindUserTableActions(scope) {
+    if (!scope) return;
+    scope.onclick = function(event) {
+      const detailBtn = event.target.closest('[data-user-detail]');
+      if (detailBtn) {
+        const uuid = detailBtn.getAttribute('data-user-detail');
+        if (uuid) userDetail(uuid);
+        return;
+      }
+      const actionBtn = event.target.closest('[data-user-action]');
+      if (actionBtn) {
+        const action = actionBtn.getAttribute('data-user-action');
+        const uuid = actionBtn.getAttribute('data-user-uuid');
+        if (action && uuid) userAction(action, uuid);
+      }
+    };
   }
 
   function openTrafficLimitModal(user) {
@@ -397,9 +417,6 @@
     const sumEl = $('#sec-users-summary');
     if (sumEl) sumEl.textContent = '共 '+(s.total||users.length)+' 用户'+(s.active!=null?' · 活跃 '+s.active:'')+(s.banned!=null?' · 封禁 '+s.banned:'');
 
-    function fmtBytes(b) { if (!b||b<=0) return '-'; const k=1024,u=['B','KB','MB','GB','TB']; const i=Math.floor(Math.log(b)/Math.log(k)); return parseFloat((b/Math.pow(k,i)).toFixed(1))+' '+u[i]; }
-    function fmtQuota(u) { return u && u.traffic > 0 ? fmtBytes(u.traffic) : '不限量'; }
-
     const rows = users.map(u => [
       '<input type="checkbox" class="sec-user-cb" data-uuid="'+escAttr(u.uuid||'')+'">',
       '<code style="font-size:11px">'+esc((u.uuid||'').slice(0,12)+'...')+'</code>',
@@ -410,13 +427,13 @@
       '<span style="font-size:11px">'+fmtBytes(u.used_traffic||0)+' / '+fmtQuota(u)+'</span>',
       esc(u.lastIp||u.profile?.lastIp||'-'),
       ago(u.lastSeenAt||u.lifecycle?.lastSeenAt),
-      '<button class="sec-btn sec-btn-sm" onclick="window._secUserDetail(\''+escAttr(u.uuid)+'\')">详情</button>' +
+      '<button class="sec-btn sec-btn-sm" data-user-detail="'+escAttr(u.uuid)+'">详情</button>' +
       (u.status==='banned'
-        ? ' <button class="sec-btn sec-btn-sm" onclick="window._secUserAction(\'restore\',\''+escAttr(u.uuid)+'\')">解禁</button>'
-        : ' <button class="sec-btn sec-btn-sm sec-btn-danger" onclick="window._secUserAction(\'ban\',\''+escAttr(u.uuid)+'\')">封禁</button>') +
-      ' <button class="sec-btn sec-btn-sm" onclick="window._secUserAction(\'set-traffic\',\''+escAttr(u.uuid)+'\')">总限额</button>' +
-      ' <button class="sec-btn sec-btn-sm" onclick="window._secUserAction(\'reset-subscription\',\''+escAttr(u.uuid)+'\')">重置</button>' +
-      ' <button class="sec-btn sec-btn-sm sec-btn-danger" onclick="window._secUserAction(\'delete\',\''+escAttr(u.uuid)+'\')">删除</button>',
+        ? ' <button class="sec-btn sec-btn-sm" data-user-action="restore" data-user-uuid="'+escAttr(u.uuid)+'">解禁</button>'
+        : ' <button class="sec-btn sec-btn-sm sec-btn-danger" data-user-action="ban" data-user-uuid="'+escAttr(u.uuid)+'">封禁</button>') +
+      ' <button class="sec-btn sec-btn-sm" data-user-action="set-traffic" data-user-uuid="'+escAttr(u.uuid)+'">总限额</button>' +
+      ' <button class="sec-btn sec-btn-sm" data-user-action="reset-subscription" data-user-uuid="'+escAttr(u.uuid)+'">重置</button>' +
+      ' <button class="sec-btn sec-btn-sm sec-btn-danger" data-user-action="delete" data-user-uuid="'+escAttr(u.uuid)+'">删除</button>',
     ]);
 
     const tblEl = $('#sec-users-table');
@@ -424,6 +441,7 @@
       tblEl.innerHTML = '<div class="sec-table-wrap"><table class="sec-table"><tr><th></th><th>UUID</th><th>账户</th><th>邮箱</th><th>状态</th><th>风险</th><th>用量</th><th>最后IP</th><th>最后活跃</th><th>操作</th></tr>' +
         rows.map(r => '<tr>'+r.map(c => '<td>'+c+'</td>').join('')+'</tr>').join('') +
         '</table></div>';
+      bindUserTableActions(tblEl);
 
       // checkbox events
       tblEl.querySelectorAll('.sec-user-cb').forEach(cb => {
@@ -460,19 +478,20 @@
       '<span style="font-size:11px">'+fmtBytes(u.used_traffic||0)+' / '+fmtQuota(u)+'</span>',
       esc(u.lastIp||'-'),
       ago(u.lastSeenAt),
-      '<button class="sec-btn sec-btn-sm" onclick="window._secUserDetail(\''+escAttr(u.uuid)+'\')">详情</button>' +
+      '<button class="sec-btn sec-btn-sm" data-user-detail="'+escAttr(u.uuid)+'">详情</button>' +
       (u.status==='banned'
-        ? ' <button class="sec-btn sec-btn-sm" onclick="window._secUserAction(\'restore\',\''+escAttr(u.uuid)+'\')">解禁</button>'
-        : ' <button class="sec-btn sec-btn-sm sec-btn-danger" onclick="window._secUserAction(\'ban\',\''+escAttr(u.uuid)+'\')">封禁</button>') +
-      ' <button class="sec-btn sec-btn-sm" onclick="window._secUserAction(\'set-traffic\',\''+escAttr(u.uuid)+'\')">总限额</button>' +
-      ' <button class="sec-btn sec-btn-sm" onclick="window._secUserAction(\'reset-subscription\',\''+escAttr(u.uuid)+'\')">重置</button>' +
-      ' <button class="sec-btn sec-btn-sm sec-btn-danger" onclick="window._secUserAction(\'delete\',\''+escAttr(u.uuid)+'\')">删除</button>',
+        ? ' <button class="sec-btn sec-btn-sm" data-user-action="restore" data-user-uuid="'+escAttr(u.uuid)+'">解禁</button>'
+        : ' <button class="sec-btn sec-btn-sm sec-btn-danger" data-user-action="ban" data-user-uuid="'+escAttr(u.uuid)+'">封禁</button>') +
+      ' <button class="sec-btn sec-btn-sm" data-user-action="set-traffic" data-user-uuid="'+escAttr(u.uuid)+'">总限额</button>' +
+      ' <button class="sec-btn sec-btn-sm" data-user-action="reset-subscription" data-user-uuid="'+escAttr(u.uuid)+'">重置</button>' +
+      ' <button class="sec-btn sec-btn-sm sec-btn-danger" data-user-action="delete" data-user-uuid="'+escAttr(u.uuid)+'">删除</button>',
     ]);
     rows.forEach(r => {
       const tr = document.createElement('tr');
       tr.innerHTML = r.map(c => '<td>'+c+'</td>').join('');
       tbl.appendChild(tr);
     });
+    bindUserTableActions($('#sec-users-table'));
     // re-attach checkbox events
     tbl.querySelectorAll('.sec-user-cb').forEach(cb => {
       cb.addEventListener('change', () => {
@@ -555,13 +574,13 @@
       const totalTraffic = user?.traffic > 0 ? fmtBytes(user.traffic) : '不限量';
 
       let html = '<div class="sec-drawer-overlay" id="sec-drawer"><div class="sec-drawer">';
-      html += '<button class="sec-drawer-close" onclick="document.getElementById(\'sec-drawer\').remove()">✕</button>';
+      html += '<button class="sec-drawer-close" id="sec-drawer-close" type="button">✕</button>';
       html += '<h3>用户详情</h3>';
 
       // user info
       html += '<div class="sec-drawer-section"><h4>基本信息</h4>';
       html += '<pre>UUID:   '+esc(uuid||'-')+'\n账户:   '+esc(profile.account||'-')+'\n邮箱:   '+esc(profile.email||'-')+'\n状态:   '+esc(user?.status||'-')+'\n风险:   '+esc(sub.risk?.level||'-')+(sub.risk.score!=null?' ('+sub.risk.score+')':'')+'\n已用:   '+fmtBytes(user?.used_traffic||0)+'\n总限额: '+esc(totalTraffic)+'\n最后IP: '+esc(user?.lastIp||'-')+'\n最后活跃: '+ago(user?.lastSeenAt||user?.lifecycle?.lastSeenAt)+'</pre></div>';
-      html += '<div class="sec-drawer-section"><button class="sec-btn sec-btn-primary" onclick="window._secUserAction(\'set-traffic\',\''+escAttr(uuid)+'\')">设置总限额</button></div>';
+      html += '<div class="sec-drawer-section"><button class="sec-btn sec-btn-primary" id="sec-drawer-set-traffic" data-user-uuid="'+escAttr(uuid)+'">设置总限额</button></div>';
 
       // ban info
       if (ban) {
@@ -587,7 +606,19 @@
       }
       html += '</div></div>';
       document.body.insertAdjacentHTML('beforeend', html);
-      $('#sec-drawer').addEventListener('click', function(e){ if (e.target === this) this.remove(); });
+      const drawer = $('#sec-drawer');
+      if (drawer) {
+        drawer.addEventListener('click', function(e){ if (e.target === this) this.remove(); });
+        const closeBtn = document.getElementById('sec-drawer-close');
+        if (closeBtn) closeBtn.addEventListener('click', () => { const d = document.getElementById('sec-drawer'); if (d) d.remove(); });
+        const setTrafficBtn = document.getElementById('sec-drawer-set-traffic');
+        if (setTrafficBtn) {
+          setTrafficBtn.addEventListener('click', () => {
+            const targetUuid = setTrafficBtn.getAttribute('data-user-uuid');
+            if (targetUuid) userAction('set-traffic', targetUuid);
+          });
+        }
+      }
     } catch(e) {
       if (e.message !== 'auth_redirect') toast('加载详情失败: '+e.message, 'error');
     }
