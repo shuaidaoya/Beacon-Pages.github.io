@@ -674,7 +674,8 @@ body{
     try {
       renderDashboard(JSON.parse(stored));
       refreshUserData();
-      setInterval(refreshUserData, 15000);
+      setInterval(refreshUserData, 10000);
+      setInterval(fetchGlobalStats, 10000);
     } catch(e) {
       // stay on empty state
     }
