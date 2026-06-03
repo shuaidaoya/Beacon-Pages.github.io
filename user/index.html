@@ -669,17 +669,20 @@ body{
   }
 
   // ── init ──
-  const stored = sessionStorage.getItem('beacon_user');
-  if (stored) {
-    try {
-      renderDashboard(JSON.parse(stored));
-      refreshUserData();
-      setInterval(refreshUserData, 10000);
-      setInterval(fetchGlobalStats, 10000);
-    } catch(e) {
-      // stay on empty state
+  function tryInit() {
+    const stored = sessionStorage.getItem('beacon_user');
+    if (stored) {
+      try {
+        renderDashboard(JSON.parse(stored));
+        refreshUserData();
+        setInterval(refreshUserData, 10000);
+        setInterval(fetchGlobalStats, 10000);
+        return true;
+      } catch(e) {}
     }
+    return false;
   }
+  if (!tryInit()) setTimeout(tryInit, 600);
 })();
 </script>
 </body>

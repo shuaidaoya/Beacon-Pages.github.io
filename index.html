@@ -436,7 +436,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
           traffic: u.traffic || 0,
           used_traffic: u.used_traffic || 0,
         }));
-        setTimeout(() => { location.href = '/user'; }, 200);
+        location.href = '/user';
         return;
       } else if (code === 'AUTH_VALIDATION_ERROR') {
         // field-level errors
