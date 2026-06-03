@@ -288,8 +288,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
     try {
       const remembered = JSON.parse(localStorage.getItem('beacon_remembered') || 'null');
       if (remembered && remembered.account) {
-        accountInp.value = remembered.account || '';
-        emailInp.value = remembered.email || '';
+        document.getElementById('account').value = remembered.account || '';
+        document.getElementById('email').value = remembered.email || '';
         document.getElementById('rememberMe').checked = true;
         // 延迟自动切换到登录模式
         var _origAgree = window.agreeRules;
