@@ -237,6 +237,10 @@ button:disabled{opacity:.5;cursor:not-allowed}
         <input type="email" id="email" placeholder="your@email.com" autocomplete="email" maxlength="128">
         <div class="field-hint" id="emailHint"></div>
       </div>
+      <div class="field" style="flex-direction:row;align-items:center;gap:8px;padding-top:2px">
+        <input type="checkbox" id="rememberMe" style="width:18px;height:18px;accent-color:#3b82f6;cursor:pointer;flex-shrink:0;margin:0">
+        <label for="rememberMe" style="margin:0;cursor:pointer;user-select:none;font-weight:500;font-size:13px;color:#cbd5e1">记住用户名和邮箱</label>
+      </div>
       <div class="actions">
         <button class="primary-btn" id="submitBtn">
           <span id="submitText">创建账户</span>
@@ -280,6 +284,23 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
   (async function initRules() {
     localStorage.removeItem('beacon_user');
+    // 恢复已保存的凭据
+    try {
+      const remembered = JSON.parse(localStorage.getItem('beacon_remembered') || 'null');
+      if (remembered && remembered.account) {
+        accountInp.value = remembered.account || '';
+        emailInp.value = remembered.email || '';
+        document.getElementById('rememberMe').checked = true;
+        // 延迟自动切换到登录模式
+        var _origAgree = window.agreeRules;
+        window.agreeRules = function() {
+          document.getElementById('rulesOverlay').classList.add('hidden');
+          localStorage.setItem('beacon_rules_agreed', '1');
+          setTimeout(function() { switchMode('signin'); }, 300);
+          window.agreeRules = _origAgree;
+        };
+      }
+    } catch(e) {}
     try {
       const resp = await fetch('/register/config');
       const cfg = await resp.json();
@@ -437,6 +458,15 @@ button:disabled{opacity:.5;cursor:not-allowed}
           traffic: u.traffic || 0,
           used_traffic: u.used_traffic || 0,
         }));
+        // 记住我功能：勾选时保存凭据，否则清除
+        if (document.getElementById('rememberMe').checked) {
+          localStorage.setItem('beacon_remembered', JSON.stringify({
+            account: account,
+            email: email,
+          }));
+        } else {
+          localStorage.removeItem('beacon_remembered');
+        }
         location.href = '/user';
         return;
       } else if (code === 'AUTH_VALIDATION_ERROR') {
