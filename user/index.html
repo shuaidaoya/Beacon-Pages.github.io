@@ -417,7 +417,7 @@ body{
 
   async function claimDailyCheckin() {
     const btn = document.getElementById('checkinBtn');
-    const stored = sessionStorage.getItem('beacon_user');
+    const stored = localStorage.getItem('beacon_user');
     if (!stored) return;
     let current;
     try {
@@ -459,7 +459,7 @@ body{
         used_traffic: user.used_traffic || 0,
         checkin: data.checkin || current.checkin || {},
       };
-      sessionStorage.setItem('beacon_user', JSON.stringify(next));
+      localStorage.setItem('beacon_user', JSON.stringify(next));
       updateTrafficDisplay(next);
       updateCheckinDisplay(next, payload.message || ('签到成功，已领取 ' + fmtBytes(data.rewardBytes || 0) + '。'));
     } catch (e) {
@@ -469,7 +469,7 @@ body{
   }
 
   async function refreshUserData() {
-    const stored = sessionStorage.getItem('beacon_user');
+    const stored = localStorage.getItem('beacon_user');
     if (!stored) return;
     let current;
     try {
@@ -495,7 +495,7 @@ body{
         used_traffic: user.used_traffic || 0,
         checkin: payload.checkin || current.checkin || {},
       };
-      sessionStorage.setItem('beacon_user', JSON.stringify(next));
+      localStorage.setItem('beacon_user', JSON.stringify(next));
       updateTrafficDisplay(next);
       updateCheckinDisplay(next);
       fetchGlobalStats(); // 实时更新在线人数+全站流量
@@ -670,7 +670,7 @@ body{
 
   // ── init ──
   function tryInit() {
-    const stored = sessionStorage.getItem('beacon_user');
+    const stored = localStorage.getItem('beacon_user');
     if (stored) {
       try {
         renderDashboard(JSON.parse(stored));

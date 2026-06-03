@@ -279,6 +279,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   };
 
   (async function initRules() {
+    localStorage.removeItem('beacon_user');
     try {
       const resp = await fetch('/register/config');
       const cfg = await resp.json();
@@ -422,11 +423,11 @@ button:disabled{opacity:.5;cursor:not-allowed}
         showMsg('msg-warn', 'ℹ️ ' + meta.title, message);
         setTimeout(() => switchMode('signin'), 1200);
       } else if (code === 'AUTH_SIGNIN_SUCCESS') {
-        // signin OK → store in sessionStorage, redirect to user dashboard
+        // signin OK → store in localStorage, redirect to user dashboard
         const user = data.data || {};
         const node = user.node || {};
         const u = user.user || {};
-        sessionStorage.setItem('beacon_user', JSON.stringify({
+        localStorage.setItem('beacon_user', JSON.stringify({
           account: user.account || '',
           email: user.email || '',
           uuid: node.uuid || '',
