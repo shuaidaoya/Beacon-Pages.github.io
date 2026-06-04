@@ -394,10 +394,10 @@
         // render filter bar + summary + table
         el.innerHTML =
           '<div class="sec-filter">' +
-          '<input type="text" id="sec-user-search" placeholder="搜索 UUID / 用户名 / 邮箱 / IP ..." value="'+escAttr(q)+'">' +
-          '<select id="sec-user-status"><option value="">全部状态</option><option value="active"'+(st==='active'?' selected':'')+'>活跃</option><option value="banned"'+(st==='banned'?' selected':'')+'>已封禁</option></select>' +
-          '<select id="sec-user-multiaccount"><option value="">全部用户</option><option value="only"'+(ma==='only'?' selected':'')+'>多账号用户</option></select>' +
-          '<select id="sec-user-multiaccount-type" style="display:'+(ma==='only'?'inline':'none')+';max-width:140px"><option value="">全部类型</option><option value="account">同名用户</option><option value="email">同邮箱</option><option value="lastIp">同IP</option><option value="userKey">同身份</option></select>' +
+          '<input type="text" id="sec-user-search" placeholder="搜索 UUID / 用户名 / 邮箱 / IP ..." value="'+escAttr(q)+'" onchange="window._secLoadUsers()" onkeydown="if(event.key===\'Enter\')window._secLoadUsers()">' +
+          '<select id="sec-user-status" onchange="window._secLoadUsers()"><option value="">全部状态</option><option value="active"'+(st==='active'?' selected':'')+'>活跃</option><option value="banned"'+(st==='banned'?' selected':'')+'>已封禁</option></select>' +
+          '<select id="sec-user-multiaccount" onchange="window._secLoadUsers()"><option value="">全部用户</option><option value="only"'+(ma==='only'?' selected':'')+'>多账号用户</option></select>' +
+          '<select id="sec-user-multiaccount-type" onchange="window._secLoadUsers()" style="display:'+(ma==='only'?'inline':'none')+';max-width:140px"><option value="">全部类型</option><option value="account">同名用户</option><option value="email">同邮箱</option><option value="lastIp">同IP</option><option value="userKey">同身份</option></select>' +
           '<button class="sec-btn sec-btn-primary" onclick="window._secLoadUsers()">🔍 搜索</button>' +
           '<button class="sec-btn sec-btn-danger sec-btn-sm" id="sec-batch-ban" disabled>批量封禁</button>' +
           '<button class="sec-btn sec-btn-sm" id="sec-batch-restore" disabled>批量解禁</button>' +
