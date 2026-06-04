@@ -407,6 +407,11 @@
         usersState.cursor = data.cursor;
         usersState.hasMore = data.hasMore;
         renderUsers(data.users||[], data.summary);
+        // 再查一次确认 summary 已渲染（防御性）
+        var sumCheck = $('#sec-users-summary');
+        if (!sumCheck || !sumCheck.textContent) {
+          renderUsers(data.users||[], data.summary);
+        }
 
         // sync multi-account type visibility
         setTimeout(() => {
