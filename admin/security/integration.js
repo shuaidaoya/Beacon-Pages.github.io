@@ -433,8 +433,14 @@
       try {
         const typeLabels = { account:'同名账户', email:'同邮箱', lastIp:'同IP', userKey:'同身份' };
         const mb = (s && s.multiByType) || {};
-        const maParts = Object.entries(mb).map(function(kv){ var k=kv[0],v=kv[1]; return '<span style="color:#ef4444;font-weight:600">'+esc(typeLabels[k]||k)+' '+v.groups+'组/'+v.users+'人</span>'; });
-        const maTag = maParts.length ? ' · ' + maParts.join(' · ') : '';
+        const maParts = [];
+        for (var mk in mb) {
+          if (mb.hasOwnProperty(mk)) {
+            var mv = mb[mk];
+            maParts.push('<span style="color:#ef4444;font-weight:600">'+esc(typeLabels[mk]||mk)+' '+mv.groups+'组/'+mv.users+'人</span>');
+          }
+        }
+        var maTag = maParts.length ? ' · ' + maParts.join(' · ') : '';
         sumEl.innerHTML = '共 '+(s.total||users.length)+' 用户'+(s.active!=null?' · 活跃 '+s.active:'')+(s.banned!=null?' · 封禁 '+s.banned:'') + maTag;
       } catch(e) { sumEl.textContent = '共 '+(users.length)+' 用户'; }
     }
