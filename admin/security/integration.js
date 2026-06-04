@@ -767,7 +767,7 @@
   async function toggleReg() {
     const next = !window._secRegEnabled;
     try {
-      await api('/admin/system/registration/toggle', { method:'POST', body: JSON.stringify({ enabled: next }) });
+      await api('/registration/toggle', { method:'POST', body: JSON.stringify({ enabled: next }) });
       toast(next ? '注册功能已开启' : '注册功能已关闭');
       loadRegistration();
     } catch(e) {
