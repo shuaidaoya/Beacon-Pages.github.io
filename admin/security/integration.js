@@ -729,6 +729,7 @@
       html += '</div>';
 
       html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">';
+      window._secRegEnabled = status.enabled;
       html += '<button class="sec-btn '+(status.enabled?'sec-btn-danger':'sec-btn-primary')+'" onclick="window._secToggleReg()">'+(status.enabled?'关闭注册':'开启注册')+'</button>';
       html += '<button class="sec-btn" onclick="window._secShowSchedule()">📅 定时设置</button>';
       html += '</div>';
@@ -764,10 +765,8 @@
   }
 
   async function toggleReg() {
-    // 读当前状态取反，而非盲目先试 enabled:true
+    const next = !window._secRegEnabled;
     try {
-      const cur = await api('/registration');
-      const next = !(cur.status?.enabled);
       await api('/registration/toggle', { method:'POST', body: JSON.stringify({ enabled: next }) });
       toast(next ? '注册功能已开启' : '注册功能已关闭');
       loadRegistration();
