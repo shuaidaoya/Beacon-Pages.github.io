@@ -365,12 +365,12 @@
 
   async function loadUsers(cursor) {
     const el = $('#sec-content');
-    if (!cursor) { el.innerHTML = '<div class="sec-loading"><span class="sec-spinner"></span>加载中...</div>'; usersState.selected.clear(); }
-
+    // 先读取筛选值，再销毁 DOM（否则 loading 会清空控件导致值丢失）
     const q = ($('#sec-user-search')?.value||'').trim();
     const st = ($('#sec-user-status')?.value||'');
     const ma = ($('#sec-user-multiaccount')?.value||'');
     const mat = ($('#sec-user-multiaccount-type')?.value||'');
+    if (!cursor) { el.innerHTML = '<div class="sec-loading"><span class="sec-spinner"></span>加载中...</div>'; usersState.selected.clear(); }
     let url = '?limit=60';
     if (q) url += '&q=' + encodeURIComponent(q);
     if (st) url += '&status=' + encodeURIComponent(st);
