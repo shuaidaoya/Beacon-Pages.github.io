@@ -332,6 +332,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   })();
 
   // ── state ──
+  const API_BASE = '';  // e.g. 'https://your-worker-domain.workers.dev' — leave empty when served by the Worker
   const state = {
     mode: 'signup',   // 'signup' | 'signin' | 'result'
     loading: false,
@@ -422,7 +423,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
     setLoading(true);
     try {
-      const endpoint = state.mode === 'signup' ? '/register/api' : '/register/login';
+      const endpoint = API_BASE + (state.mode === 'signup' ? '/register/api' : '/register/login');
       const resp = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
