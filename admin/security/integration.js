@@ -379,14 +379,19 @@
 
     try {
       let data;
-      // if cursor, append to existing
       if (cursor) {
         data = await api('/users' + url);
         usersState.cursor = data.cursor;
         usersState.hasMore = data.hasMore;
         appendUsers(data.users||[]);
       } else {
-        // render filter bar
+        // 先取数据，生成摘要
+        data = await api('/users' + url);
+        usersState.cursor = data.cursor;
+        usersState.hasMore = data.hasMore;
+        var summaryHtml = buildSummary(data.summary, data.users||[]);
+
+        // render filter bar + summary + table
         el.innerHTML =
           '<div class="sec-filter">' +
           '<input type="text" id="sec-user-search" placeholder="搜索 UUID / 用户名 / 邮箱 / IP ..." value="'+escAttr(q)+'">' +
@@ -399,19 +404,11 @@
           '<button class="sec-btn sec-btn-sm" id="sec-batch-reset" disabled>批量重置</button>' +
           '<button class="sec-btn sec-btn-danger sec-btn-sm" id="sec-batch-delete" disabled>批量删除</button>' +
           '</div>' +
-          '<div style="margin-bottom:10px;font-size:13px;color:#374151;font-weight:500" id="sec-users-summary"></div>' +
+          summaryHtml +
           '<div id="sec-users-table"></div>' +
           '<div id="sec-users-pager" class="sec-pagination"></div>';
 
-        data = await api('/users' + url);
-        usersState.cursor = data.cursor;
-        usersState.hasMore = data.hasMore;
         renderUsers(data.users||[], data.summary);
-        // 再查一次确认 summary 已渲染（防御性）
-        var sumCheck = $('#sec-users-summary');
-        if (!sumCheck || !sumCheck.textContent) {
-          renderUsers(data.users||[], data.summary);
-        }
 
         // sync multi-account type visibility
         setTimeout(() => {
@@ -427,28 +424,26 @@
     }
   }
 
+  function buildSummary(summary, users) {
+    var s = summary || {};
+    var parts = ['共 '+(s.total||users.length)+' 用户'];
+    if (s.active != null) parts.push('活跃 '+s.active);
+    if (s.banned != null) parts.push('封禁 '+s.banned);
+    var mb = (s && s.multiByType) || {};
+    var typeLabels = { account:'同名账户', email:'同邮箱', lastIp:'同IP', userKey:'同身份' };
+    for (var mk in mb) {
+      if (mb.hasOwnProperty(mk)) {
+        var mv = mb[mk];
+        parts.push('<span style="color:#ef4444;font-weight:600">'+esc(typeLabels[mk]||mk)+' '+mv.groups+'组/'+mv.users+'人</span>');
+      }
+    }
+    return '<div style="margin-bottom:10px;font-size:13px;color:#374151;font-weight:500">'+parts.join(' · ')+'</div>';
+  }
+
   function renderUsers(users, summary) {
     // store user map for detail lookup
     usersState.userMap = usersState.userMap || {};
     users.forEach(u => { if (u.uuid) usersState.userMap[u.uuid] = u; });
-
-    const s = summary || {};
-    const sumEl = $('#sec-users-summary');
-    if (sumEl) {
-      try {
-        const typeLabels = { account:'同名账户', email:'同邮箱', lastIp:'同IP', userKey:'同身份' };
-        const mb = (s && s.multiByType) || {};
-        const maParts = [];
-        for (var mk in mb) {
-          if (mb.hasOwnProperty(mk)) {
-            var mv = mb[mk];
-            maParts.push('<span style="color:#ef4444;font-weight:600">'+esc(typeLabels[mk]||mk)+' '+mv.groups+'组/'+mv.users+'人</span>');
-          }
-        }
-        var maTag = maParts.length ? ' · ' + maParts.join(' · ') : '';
-        sumEl.innerHTML = '共 '+(s.total||users.length)+' 用户'+(s.active!=null?' · 活跃 '+s.active:'')+(s.banned!=null?' · 封禁 '+s.banned:'') + maTag;
-      } catch(e) { sumEl.textContent = '共 '+(users.length)+' 用户'; }
-    }
 
     const multiAccountBadge = (u) => {
       if (!u.multiAccount?.isMulti) return '-';
