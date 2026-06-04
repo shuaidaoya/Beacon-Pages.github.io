@@ -399,7 +399,7 @@
           '<button class="sec-btn sec-btn-sm" id="sec-batch-reset" disabled>批量重置</button>' +
           '<button class="sec-btn sec-btn-danger sec-btn-sm" id="sec-batch-delete" disabled>批量删除</button>' +
           '</div>' +
-          '<div style="margin-bottom:8px;font-size:12px;color:#64748b" id="sec-users-summary"></div>' +
+          '<div style="margin-bottom:10px;font-size:13px;color:#374151;font-weight:500" id="sec-users-summary"></div>' +
           '<div id="sec-users-table"></div>' +
           '<div id="sec-users-pager" class="sec-pagination"></div>';
 
