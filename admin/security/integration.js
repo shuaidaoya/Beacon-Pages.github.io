@@ -369,9 +369,12 @@
 
     const q = ($('#sec-user-search')?.value||'').trim();
     const st = ($('#sec-user-status')?.value||'');
+    const ma = ($('#sec-user-multiaccount')?.value||'');
+    const mat = ($('#sec-user-multiaccount-type')?.value||'');
     let url = '?limit=60';
     if (q) url += '&q=' + encodeURIComponent(q);
     if (st) url += '&status=' + encodeURIComponent(st);
+    if (ma) { url += '&multiAccount=' + encodeURIComponent(ma); if (mat) url += '&multiAccountType=' + encodeURIComponent(mat); }
     if (cursor) url += '&cursor=' + encodeURIComponent(cursor);
 
     try {
@@ -388,6 +391,8 @@
           '<div class="sec-filter">' +
           '<input type="text" id="sec-user-search" placeholder="搜索 UUID / 用户名 / 邮箱 / IP ..." value="'+escAttr(q)+'">' +
           '<select id="sec-user-status"><option value="">全部状态</option><option value="active"'+(st==='active'?' selected':'')+'>活跃</option><option value="banned"'+(st==='banned'?' selected':'')+'>已封禁</option></select>' +
+          '<select id="sec-user-multiaccount"><option value="">全部用户</option><option value="only"'+(ma==='only'?' selected':'')+'>多账号用户</option></select>' +
+          '<select id="sec-user-multiaccount-type" style="display:'+(ma==='only'?'inline':'none')+';max-width:140px"><option value="">全部类型</option><option value="account">同名用户</option><option value="email">同邮箱</option><option value="lastIp">同IP</option><option value="userKey">同身份</option></select>' +
           '<button class="sec-btn sec-btn-primary" onclick="window._secLoadUsers()">🔍 搜索</button>' +
           '<button class="sec-btn sec-btn-danger sec-btn-sm" id="sec-batch-ban" disabled>批量封禁</button>' +
           '<button class="sec-btn sec-btn-sm" id="sec-batch-restore" disabled>批量解禁</button>' +
@@ -402,6 +407,15 @@
         usersState.cursor = data.cursor;
         usersState.hasMore = data.hasMore;
         renderUsers(data.users||[], data.summary);
+
+        // sync multi-account type visibility
+        setTimeout(() => {
+          const maSel = $('#sec-user-multiaccount');
+          const matSel = $('#sec-user-multiaccount-type');
+          if (maSel && matSel) {
+            maSel.addEventListener('change', () => { matSel.style.display = maSel.value === 'only' ? 'inline' : 'none'; });
+          }
+        }, 50);
       }
     } catch(e) {
       if (e.message !== 'auth_redirect') el.innerHTML = '<div class="sec-empty">加载失败: '+esc(e.message)+'</div>';
@@ -415,7 +429,17 @@
 
     const s = summary || {};
     const sumEl = $('#sec-users-summary');
-    if (sumEl) sumEl.textContent = '共 '+(s.total||users.length)+' 用户'+(s.active!=null?' · 活跃 '+s.active:'')+(s.banned!=null?' · 封禁 '+s.banned:'');
+    const maTag = s.multiAccountCount ? ' · <span style="color:#ef4444;font-weight:600">⚠️ 多账号 ' + s.multiAccountCount + '</span>' : '';
+    if (sumEl) sumEl.innerHTML = '共 '+(s.total||users.length)+' 用户'+(s.active!=null?' · 活跃 '+s.active:'')+(s.banned!=null?' · 封禁 '+s.banned:'') + maTag;
+
+    const multiAccountBadge = (u) => {
+      if (!u.multiAccount?.isMulti) return '-';
+      const types = (u.multiAccount.types||[]);
+      const labels = { account:'同名', email:'同邮箱', lastIp:'同IP', userKey:'同身份' };
+      const badges = types.map(t => '<span class="sec-badge sec-badge-high">'+esc(labels[t]||t)+'</span>').join(' ');
+      const count = u.multiAccount.maxCount > 2 ? (' ×'+u.multiAccount.maxCount) : '';
+      return '<span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px">'+badges+'<span style="font-size:10px;color:#ef4444">'+count+'</span></span>';
+    };
 
     const rows = users.map(u => [
       '<input type="checkbox" class="sec-user-cb" data-uuid="'+escAttr(u.uuid||'')+'">',
@@ -427,6 +451,7 @@
       '<span style="font-size:11px">'+fmtBytes(u.used_traffic||0)+' / '+fmtQuota(u)+'</span>',
       esc(u.lastIp||u.profile?.lastIp||'-'),
       ago(u.lastSeenAt||u.lifecycle?.lastSeenAt),
+      multiAccountBadge(u),
       '<button class="sec-btn sec-btn-sm" data-user-detail="'+escAttr(u.uuid)+'">详情</button>' +
       (u.status==='banned'
         ? ' <button class="sec-btn sec-btn-sm" data-user-action="restore" data-user-uuid="'+escAttr(u.uuid)+'">解禁</button>'
@@ -438,7 +463,7 @@
 
     const tblEl = $('#sec-users-table');
     if (tblEl) {
-      tblEl.innerHTML = '<div class="sec-table-wrap"><table class="sec-table"><tr><th></th><th>UUID</th><th>账户</th><th>邮箱</th><th>状态</th><th>风险</th><th>用量</th><th>最后IP</th><th>最后活跃</th><th>操作</th></tr>' +
+      tblEl.innerHTML = '<div class="sec-table-wrap"><table class="sec-table"><tr><th></th><th>UUID</th><th>账户</th><th>邮箱</th><th>状态</th><th>风险</th><th>用量</th><th>最后IP</th><th>最后活跃</th><th>多账号</th><th>操作</th></tr>' +
         rows.map(r => '<tr>'+r.map(c => '<td>'+c+'</td>').join('')+'</tr>').join('') +
         '</table></div>';
       bindUserTableActions(tblEl);
@@ -468,6 +493,14 @@
     // remove pager, append rows to existing table
     const tbl = $('#sec-users-table .sec-table');
     if (!tbl) return;
+    const multiAccountBadge = (u) => {
+      if (!u.multiAccount?.isMulti) return '-';
+      const types = (u.multiAccount.types||[]);
+      const labels = { account:'同名', email:'同邮箱', lastIp:'同IP', userKey:'同身份' };
+      const badges = types.map(t => '<span class="sec-badge sec-badge-high">'+esc(labels[t]||t)+'</span>').join(' ');
+      const count = u.multiAccount.maxCount > 2 ? (' ×'+u.multiAccount.maxCount) : '';
+      return '<span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px">'+badges+'<span style="font-size:10px;color:#ef4444">'+count+'</span></span>';
+    };
     const rows = users.map(u => [
       '<input type="checkbox" class="sec-user-cb" data-uuid="'+escAttr(u.uuid||'')+'">',
       '<code style="font-size:11px">'+esc((u.uuid||'').slice(0,12)+'...')+'</code>',
@@ -478,6 +511,7 @@
       '<span style="font-size:11px">'+fmtBytes(u.used_traffic||0)+' / '+fmtQuota(u)+'</span>',
       esc(u.lastIp||'-'),
       ago(u.lastSeenAt),
+      multiAccountBadge(u),
       '<button class="sec-btn sec-btn-sm" data-user-detail="'+escAttr(u.uuid)+'">详情</button>' +
       (u.status==='banned'
         ? ' <button class="sec-btn sec-btn-sm" data-user-action="restore" data-user-uuid="'+escAttr(u.uuid)+'">解禁</button>'
