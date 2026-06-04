@@ -237,11 +237,15 @@ button:disabled{opacity:.5;cursor:not-allowed}
         <input type="email" id="email" placeholder="your@email.com" autocomplete="email" maxlength="128">
         <div class="field-hint" id="emailHint"></div>
       </div>
-      <div class="actions">
+      <div class="actions" style="align-items:center">
         <button class="primary-btn" id="submitBtn">
           <span id="submitText">创建账户</span>
           <span class="spinner" id="submitSpinner"></span>
         </button>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#94a3b8;cursor:pointer;white-space:nowrap">
+          <input type="checkbox" id="rememberCheck" style="accent-color:#faab41">
+          记住账户信息
+        </label>
       </div>
     </div>
 
@@ -316,6 +320,10 @@ button:disabled{opacity:.5;cursor:not-allowed}
     mode: 'signup',   // 'signup' | 'signin' | 'result'
     loading: false,
   };
+
+  // ── remember me ──
+  (function(){var saved=localStorage.getItem('beacon_saved_creds');if(saved){try{var c=JSON.parse(saved);if(c.account)accountInp.value=c.account;if(c.email)emailInp.value=c.email;document.getElementById('rememberCheck').checked=true;}catch(e){}}})();
+  function saveCreds(a,e){if(document.getElementById('rememberCheck').checked){localStorage.setItem('beacon_saved_creds',JSON.stringify({account:a,email:e}));}else{localStorage.removeItem('beacon_saved_creds');}}
 
   // ── API response code handlers ──
   const CODE_MESSAGES = {
@@ -428,6 +436,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
         const user = data.data || {};
         const node = user.node || {};
         const u = user.user || {};
+        saveCreds(user.account || '', user.email || '');
         localStorage.setItem('beacon_user', JSON.stringify({
           account: user.account || '',
           email: user.email || '',
