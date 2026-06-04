@@ -374,8 +374,11 @@ tr:hover td{background:rgba(59,130,246,.04)}
       const mb = summary.multiByType || {};
       const typeLabels = { account:'同名账户', email:'同邮箱', lastIp:'同IP', userKey:'同身份' };
       let maParts = [];
-      for (const [k, v] of Object.entries(mb)) {
-        maParts.push(`<span style="color:#ef4444;font-weight:600">${typeLabels[k]||k} ${v.groups}组/${v.users}人</span>`);
+      for (var mk in mb) {
+        if (mb.hasOwnProperty(mk)) {
+          var mv = mb[mk];
+          maParts.push('<span style="color:#ef4444;font-weight:600">' + (typeLabels[mk]||mk) + ' ' + mv.groups + '组/' + mv.users + '人</span>');
+        }
       }
       $('#usersSummary').innerHTML =
         `共 ${summary.filtered||summary.total||0} 用户` +
