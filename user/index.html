@@ -669,6 +669,7 @@ body{
   }
 
   // ── init ──
+  let initRetries = 0;
   function tryInit() {
     const stored = localStorage.getItem('beacon_user');
     if (stored) {
@@ -680,9 +681,10 @@ body{
         return true;
       } catch(e) {}
     }
+    if (++initRetries < 5) setTimeout(tryInit, 600);
     return false;
   }
-  if (!tryInit()) setTimeout(tryInit, 600);
+  tryInit();
 })();
 </script>
 </body>
