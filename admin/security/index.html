@@ -618,14 +618,15 @@ tr:hover td{background:rgba(59,130,246,.04)}
 
   function showScheduleForm() {
     const s = regState.config || {};
-    if (s.startAt) $('#regStartAt').value = new Date(s.startAt).toISOString().slice(0,16);
-    if (s.endAt)   $('#regEndAt').value   = new Date(s.endAt).toISOString().slice(0,16);
+    // 北京时间显示（UTC+8）
+    if (s.startAt) $('#regStartAt').value = new Date(s.startAt + 8*3600000).toISOString().slice(0,16);
+    if (s.endAt)   $('#regEndAt').value   = new Date(s.endAt + 8*3600000).toISOString().slice(0,16);
     $('#regScheduleForm').style.display = 'block';
   }
 
   async function saveSchedule() {
-    const startAt = $('#regStartAt').value ? new Date($('#regStartAt').value).getTime() : null;
-    const endAt   = $('#regEndAt').value   ? new Date($('#regEndAt').value).getTime()   : null;
+    const startAt = $('#regStartAt').value ? new Date($('#regStartAt').value + '+08:00').getTime() : null;
+    const endAt   = $('#regEndAt').value   ? new Date($('#regEndAt').value + '+08:00').getTime()   : null;
     try {
       const data = await api('/registration/schedule', {
         method: 'POST',

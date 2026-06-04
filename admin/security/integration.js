@@ -756,7 +756,7 @@
 
       // pre-fill schedule
       if (config.startAt) {
-        const inp = $('#sec-sched-start'); if (inp) inp.value = new Date(config.startAt).toISOString().slice(0,16);
+        const inp = $('#sec-sched-start'); if (inp) inp.value = new Date(config.startAt + 8*3600000).toISOString().slice(0,16);
       }
     } catch(e) {
       if (e.message !== 'auth_redirect') el.innerHTML = '<div class="sec-empty">加载失败: '+esc(e.message)+'</div>';
@@ -786,7 +786,7 @@
   }
 
   async function saveSchedule() {
-    const startAt = $('#sec-sched-start')?.value ? new Date($('#sec-sched-start').value).getTime() : null;
+    const startAt = $('#sec-sched-start')?.value ? new Date($('#sec-sched-start').value + '+08:00').getTime() : null;
     if (!startAt) { toast('请选择开始时间', 'error'); return; }
     const durMs = parseInt($('#sec-sched-dur')?.value) || DURATION_OPTIONS[0].ms;
     const endAt = startAt + durMs;
