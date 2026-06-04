@@ -369,26 +369,19 @@ tr:hover td{background:rgba(59,130,246,.04)}
       usersState.hasMore = !!data.hasMore;
       usersState.selected.clear();
 
-      // 计算多账号统计（基于当前已加载的用户列表）
-      const dupStats = { accounts: {}, emails: {} };
-      usersState.users.forEach(u => {
-        const acc = u.profile?.account || '';
-        const eml = u.profile?.email || '';
-        if (acc) dupStats.accounts[acc] = (dupStats.accounts[acc]||0) + 1;
-        if (eml) dupStats.emails[eml] = (dupStats.emails[eml]||0) + 1;
-      });
-      const dupAccountCount = Object.values(dupStats.accounts).filter(c => c > 1).length;
-      const dupEmailCount   = Object.values(dupStats.emails).filter(c => c > 1).length;
-      const totalDupAccounts = Object.values(dupStats.accounts).filter(c => c > 1).reduce((a,c)=>a+c,0);
-      const totalDupEmails   = Object.values(dupStats.emails).filter(c => c > 1).reduce((a,c)=>a+c,0);
-
+      // 使用后端全量统计 summary.multiByType
       const summary = data.summary || {};
+      const mb = summary.multiByType || {};
+      const typeLabels = { account:'同名账户', email:'同邮箱', lastIp:'同IP', userKey:'同身份' };
+      let maParts = [];
+      for (const [k, v] of Object.entries(mb)) {
+        maParts.push(`<span style="color:#ef4444;font-weight:600">${typeLabels[k]||k} ${v.groups}组/${v.users}人</span>`);
+      }
       $('#usersSummary').innerHTML =
         `共 ${summary.filtered||summary.total||0} 用户` +
         (summary.active != null ? ` · 活跃 ${summary.active}` : '') +
         (summary.banned != null ? ` · 封禁 ${summary.banned}` : '') +
-        (dupAccountCount > 0 ? ` · <span style="color:#f59e0b">同名账户 ${dupAccountCount} 组/${totalDupAccounts} 人</span>` : '') +
-        (dupEmailCount > 0   ? ` · <span style="color:#ef4444">同邮箱 ${dupEmailCount} 组/${totalDupEmails} 人</span>` : '');
+        (maParts.length ? ' · ' + maParts.join(' · ') : '');
 
       renderUsersTable();
       renderUsersPagination();
