@@ -22,3 +22,6 @@ yarn.lock
 *.swo
 *~
 .idea/
+
+# 代码审查文档（本地审查记录，不提交）
+review/

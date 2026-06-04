@@ -369,9 +369,26 @@ tr:hover td{background:rgba(59,130,246,.04)}
       usersState.hasMore = !!data.hasMore;
       usersState.selected.clear();
 
+      // 计算多账号统计（基于当前已加载的用户列表）
+      const dupStats = { accounts: {}, emails: {} };
+      usersState.users.forEach(u => {
+        const acc = u.profile?.account || '';
+        const eml = u.profile?.email || '';
+        if (acc) dupStats.accounts[acc] = (dupStats.accounts[acc]||0) + 1;
+        if (eml) dupStats.emails[eml] = (dupStats.emails[eml]||0) + 1;
+      });
+      const dupAccountCount = Object.values(dupStats.accounts).filter(c => c > 1).length;
+      const dupEmailCount   = Object.values(dupStats.emails).filter(c => c > 1).length;
+      const totalDupAccounts = Object.values(dupStats.accounts).filter(c => c > 1).reduce((a,c)=>a+c,0);
+      const totalDupEmails   = Object.values(dupStats.emails).filter(c => c > 1).reduce((a,c)=>a+c,0);
+
       const summary = data.summary || {};
       $('#usersSummary').innerHTML =
-        `共 ${summary.filtered||summary.total||0} 条 · 活跃 ${summary.active??'-'} · 封禁 ${summary.banned??'-'}`;
+        `共 ${summary.filtered||summary.total||0} 用户` +
+        (summary.active != null ? ` · 活跃 ${summary.active}` : '') +
+        (summary.banned != null ? ` · 封禁 ${summary.banned}` : '') +
+        (dupAccountCount > 0 ? ` · <span style="color:#f59e0b">同名账户 ${dupAccountCount} 组/${totalDupAccounts} 人</span>` : '') +
+        (dupEmailCount > 0   ? ` · <span style="color:#ef4444">同邮箱 ${dupEmailCount} 组/${totalDupEmails} 人</span>` : '');
 
       renderUsersTable();
       renderUsersPagination();
