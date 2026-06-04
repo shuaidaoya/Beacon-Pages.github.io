@@ -404,11 +404,14 @@
           '<button class="sec-btn sec-btn-sm" id="sec-batch-reset" disabled>批量重置</button>' +
           '<button class="sec-btn sec-btn-danger sec-btn-sm" id="sec-batch-delete" disabled>批量删除</button>' +
           '</div>' +
-          summaryHtml +
+          '<div id="sec-users-summary-bar"></div>' +
           '<div id="sec-users-table"></div>' +
           '<div id="sec-users-pager" class="sec-pagination"></div>';
 
         renderUsers(data.users||[], data.summary);
+        // 用 insertAdjacentHTML 独立注入摘要，不随表格重绘丢失
+        var sumBar = document.getElementById('sec-users-summary-bar');
+        if (sumBar) sumBar.outerHTML = summaryHtml;
 
         // sync multi-account type visibility
         setTimeout(() => {
