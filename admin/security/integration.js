@@ -764,19 +764,15 @@
   }
 
   async function toggleReg() {
+    // 读当前状态取反，而非盲目先试 enabled:true
     try {
-      const data = await api('/registration/toggle', { method:'POST', body: JSON.stringify({ enabled: true }) });
-      toast(data.message||'操作完成');
+      const cur = await api('/registration');
+      const next = !(cur.status?.enabled);
+      await api('/registration/toggle', { method:'POST', body: JSON.stringify({ enabled: next }) });
+      toast(next ? '注册功能已开启' : '注册功能已关闭');
       loadRegistration();
     } catch(e) {
-      // try the other way
-      try {
-        const data = await api('/registration/toggle', { method:'POST', body: JSON.stringify({ enabled: false }) });
-        toast(data.message||'操作完成');
-        loadRegistration();
-      } catch(e2) {
-        if (e.message !== 'auth_redirect') toast('操作失败: '+e.message, 'error');
-      }
+      if (e.message !== 'auth_redirect') toast('操作失败: '+e.message, 'error');
     }
   }
 
