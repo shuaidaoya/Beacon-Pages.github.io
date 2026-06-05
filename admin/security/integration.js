@@ -618,39 +618,106 @@
       const profile = user?.profile || {};
       const sub = user?.subscription || {};
       const ban = user?.activeBan;
-      const totalTraffic = user?.traffic > 0 ? fmtBytes(user.traffic) : '不限量';
+      const subBanned = sub.status === 'banned';
+      const used = Number(user?.used_traffic || 0);
+      const total = Number(user?.traffic || 0);
+      const unlimited = !total || total <= 0;
+      const totalTraffic = unlimited ? '不限量' : fmtBytes(total);
+      const trafficPct = unlimited ? 0 : Math.min(100, Math.round((used / total) * 100));
+      const trafficColor = trafficPct >= 90 ? '#ef4444' : trafficPct >= 70 ? '#f59e0b' : '#10b981';
+      const riskScore = sub.risk?.score != null ? Number(sub.risk.score) : 0;
+      const riskColor = riskScore >= 60 ? '#ef4444' : riskScore >= 30 ? '#f59e0b' : 'inherit';
+      const riskLevel = sub.risk?.level || 'low';
+      const banReasonText = ban
+        ? ((ban.reasonType || '-') + ' / ' + (ban.reasonDetail || '-'))
+        : (subBanned ? (sub.bannedReasonLabel || sub.bannedReason || '订阅风控触发自动封禁') : '');
 
       let html = '<div class="sec-drawer-overlay" id="sec-drawer"><div class="sec-drawer">';
       html += '<button class="sec-drawer-close" id="sec-drawer-close" type="button">✕</button>';
       html += '<h3>用户详情</h3>';
 
-      // user info
-      html += '<div class="sec-drawer-section"><h4>基本信息</h4>';
-      html += '<pre>UUID:   '+esc(uuid||'-')+'\n账户:   '+esc(profile.account||'-')+'\n邮箱:   '+esc(profile.email||'-')+'\n状态:   '+esc(user?.status||'-')+'\n风险:   '+esc(sub.risk?.level||'-')+(sub.risk.score!=null?' ('+sub.risk.score+')':'')+'\n已用:   '+fmtBytes(user?.used_traffic||0)+'\n总限额: '+esc(totalTraffic)+'\n最后IP: '+esc(user?.lastIp||'-')+'\n最后活跃: '+ago(user?.lastSeenAt||user?.lifecycle?.lastSeenAt)+'</pre></div>';
-      html += '<div class="sec-drawer-section"><button class="sec-btn sec-btn-primary" id="sec-drawer-set-traffic" data-user-uuid="'+escAttr(uuid)+'">设置总限额</button></div>';
-
-      // ban info
-      if (ban) {
-        html += '<div class="sec-drawer-section"><h4>封禁信息</h4>';
-        html += '<pre>类型: '+esc(ban.reasonType||'-')+'\n详情: '+esc(ban.reasonDetail||'-')+'\n过期: '+ts(ban.expiresAt)+'</pre></div>';
+      // 顶部封禁横幅
+      if (subBanned || ban) {
+        html += '<div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;margin:0 0 16px 0;background:linear-gradient(135deg,rgba(239,68,68,.18),rgba(239,68,68,.06));border:1px solid rgba(239,68,68,.45);border-radius:10px;box-shadow:0 2px 12px rgba(239,68,68,.15)">';
+        html += '<div style="font-size:24px;line-height:1">🚫</div>';
+        html += '<div style="flex:1;min-width:0">';
+        html += '<div style="font-size:14px;font-weight:700;color:#fecaca;margin-bottom:4px;letter-spacing:.5px">该用户当前处于封禁状态</div>';
+        html += '<div style="font-size:12px;color:#fca5a5;line-height:1.6"><strong style="color:#fff">封禁原因：</strong>' + esc(banReasonText) + '</div>';
+        html += '<div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:4px;font-size:11px;color:#fca5a5">';
+        html += '<span><strong style="color:#fff">封禁时间：</strong>' + ts(sub.bannedAt) + '</span>';
+        if (ban) html += '<span><strong style="color:#fff">预计解封：</strong>' + ts(ban.expiresAt) + '</span>';
+        if (ban) html += '<span><strong style="color:#fff">触发类型：</strong>' + esc(ban.reasonType || '-') + '</span>';
+        html += '</div>';
+        html += '<div style="font-size:11px;color:#fda4af;margin-top:4px">⚠️ 封禁期间，该用户无法登录、无法使用订阅，订阅接口会返回 403。</div>';
+        html += '</div>';
+        html += '<button class="sec-btn sec-btn-primary" data-user-action="restore" data-user-uuid="' + escAttr(uuid) + '" style="background:#22c55e;border:none;color:#fff;font-weight:600;white-space:nowrap;padding:8px 14px">立即解封</button>';
+        html += '</div>';
       }
 
-      // subscription
+      // 账号信息
+      html += '<div class="sec-drawer-section"><h4>账号信息</h4>';
+      html += '<pre>UUID:   ' + esc(uuid || '-') + '\n账户:   ' + esc(profile.account || '-') + '\n邮箱:   ' + esc(profile.email || '-') + '\n来源:   ' + esc(profile.source || '-') + '\n创建:   ' + ts(user?.lifecycle?.createdAt || user?.createdAt) + '\n最近活跃: ' + ago(user?.lastSeenAt || user?.lifecycle?.lastSeenAt) + '\n最后IP: ' + esc(user?.lastIp || '-') + '</pre></div>';
+
+      // 流量配额（带进度条）
+      html += '<div class="sec-drawer-section"><h4>流量配额</h4>';
+      html += '<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:8px">';
+      html += '<span style="font-size:22px;font-weight:700;color:' + trafficColor + '">' + esc(fmtBytes(used)) + '</span>';
+      html += '<span style="font-size:13px;color:#6b7280">/ ' + esc(totalTraffic) + '</span>';
+      if (!unlimited) html += '<span style="font-size:11px;color:' + trafficColor + '">（' + trafficPct + '%）</span>';
+      html += '</div>';
+      if (!unlimited) {
+        html += '<div style="height:8px;background:rgba(0,0,0,.06);border-radius:4px;overflow:hidden"><div style="height:100%;width:' + trafficPct + '%;background:' + trafficColor + ';border-radius:4px;transition:width .3s"></div></div>';
+      }
+      html += '<div style="margin-top:10px"><button class="sec-btn sec-btn-primary" id="sec-drawer-set-traffic" data-user-uuid="' + escAttr(uuid) + '">设置总限额</button></div>';
+      html += '</div>';
+
+      // 订阅监控
       if (sub.monitor) {
+        const m = sub.monitor;
         html += '<div class="sec-drawer-section"><h4>订阅监控</h4>';
-        html += '<pre>每小时: '+esc(String(sub.monitor.hourlyCount||0))+'/'+esc(String(sub.monitor.hourlyLimit||'-'))+'\n无效Token: '+esc(String(sub.monitor.hourlyInvalidTokenCount||0))+'\n唯一IP: '+esc(String(sub.monitor.uniqueIpCount||0))+'\n最后请求: '+ts(sub.monitor.lastRequestAt)+'</pre></div>';
+        html += '<pre>本小时订阅:  ' + esc(String(m.hourlyCount || 0)) + ' / ' + esc(String(m.hourlyLimit || '-')) + '\n无效Token:  ' + esc(String(m.hourlyInvalidTokenCount || 0)) + '\n唯一IP数:   ' + esc(String(m.uniqueIpCount || 0)) + '\n客户端数:   ' + esc(String(m.uniqueUaCount || 0)) + '\n最后请求:   ' + ts(m.lastRequestAt) + '\n最后IP:     ' + esc(m.lastRequestIp || '-') + '\n最后UA:     ' + esc((m.lastRequestUserAgent || '-').slice(0, 80)) + '\n最后类型:   ' + esc(m.lastTarget || '-') + '\n最后无效:   ' + ts(m.lastInvalidTokenAt) + '\n无效来源:   ' + esc(m.lastInvalidTokenIp || '-') + '\n最后超限:   ' + ts(m.lastLimitExceededAt) + '</pre></div>';
       }
 
-      // audit events
-      html += '<h4 style="margin-top:16px">审计事件 ('+events.length+')</h4>';
-      if (!events.length) html += '<div class="sec-empty">暂无事件</div>';
-      else {
+      // 封禁与风控
+      html += '<div class="sec-drawer-section"><h4>封禁与风控</h4>';
+      html += '<pre>账号状态:  ' + esc(subBanned ? '已封禁' : '正常') + '\n风险等级:  ' + esc(riskLevel) + '\n风险分:    <span style="color:' + riskColor + '">' + esc(String(riskScore)) + '</span>' + (sub.bannedReasonLabel ? '\n封禁原因:  ' + esc(sub.bannedReasonLabel) : '') + '\n封禁时间:  ' + ts(sub.bannedAt) + (sub.bannedReason ? '\n原因代码:  ' + esc(sub.bannedReason) : '') + '\n令牌模式:  ' + esc(sub.tokenMode === 'managed' ? '已托管' : '兼容旧令牌') + '\n令牌更新:  ' + ts(sub.tokenUpdatedAt) + '</pre></div>';
+
+      // 节点与订阅
+      if (user?.node) {
+        html += '<div class="sec-drawer-section"><h4>节点与订阅</h4>';
+        html += '<pre>探活地址:  ' + esc(user.node.versionUrl || '-') + '\n订阅地址:  ' + esc(user.node.subscriptionUrl || '-') + '</pre>';
+        html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">';
+        if (user.node.versionUrl) html += '<button class="sec-btn sec-btn-sm" data-copy-value="' + escAttr(user.node.versionUrl) + '" data-copy-label="探活地址">复制探活</button>';
+        if (user.node.subscriptionUrl) html += '<button class="sec-btn sec-btn-sm" data-copy-value="' + escAttr(user.node.subscriptionUrl) + '" data-copy-label="订阅地址">复制订阅</button>';
+        if (user.node.subscriptionUrl) html += '<a class="sec-btn sec-btn-sm" href="' + escAttr(user.node.subscriptionUrl) + '" target="_blank" rel="noreferrer">打开订阅</a>';
+        html += '</div>';
+        html += '</div>';
+      }
+
+      // 操作按钮组
+      html += '<div class="sec-drawer-section"><h4>操作</h4>';
+      html += '<div style="display:flex;gap:8px;flex-wrap:wrap">';
+      if (subBanned) {
+        html += '<button class="sec-btn sec-btn-primary" data-user-action="restore" data-user-uuid="' + escAttr(uuid) + '" style="background:#22c55e;border:none;color:#fff">解封用户</button>';
+      } else {
+        html += '<button class="sec-btn sec-btn-danger" data-user-action="ban" data-user-uuid="' + escAttr(uuid) + '">封禁用户</button>';
+      }
+      html += '<button class="sec-btn sec-btn-sm" data-user-action="reset-subscription" data-user-uuid="' + escAttr(uuid) + '">轮换订阅令牌</button>';
+      html += '<button class="sec-btn sec-btn-danger" data-user-action="delete" data-user-uuid="' + escAttr(uuid) + '">删除用户</button>';
+      html += '</div></div>';
+
+      // 审计事件
+      html += '<h4 style="margin-top:16px">审计事件 (' + events.length + ')</h4>';
+      if (!events.length) {
+        html += '<div class="sec-empty">暂无事件</div>';
+      } else {
         html += '<div class="sec-timeline" style="max-height:300px">';
         events.forEach(e => {
-          html += '<div class="sec-timeline-item"><div class="sec-timeline-dot" style="background:#3b82f6"></div><div class="sec-timeline-body"><div class="sec-timeline-type">'+esc(e.eventType||e.type||'事件')+'</div><div class="sec-timeline-detail">'+esc(JSON.stringify(e).slice(0,200))+'</div><div class="sec-timeline-time">'+ts(e.createdAt||e.time)+'</div></div></div>';
+          html += '<div class="sec-timeline-item"><div class="sec-timeline-dot" style="background:#3b82f6"></div><div class="sec-timeline-body"><div class="sec-timeline-type">' + esc(e.eventType || e.type || '事件') + '</div><div class="sec-timeline-detail">' + esc(JSON.stringify(e).slice(0, 200)) + '</div><div class="sec-timeline-time">' + ts(e.createdAt || e.time) + '</div></div></div>';
         });
         html += '</div>';
       }
+
       html += '</div></div>';
       document.body.insertAdjacentHTML('beforeend', html);
       const drawer = $('#sec-drawer');
@@ -665,9 +732,37 @@
             if (targetUuid) userAction('set-traffic', targetUuid);
           });
         }
+        // bind new operation buttons
+        drawer.querySelectorAll('[data-user-action]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const action = btn.getAttribute('data-user-action');
+            const targetUuid = btn.getAttribute('data-user-uuid');
+            if (action && targetUuid) {
+              const d = document.getElementById('sec-drawer');
+              if (d) d.remove();
+              userAction(action, targetUuid);
+            }
+          });
+        });
+        // bind copy buttons
+        drawer.querySelectorAll('[data-copy-value]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const v = btn.getAttribute('data-copy-value') || '';
+            const label = btn.getAttribute('data-copy-label') || '内容';
+            if (!v) return;
+            try {
+              await navigator.clipboard.writeText(v);
+              const old = btn.textContent;
+              btn.textContent = '已复制';
+              setTimeout(() => { btn.textContent = old; }, 1200);
+            } catch (e) {
+              toast('复制失败: ' + (e.message || e), 'error');
+            }
+          });
+        });
       }
     } catch(e) {
-      if (e.message !== 'auth_redirect') toast('加载详情失败: '+e.message, 'error');
+      if (e.message !== 'auth_redirect') toast('加载详情失败: ' + e.message, 'error');
     }
   }
 
