@@ -119,7 +119,8 @@
 
   // ── API helper ──
   async function api(path, opts) {
-    const resp = await fetch('/admin/system' + path, opts || {});
+    const headers = { 'Content-Type': 'application/json', ...(opts?.headers || {}) };
+    const resp = await fetch('/admin/system' + path, { ...opts, headers });
     if (resp.status === 302 || resp.status === 401) throw new Error('auth_redirect');
     const data = await resp.json();
     if (!data.success && data.error) throw new Error(data.error);
