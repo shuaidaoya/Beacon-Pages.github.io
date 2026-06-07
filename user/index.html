@@ -1062,21 +1062,21 @@ body{
     changeOldPwToggle.addEventListener("click", function() {
       oldPwVisible = !oldPwVisible;
       changeOldPwInput.type = oldPwVisible ? "text" : "password";
-      changeOldPwToggle.textContent = oldPwVisible ? "\xf0\x9f\x99\x88" : "\xf0\x9f\x91\x81";
+      changeOldPwToggle.textContent = oldPwVisible ? "🙈" : "👁";
     });
 
     var newPwVisible = false;
     changeNewPwToggle.addEventListener("click", function() {
       newPwVisible = !newPwVisible;
       changeNewPwInput.type = newPwVisible ? "text" : "password";
-      changeNewPwToggle.textContent = newPwVisible ? "\xf0\x9f\x99\x88" : "\xf0\x9f\x91\x81";
+      changeNewPwToggle.textContent = newPwVisible ? "🙈" : "👁";
     });
 
     var confirmPwVisible = false;
     changeConfirmPwToggle.addEventListener("click", function() {
       confirmPwVisible = !confirmPwVisible;
       changeConfirmPwInput.type = confirmPwVisible ? "text" : "password";
-      changeConfirmPwToggle.textContent = confirmPwVisible ? "\xf0\x9f\x99\x88" : "\xf0\x9f\x91\x81";
+      changeConfirmPwToggle.textContent = confirmPwVisible ? "🙈" : "👁";
     });
 
     changeNewPwInput.addEventListener("input", function() {
@@ -1085,7 +1085,7 @@ body{
         changePwStrength.style.display = "";
         changePwStrengthBar.style.width = (result.score * 20) + "%";
         changePwStrengthBar.setAttribute("data-strength", String(result.score));
-        changePwStrengthLabel.textContent = "\xe5\xaf\x86\xe7\xa0\x81\xe5\xbc\xba\xe5\xba\xa6\xef\xbc\x9a" + result.label;
+        changePwStrengthLabel.textContent = "密码强度：" + result.label;
       } else {
         changePwStrength.style.display = "none";
       }
@@ -1109,31 +1109,31 @@ body{
       changePwMsg.innerHTML = "";
       changePwMsg.className = "";
       if (!oldPw) {
-        showToast("\xe8\xaf\xb7\xe8\xbe\x93\xe5\x85\xa5\xe5\x8e\x9f\xe5\xaf\x86\xe7\xa0\x81", "error");
+        showToast("请输入原密码", "error");
         return;
       }
       if (!newPw) {
-        showToast("\xe8\xaf\xb7\xe8\xbe\x93\xe5\x85\xa5\xe6\x96\xb0\xe5\xaf\x86\xe7\xa0\x81", "error");
+        showToast("请输入新密码", "error");
         return;
       }
       if (newPw.length < 8 || newPw.length > 20) {
-        showToast("\xe6\x96\xb0\xe5\xaf\x86\xe7\xa0\x81\xe9\x95\xbf\xe5\xba\xa6\xe9\x9c\x80\xe4\xb8\xba 8-20 \xe4\xbd\x8d", "error");
+        showToast("新密码长度需为 8-20 位", "error");
         return;
       }
       if (!/[a-zA-Z]/.test(newPw)) {
-        showToast("\xe6\x96\xb0\xe5\xaf\x86\xe7\xa0\x81\xe5\xbf\x85\xe9\xa1\xbb\xe5\x8c\x85\xe5\x90\xab\xe5\xad\x97\xe6\xaf\x8d", "error");
+        showToast("新密码必须包含字母", "error");
         return;
       }
       if (!/[0-9]/.test(newPw)) {
-        showToast("\xe6\x96\xb0\xe5\xaf\x86\xe7\xa0\x81\xe5\xbf\x85\xe9\xa1\xbb\xe5\x8c\x85\xe5\x90\xab\xe6\x95\xb0\xe5\xad\x97", "error");
+        showToast("新密码必须包含数字", "error");
         return;
       }
       if (!/[^a-zA-Z0-9]/.test(newPw)) {
-        showToast("\xe6\x96\xb0\xe5\xaf\x86\xe7\xa0\x81\xe5\xbf\x85\xe9\xa1\xbb\xe5\x8c\x85\xe5\x90\xab\xe7\x89\xb9\xe6\xae\x8a\xe5\xad\x97\xe7\xac\xa6\xef\xbc\x88\xe5\xa6\x82 @ # $ % \xe7\xad\x89\xef\xbc\x89", "error");
+        showToast("新密码必须包含特殊字符（如 @ # $ % 等）", "error");
         return;
       }
       if (newPw !== cfm) {
-        showToast("\xe4\xb8\xa4\xe6\xac\xa1\xe8\xbe\x93\xe5\x85\xa5\xe7\x9a\x84\xe6\x96\xb0\xe5\xaf\x86\xe7\xa0\x81\xe4\xb8\x8d\xe4\xb8\x80\xe8\x87\xb4", "error");
+        showToast("两次输入的新密码不一致", "error");
         return;
       }
       setLoading(true);
@@ -1145,7 +1145,7 @@ body{
         });
         var payload = await resp.json().catch(function() { return {}; });
         if (!resp.ok) throw new Error(payload.message || ("HTTP " + resp.status));
-        showToast("\xe5\xaf\x86\xe7\xa0\x81\xe4\xbf\xae\xe6\x94\xb9\xe6\x88\x90\xe5\x8a\x9f\xef\xbc\x81\xe8\xaf\xb7\xe4\xbd\xbf\xe7\x94\xa8\xe6\x96\xb0\xe5\xaf\x86\xe7\xa0\x81\xe9\x87\x8d\xe6\x96\xb0\xe7\x99\xbb\xe5\xbd\x95", "success");
+        showToast("密码修改成功！请使用新密码重新登录", "success");
         localStorage.removeItem("beacon_user");
         var card = document.getElementById("changePwCard");
         if (card) { card.style.opacity = "0.5"; }
@@ -1153,13 +1153,12 @@ body{
           window.location.href = "/register";
         }, 1500);
       } catch (e) {
-        showToast(e.message || "\xe5\xaf\x86\xe7\xa0\x81\xe4\xbf\xae\xe6\x94\xb9\xe5\xa4\xb1\xe8\xb4\xa5\xef\xbc\x8c\xe8\xaf\xb7\xe7\xa8\x8d\xe5\x90\x8e\xe9\x87\x8d\xe8\xaf\x95", "error");
+        showToast(e.message || "密码修改失败，请稍后重试", "error");
       } finally {
         setLoading(false);
       }
     });
   }
-
 
   // ── init ──
   let initRetries = 0;
