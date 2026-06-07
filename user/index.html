@@ -172,6 +172,17 @@ body{
 .spinner.show{display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* ── toast ── */
+.toast{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);
+  padding:12px 24px;border-radius:12px;font-size:14px;font-weight:600;
+  z-index:9999;opacity:0;transition:all .35s ease;pointer-events:none;
+  box-shadow:0 8px 32px rgba(0,0,0,.18);white-space:nowrap;
+}
+.toast.show{opacity:1;top:32px}
+.toast.success{background:#065f46;color:#d1fae5;border:1px solid #059669}
+.toast.error{background:#7f1d1d;color:#fee2e2;border:1px solid #dc2626}
+
 /* ── link cards ── */
 .link-card{
   background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px 20px;
@@ -194,15 +205,6 @@ body{
 
 /* ── links group ── */
 .links-group{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
-
-/* ── toast ── */
-.toast{
-  position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;
-  background:#16a34a;color:#fff;padding:12px 28px;border-radius:12px;font-size:14px;
-  font-weight:600;box-shadow:0 8px 24px rgba(22,163,74,.3);
-  animation:fadeIn .3s;pointer-events:none;
-}
-@keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
 /* ── empty state ── */
 .empty{padding:80px 20px;text-align:center;color:#94a3b8}
@@ -845,6 +847,24 @@ body{
     return { score: Math.min(score, 5), label: labels[Math.min(score, 5)] };
   }
 
+  // ── toast notification ──
+  var toastTimer = null;
+  function showToast(message, type) {
+    var el = document.getElementById('globalToast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'globalToast';
+      el.className = 'toast';
+      document.body.appendChild(el);
+    }
+    if (toastTimer) clearTimeout(toastTimer);
+    el.textContent = message;
+    el.className = 'toast ' + (type || 'success') + ' show';
+    toastTimer = setTimeout(function() {
+      el.classList.remove('show');
+    }, 2600);
+  }
+
   // ── password setting form wiring ──
   function wireSetPassword(d) {
     var setPwBtn = document.getElementById('setPwBtn');
@@ -909,33 +929,27 @@ body{
       setPwMsg.innerHTML = '';
       setPwMsg.className = '';
       if (!pw) {
-        setPwMsg.innerHTML = '请输入密码';
-        setPwMsg.style.color = '#ef4444';
+        showToast('请输入密码', 'error');
         return;
       }
       if (pw.length < 8 || pw.length > 20) {
-        setPwMsg.innerHTML = '密码长度需为 8-20 位';
-        setPwMsg.style.color = '#ef4444';
+        showToast('密码长度需为 8-20 位', 'error');
         return;
       }
       if (!/[a-zA-Z]/.test(pw)) {
-        setPwMsg.innerHTML = '密码必须包含字母';
-        setPwMsg.style.color = '#ef4444';
+        showToast('密码必须包含字母', 'error');
         return;
       }
       if (!/[0-9]/.test(pw)) {
-        setPwMsg.innerHTML = '密码必须包含数字';
-        setPwMsg.style.color = '#ef4444';
+        showToast('密码必须包含数字', 'error');
         return;
       }
       if (!/[^a-zA-Z0-9]/.test(pw)) {
-        setPwMsg.innerHTML = '密码必须包含特殊字符（如 @ # $ % 等）';
-        setPwMsg.style.color = '#ef4444';
+        showToast('密码必须包含特殊字符（如 @ # $ % 等）', 'error');
         return;
       }
       if (pw !== cfm) {
-        setPwMsg.innerHTML = '两次输入的密码不一致';
-        setPwMsg.style.color = '#ef4444';
+        showToast('两次输入的密码不一致', 'error');
         return;
       }
       setLoading(true);
@@ -947,8 +961,7 @@ body{
         });
         var payload = await resp.json().catch(function() { return {}; });
         if (!resp.ok) throw new Error(payload.message || ('HTTP ' + resp.status));
-        setPwMsg.innerHTML = '✅ 密码设置成功！刷新页面后将可使用账号密码登录。';
-        setPwMsg.style.color = '#16a34a';
+        showToast('密码设置成功！下次可使用账号密码登录', 'success');
         setPwForm.style.display = 'none';
         d.passwordSet = true;
         var stored = JSON.parse(localStorage.getItem('beacon_user') || '{}');
@@ -965,10 +978,9 @@ body{
           for (var i = 0; i < titles.length; i++) {
             if (titles[i].textContent === '账号安全') { titles[i].style.display = 'none'; break; }
           }
-        }, 2000);
+        }, 1500);
       } catch (e) {
-        setPwMsg.innerHTML = '❌ ' + (e.message || '设置失败，请稍后重试');
-        setPwMsg.style.color = '#ef4444';
+        showToast(e.message || '密码设置失败，请稍后重试', 'error');
       } finally {
         setLoading(false);
       }
