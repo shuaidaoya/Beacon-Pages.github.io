@@ -132,6 +132,7 @@ body{
 .stat-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-2px)}
 .stat-value{font-size:24px;font-weight:800;color:#1e293b;font-family:'SF Mono','Monaco','Menlo',monospace;margin-bottom:4px}
 .stat-label{font-size:12px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.stat-sub{font-size:11px;color:#94a3b8;margin-top:4px;font-weight:400}
 .stat-card.accent-green .stat-value{color:#16a34a}
 .stat-card.accent-blue .stat-value{color:#3b82f6}
 .stat-card.accent-amber .stat-value{color:#f59e0b}
@@ -429,15 +430,19 @@ body{
   // ── global stats ──
   async function fetchGlobalStats() {
     try {
-      const resp = await fetch('/api/stats');
+      const resp = await fetch("/api/stats");
       const data = await resp.json();
-      setText('globalUpValue', data.累计上行 || '--');
-      setText('globalDownValue', data.累计下行 || '--');
-      setText('onlineCount', data.在线人数 != null ? String(data.在线人数) : '--');
+      setText("globalUpValue", data.累计上行 || "--");
+      setText("globalDownValue", data.累计下行 || "--");
+      setText("globalUpDaily", "当天 " + (data.当天上行 || "--"));
+      setText("globalDownDaily", "当天 " + (data.当天下行 || "--"));
+      setText("onlineCount", data.在线人数 != null ? String(data.在线人数) : "--");
     } catch(e) {
-      setText('globalUpValue', '--');
-      setText('globalDownValue', '--');
-      setText('onlineCount', '--');
+      setText("globalUpValue", "--");
+      setText("globalDownValue", "--");
+      setText("globalUpDaily", "当天 --");
+      setText("globalDownDaily", "当天 --");
+      setText("onlineCount", "--");
     }
   }
 
@@ -677,10 +682,12 @@ body{
         <div class="stat-card accent-blue">
           <div class="stat-value" id="globalDownValue">--</div>
           <div class="stat-label">全站下行</div>
+          <div class="stat-sub" id="globalDownDaily">当天 --</div>
         </div>
         <div class="stat-card accent-amber">
           <div class="stat-value" id="globalUpValue">--</div>
           <div class="stat-label">全站上行</div>
+          <div class="stat-sub" id="globalUpDaily">当天 --</div>
         </div>
       </div>
 
