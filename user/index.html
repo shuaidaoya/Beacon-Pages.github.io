@@ -539,6 +539,7 @@ body{
         ...current,
         account: data.account || current.account || '',
         email: data.email || current.email || '',
+        passwordSet: data.passwordSet != null ? data.passwordSet : current.passwordSet,
         uuid: node.uuid || current.uuid || '',
         token: node.token || current.token || '',
         subUrl: node.subscriptionUrl || current.subUrl || '',
@@ -571,6 +572,7 @@ body{
         ...current,
         account: payload.account || current.account || '',
         email: payload.email || current.email || '',
+        passwordSet: payload.passwordSet != null ? payload.passwordSet : current.passwordSet,
         uuid: node.uuid || current.uuid || '',
         token: node.token || current.token || '',
         subUrl: node.subscriptionUrl || current.subUrl || '',
@@ -597,11 +599,15 @@ body{
     const subscriptionUrl = d.subUrl || (d.uuid && d.token ? (host + '/sub?uuid=' + encodeURIComponent(d.uuid) + '&token=' + encodeURIComponent(d.token)) : '');
     const versionUrl     = d.verUrl || (d.uuid ? (host + '/version?uuid=' + encodeURIComponent(d.uuid)) : '');
 
+    var migrationBanner = '';
+    if (d.passwordSet === false) {
+      migrationBanner = '<div style="margin-top:12px;padding:10px 14px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.25);border-radius:10px;font-size:12px;color:#fde68a;position:relative;z-index:1">\u26a0\ufe0f 您的账户尚未设置密码，请尽快在认证面板设置密码以确保账户安全。邮箱登录将在30天后关闭。</div>';
+    }
     main.innerHTML = `
       <div class="hero">
         <h1>欢迎回来，${esc(d.account || '用户')}</h1>
-        <p>${esc(d.email || '')}</p>
         ${d.uuid ? '<div class="uuid-badge">UUID: ' + esc(d.uuid.slice(0,8) + '...') + '</div>' : ''}
+        ${migrationBanner}
       </div>
 
       <div class="sec-title">当前网络信息</div>

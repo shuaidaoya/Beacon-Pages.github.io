@@ -59,6 +59,19 @@ button{border:none;border-radius:12px;padding:12px 20px;font-size:14px;font-weig
 .primary-btn:hover:not(:disabled){opacity:.9;transform:translateY(-1px)}
 .primary-btn:active:not(:disabled){transform:scale(.97)}
 button:disabled{opacity:.5;cursor:not-allowed}
+/* password strength bar colors */
+#pwStrengthBar[data-strength="1"]{background:#ef4444}
+#pwStrengthBar[data-strength="2"]{background:#f97316}
+#pwStrengthBar[data-strength="3"]{background:#eab308}
+#pwStrengthBar[data-strength="4"]{background:#22c55e}
+#pwStrengthBar[data-strength="5"]{background:#06b6d4}
+#migPwStrengthBar[data-strength="1"]{background:#ef4444}
+#migPwStrengthBar[data-strength="2"]{background:#f97316}
+#migPwStrengthBar[data-strength="3"]{background:#eab308}
+#migPwStrengthBar[data-strength="4"]{background:#22c55e}
+#migPwStrengthBar[data-strength="5"]{background:#06b6d4}
+/* migration card */
+.migration-card{animation:fadeIn .3s}
 /* ── status messages ── */
 .msg{display:none;padding:14px 16px;border-radius:12px;font-size:13px;line-height:1.6;margin-top:16px;animation:fadeIn .3s}
 .msg.show{display:block}
@@ -232,14 +245,31 @@ button:disabled{opacity:.5;cursor:not-allowed}
         <input type="text" id="account" placeholder="输入你的用户名" autocomplete="username" maxlength="64">
         <div class="field-hint" id="accountHint"></div>
       </div>
-      <div class="field">
-        <label for="email">邮箱</label>
+      <div class="field" id="emailField">
+        <label for="email">邮箱 <span style="font-weight:400;color:#94a3b8;font-size:11px">(选填，用于密码找回)</span></label>
         <input type="email" id="email" placeholder="your@email.com" autocomplete="email" maxlength="128">
         <div class="field-hint" id="emailHint"></div>
       </div>
+      <div class="field" id="passwordField">
+        <label for="password">密码</label>
+        <div style="position:relative">
+          <input type="password" id="password" placeholder="至少8位，包含字母和数字" autocomplete="new-password" maxlength="128" style="padding-right:44px">
+          <button type="button" id="pwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px;padding:4px;line-height:1" title="显示/隐藏密码" aria-label="切换密码可见性">👁</button>
+        </div>
+        <div class="field-hint" id="passwordHint"></div>
+        <div id="pwStrength" style="display:none;margin-top:6px">
+          <div style="height:4px;background:#1e293b;border-radius:2px;overflow:hidden">
+            <div id="pwStrengthBar" style="height:100%;width:0%;transition:width .3s;border-radius:2px"></div>
+          </div>
+          <span id="pwStrengthLabel" style="font-size:11px;margin-top:3px;display:inline-block"></span>
+        </div>
+      </div>
+      <div class="field" id="oldLoginToggle" style="display:none;text-align:center;padding-top:0">
+        <button type="button" id="oldLoginBtn" style="background:none;border:none;color:#f59e0b;cursor:pointer;font-size:12px;text-decoration:underline">使用邮箱登录（存量用户）</button>
+      </div>
       <div class="field" style="flex-direction:row;align-items:center;gap:8px;padding-top:2px">
         <input type="checkbox" id="rememberMe" style="width:18px;height:18px;accent-color:#3b82f6;cursor:pointer;flex-shrink:0;margin:0">
-        <label for="rememberMe" style="margin:0;cursor:pointer;user-select:none;font-weight:500;font-size:13px;color:#cbd5e1">记住用户名和邮箱</label>
+        <label for="rememberMe" style="margin:0;cursor:pointer;user-select:none;font-weight:500;font-size:13px;color:#cbd5e1">记住用户名</label>
       </div>
       <div class="actions">
         <button class="primary-btn" id="submitBtn">
@@ -248,7 +278,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
         </button>
       </div>
     </div>
-
     <div class="msg" id="authMsg"></div>
   </section>
 
@@ -289,7 +318,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
       const remembered = JSON.parse(localStorage.getItem('beacon_remembered') || 'null');
       if (remembered && remembered.account) {
         document.getElementById('account').value = remembered.account || '';
-        document.getElementById('email').value = remembered.email || '';
+        if (remembered.email && document.getElementById('email')) {
+          document.getElementById('email').value = remembered.email || '';
+        }
         document.getElementById('rememberMe').checked = true;
         // 延迟自动切换到登录模式
         var _origAgree = window.agreeRules;
@@ -354,6 +385,12 @@ button:disabled{opacity:.5;cursor:not-allowed}
     AUTH_USER_BANNED:       { cls:'msg-error',  title:'用户已封禁' },
     AUTH_METHOD_NOT_ALLOWED:{ cls:'msg-error',  title:'请求方式错误' },
     KV_WRITE_LIMIT_EXCEEDED:{ cls:'msg-error',  title:'写入额度用尽' },
+    AUTH_PASSWORD_SET:      { cls:'msg-success',title:'密码设置成功' },
+    AUTH_INVALID_CREDENTIALS:{ cls:'msg-error', title:'用户名或密码错误' },
+    AUTH_RATE_LIMITED:      { cls:'msg-error',  title:'尝试次数过多' },
+    AUTH_PASSWORD_NOT_SET:  { cls:'msg-warn',   title:'尚未设置密码' },
+    AUTH_EMAIL_LOGIN_EXPIRED:{ cls:'msg-error', title:'邮箱登录已关闭' },
+    AUTH_PASSWORD_TOO_WEAK: { cls:'msg-error',  title:'密码强度不足' },
   };
 
   // ── DOM refs ──
@@ -370,6 +407,14 @@ button:disabled{opacity:.5;cursor:not-allowed}
   const emailHint   = $('#emailHint');
   const submitBtn   = $('#submitBtn');
   const submitText  = $('#submitText');
+  const passwordInp = $('#password');
+  const passwordHint = $('#passwordHint');
+  const pwToggle = $('#pwToggle');
+  const pwStrength = $('#pwStrength');
+  const pwStrengthBar = $('#pwStrengthBar');
+  const pwStrengthLabel = $('#pwStrengthLabel');
+  const oldLoginToggle = $('#oldLoginToggle');
+  const oldLoginBtn = $('#oldLoginBtn');
   const submitSpin  = $('#submitSpinner');
   const authMsg     = $('#authMsg');
   const resultItems = $('#resultItems');
@@ -387,14 +432,29 @@ button:disabled{opacity:.5;cursor:not-allowed}
     $$('.tab-btn').forEach(b => b.setAttribute('aria-selected', b.dataset.mode === mode ? 'true' : 'false'));
     if (mode === 'signup') {
       authTitle.textContent = '创建用户账户';
-      authDesc.textContent  = '先完成注册，成功后会自动切换到登录模式。';
+      authDesc.textContent  = '设置用户名和密码，邮箱选填用于找回。';
       submitText.textContent = '创建账户';
     } else {
       authTitle.textContent = '登录账户';
-      authDesc.textContent  = '输入已注册的用户名和邮箱完成登录。';
+      authDesc.textContent  = '输入用户名和密码完成登录。';
       submitText.textContent = '登录';
     }
     clearMsg();
+    // toggle email field and old login button for signup vs signin
+    var emailField = document.getElementById('emailField');
+    var oldToggle = document.getElementById('oldLoginToggle');
+    var pwField = document.getElementById('passwordField');
+    if (mode === 'signup') {
+      if (emailField) emailField.style.display = '';
+      if (oldToggle) oldToggle.style.display = 'none';
+      if (pwField) pwField.style.display = '';
+      submitText.textContent = '创建账户';
+    } else {
+      if (emailField) emailField.style.display = 'none';
+      if (oldToggle) oldToggle.style.display = '';
+      if (pwField) pwField.style.display = '';
+      submitText.textContent = '登录';
+    }
     clearHints();
     // hide result
     resultPanel.classList.remove('show');
@@ -412,24 +472,69 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
     const account = accountInp.value.trim();
     const email   = emailInp.value.trim();
+    const password = passwordInp ? passwordInp.value : '';
 
     // client-side validation
-    let valid = true;
+    var isOldEmailLogin = !!state._oldLogin;
+
+    // reset old login flag
+    state._oldLogin = false;
+
+    var valid = true;
+
+    // account always required
     if (!account) { accountHint.textContent = '请输入用户名'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
     else { accountInp.removeAttribute('aria-invalid'); }
-    if (!email) { emailHint.textContent = '请输入邮箱'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { emailHint.textContent = '邮箱格式不正确'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
-    else { emailInp.removeAttribute('aria-invalid'); }
+
+    if (isOldEmailLogin) {
+      // old email login: email required, no password
+      if (!email) { emailHint.textContent = '请输入邮箱'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { emailHint.textContent = '邮箱格式不正确'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
+      else { emailInp.removeAttribute('aria-invalid'); }
+    } else {
+      // new password login / signup
+      if (state.mode === 'signup') {
+        // password required for signup
+        if (!password) { passwordHint.textContent = '请设置密码'; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
+        else {
+          var hasLetter = /[a-zA-Z]/.test(password);
+          var hasNumber = /[0-9]/.test(password);
+          if (password.length < 8) { passwordHint.textContent = '密码至少需要8个字符'; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
+          else if (!hasLetter || !hasNumber) { passwordHint.textContent = '密码必须包含字母和数字'; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
+          else { passwordInp.removeAttribute('aria-invalid'); }
+        }
+        // email optional for signup
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { emailHint.textContent = '邮箱格式不正确'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
+        else { emailInp.removeAttribute('aria-invalid'); }
+      } else {
+        // signin with password: password required
+        if (!password) { passwordHint.textContent = '请输入密码'; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
+        else { passwordInp.removeAttribute('aria-invalid'); }
+      }
+    }
 
     if (!valid) return;
 
     setLoading(true);
     try {
-      const endpoint = API_BASE + (state.mode === 'signup' ? '/register/api' : '/register/login');
+      var endpoint, body;
+      if (state.mode === 'signup') {
+        endpoint = API_BASE + '/register/api';
+        body = { account: account, password: password };
+        if (email) body.email = email;
+      } else {
+        endpoint = API_BASE + '/register/login';
+        if (isOldEmailLogin) {
+          body = { account: account, email: email };
+        } else {
+          body = { account: account, password: password };
+        }
+      }
+
       const resp = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ account, email }),
+        body: JSON.stringify(body),
       });
       const data = await resp.json();
 
@@ -438,24 +543,18 @@ button:disabled{opacity:.5;cursor:not-allowed}
       const message = data.message || '服务器没有返回具体信息';
 
       if (code === 'AUTH_SIGNUP_SUCCESS') {
-        // signup OK → auto switch to signin
-        showMsg('msg-success', '✅ ' + meta.title, message + ' 请点击登录。');
-        // pre-fill and switch
-        setTimeout(() => switchMode('signin'), 1200);
+        showMsg('msg-success', '✅ ' + meta.title, message + ' 请切换到登录页面完成登录。');
+        setTimeout(function() { switchMode('signin'); }, 1200);
       } else if (code === 'AUTH_SIGNUP_EXISTS') {
-        // already exists → switch to signin
         showMsg('msg-warn', 'ℹ️ ' + meta.title, message);
-        setTimeout(() => switchMode('signin'), 1200);
+        setTimeout(function() { switchMode('signin'); }, 1200);
       } else if (code === 'AUTH_SIGNIN_SUCCESS') {
-        // signin OK → store in localStorage, redirect to user dashboard
-        const user = data.data || {};
-        const node = user.node || {};
-        const u = user.user || {};
-        // 记住我功能：勾选时保存凭据，否则清除
+        var user = data.data || {};
+        var node = user.node || {};
+        var u = user.user || {};
         if (document.getElementById('rememberMe').checked) {
           localStorage.setItem('beacon_remembered', JSON.stringify({
-            account: user.account || '',
-            email: user.email || '',
+            account: user.account || ''
           }));
         } else {
           localStorage.removeItem('beacon_remembered');
@@ -463,6 +562,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
         localStorage.setItem('beacon_user', JSON.stringify({
           account: user.account || '',
           email: user.email || '',
+          passwordSet: user.passwordSet || false,
           uuid: node.uuid || '',
           token: node.token || '',
           subUrl: node.subscriptionUrl || '',
@@ -470,25 +570,47 @@ button:disabled{opacity:.5;cursor:not-allowed}
           traffic: u.traffic || 0,
           used_traffic: u.used_traffic || 0,
         }));
+
+        // Check if migration token present → show migration wizard
+        if (data.migrationToken) {
+          showMigrationWizard(data.migrationToken, user.account || '');
+          setLoading(false);
+          return;
+        }
+
         location.href = '/user';
         return;
+      } else if (code === 'AUTH_PASSWORD_SET') {
+        showMsg('msg-success', '✅ ' + meta.title, message + ' 请使用新密码登录。');
+        switchMode('signin');
+        if (passwordInp) passwordInp.value = '';
+      } else if (code === 'AUTH_PASSWORD_NOT_SET') {
+        showMsg('msg-warn', '⚠️ ' + meta.title, message + ' 请使用邮箱登录或联系管理员。');
+      } else if (code === 'AUTH_EMAIL_LOGIN_EXPIRED') {
+        showMsg('msg-error', '⏰ ' + meta.title, message + ' 请联系管理员重置密码。');
+      } else if (code === 'AUTH_RATE_LIMITED') {
+        showMsg('msg-error', '❌ ' + meta.title, message + ' 请等待15分钟再试。');
+      } else if (code === 'AUTH_INVALID_CREDENTIALS') {
+        showMsg('msg-error', '❌ ' + meta.title, message + ' 请检查用户名和密码。');
+        if (passwordInp) passwordInp.value = '';
+      } else if (code === 'AUTH_PASSWORD_TOO_WEAK') {
+        showMsg('msg-error', '⚠️ ' + meta.title, message + ' 密码需要至少8位，包含字母和数字。');
       } else if (code === 'AUTH_VALIDATION_ERROR') {
-        // field-level errors
-        const errors = (data.data && data.data.errors) || {};
+        var errors = (data.data && data.data.errors) || {};
         if (errors.account) accountHint.textContent = errors.account;
         if (errors.email)   emailHint.textContent   = errors.email;
+        if (errors.password) passwordHint.textContent = errors.password;
         showMsg(meta.cls, '⚠️ ' + meta.title, message);
       } else if (code === 'AUTH_USER_NOT_FOUND') {
         showMsg('msg-warn', '🔍 ' + meta.title, message + ' 请切换到注册模式完成注册。');
         if (data.data && data.data.nextMode === 'signup') {
-          setTimeout(() => switchMode('signup'), 1200);
+          setTimeout(function() { switchMode('signup'); }, 1200);
         }
       } else if (code === 'AUTH_SIGNUP_DISABLED') {
         showMsg('msg-warn', '🚫 ' + meta.title, message);
       } else if (code === 'AUTH_USER_BANNED') {
         showMsg('msg-error', '⛔ ' + meta.title, message + ' 请联系管理员解封。');
       } else {
-        // generic error
         showMsg(meta.cls, '⚠️ ' + meta.title, message);
       }
     } catch (err) {
@@ -496,6 +618,124 @@ button:disabled{opacity:.5;cursor:not-allowed}
     } finally {
       setLoading(false);
     }
+  }
+
+  // migration wizard for existing users without password
+  function showMigrationWizard(token, account) {
+    // Hide the auth panel, show a dedicated migration UI
+    authPanel.style.display = 'none';
+    resultPanel.classList.add('show');
+    resultTitle.textContent = '设置登录密码';
+    resultSub.textContent = account + ' · 存量用户迁移';
+
+    resultItems.innerHTML = ''
+      + '<div class="migration-card" style="background:#111c31;border:1px solid rgba(148,163,184,.14);border-radius:14px;padding:20px;text-align:center">'
+      + '<p style="font-size:14px;color:#fde68a;margin:0 0 8px">\u26a0\ufe0f 您的账户尚未设置密码，请在下方设置密码以完成迁移。</p>'
+      + '<p style="font-size:12px;color:#94a3b8;margin:0 0 16px">邮箱登录功能将在30天后关闭，请尽快设置密码。</p>'
+      + '<div style="display:grid;gap:12px;text-align:left">'
+      + '<div>'
+      + '<label style="font-size:13px;color:#cbd5e1;font-weight:600;display:block;margin-bottom:6px">新密码</label>'
+      + '<div style="position:relative">'
+      + '<input type="password" id="migPw" placeholder="至少8位，包含字母和数字" style="width:100%;background:#020817;border:1px solid #334155;border-radius:12px;padding:13px 44px 13px 14px;color:#f8fafc;font-size:14px;outline:none" maxlength="128">'
+      + '<button type="button" id="migPwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px;padding:4px;line-height:1">👁</button>'
+      + '</div>'
+      + '<div id="migPwStrength" style="display:none;margin-top:6px">'
+      + '<div style="height:4px;background:#1e293b;border-radius:2px;overflow:hidden">'
+      + '<div id="migPwStrengthBar" style="height:100%;width:0%;transition:width .3s;border-radius:2px"></div>'
+      + '</div>'
+      + '<span id="migPwStrengthLabel" style="font-size:11px;margin-top:3px;display:inline-block"></span>'
+      + '</div>'
+      + '</div>'
+      + '</div>'
+      + '<div class="msg" id="migMsg"></div>'
+      + '<button id="migSubmitBtn" class="primary-btn" style="width:100%;margin-top:12px">'
+      + '<span id="migSubmitText">设置密码并完成迁移</span>'
+      + '<span class="spinner" id="migSubmitSpin"></span>'
+      + '</button>'
+      + '<button id="migSkipBtn" style="width:100%;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:13px;margin-top:8px;text-decoration:underline">暂时跳过，进入面板</button>'
+      + '</div>'
+      + '</div>';
+
+    // wire up migration form
+    var migPw = document.getElementById('migPw');
+    var migPwToggle = document.getElementById('migPwToggle');
+    var migPwStrength = document.getElementById('migPwStrength');
+    var migPwStrengthBar = document.getElementById('migPwStrengthBar');
+    var migPwStrengthLabel = document.getElementById('migPwStrengthLabel');
+    var migMsg = document.getElementById('migMsg');
+    var migSubmitBtn = document.getElementById('migSubmitBtn');
+    var migSubmitText = document.getElementById('migSubmitText');
+    var migSubmitSpin = document.getElementById('migSubmitSpin');
+    var migSkipBtn = document.getElementById('migSkipBtn');
+
+    var migVisible = false;
+    migPwToggle.addEventListener('click', function() {
+      migVisible = !migVisible;
+      migPw.type = migVisible ? 'text' : 'password';
+      migPwToggle.textContent = migVisible ? '🙈' : '👁';
+    });
+
+    migPw.addEventListener('input', function() {
+      var result = checkPwStrength(migPw.value);
+      if (result.score > 0) {
+        migPwStrength.style.display = '';
+        migPwStrengthBar.style.width = (result.score * 20) + '%';
+        migPwStrengthBar.setAttribute('data-strength', String(result.score));
+        migPwStrengthLabel.textContent = '密码强度：' + result.label;
+      } else {
+        migPwStrength.style.display = 'none';
+      }
+    });
+
+    migSkipBtn.addEventListener('click', function() {
+      location.href = '/user';
+    });
+
+    function setMigLoading(v) {
+      migSubmitBtn.disabled = v;
+      if (v) { migSubmitSpin.classList.add('show'); migSubmitText.style.opacity = '0.5'; }
+      else   { migSubmitSpin.classList.remove('show'); migSubmitText.style.opacity = '1'; }
+    }
+
+    migSubmitBtn.addEventListener('click', async function() {
+      var pw = migPw.value;
+      if (!pw) {
+        migMsg.className = 'msg msg-error show';
+        migMsg.innerHTML = '<strong>\u26a0\ufe0f 请输入密码</strong><br>密码不能为空';
+        return;
+      }
+      var hasLetter = /[a-zA-Z]/.test(pw);
+      var hasNumber = /[0-9]/.test(pw);
+      if (pw.length < 8 || !hasLetter || !hasNumber) {
+        migMsg.className = 'msg msg-error show';
+        migMsg.innerHTML = '<strong>\u26a0\ufe0f 密码强度不足</strong><br>密码需要至少8位，包含字母和数字';
+        return;
+      }
+      migMsg.className = 'msg';
+      migMsg.innerHTML = '';
+      setMigLoading(true);
+      try {
+        var resp = await fetch(API_BASE + '/register/password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ migrationToken: token, password: pw }),
+        });
+        var d = await resp.json();
+        if (d.code === 'AUTH_PASSWORD_SET') {
+          migMsg.className = 'msg msg-success show';
+          migMsg.innerHTML = '<strong>\u2705 密码设置成功</strong><br>即将跳转到用户面板...';
+          setTimeout(function() { location.href = '/user'; }, 1500);
+        } else {
+          migMsg.className = 'msg msg-error show';
+          migMsg.innerHTML = '<strong>\u274c 设置失败</strong><br>' + (d.message || '未知错误，请重试');
+        }
+      } catch (err) {
+        migMsg.className = 'msg msg-error show';
+        migMsg.innerHTML = '<strong>\U0001f310 网络错误</strong><br>请求发送失败，请检查网络连接';
+      } finally {
+        setMigLoading(false);
+      }
+    });
   }
 
   function showResult(data) {
@@ -508,7 +748,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
     const email   = user.email || '';
 
     resultTitle.textContent = '登录成功';
-    resultSub.textContent   = account + (email ? ' · ' + email : '');
+    resultSub.textContent   = account;
 
     const items = [];
     if (node.subscriptionUrl) {
@@ -567,7 +807,54 @@ button:disabled{opacity:.5;cursor:not-allowed}
     emailHint.textContent = '';
     accountInp.removeAttribute('aria-invalid');
     emailInp.removeAttribute('aria-invalid');
+    passwordInp.removeAttribute('aria-invalid');
+    passwordHint.textContent = '';
   }
+
+  // password visibility toggle
+  var _pwVisible = false;
+  pwToggle.addEventListener('click', function() {
+    _pwVisible = !_pwVisible;
+    passwordInp.type = _pwVisible ? 'text' : 'password';
+    pwToggle.textContent = _pwVisible ? '🙈' : '👁';
+  });
+
+  // password strength checker
+  function checkPwStrength(pw) {
+    if (!pw) return { score: 0, label: '' };
+    var score = 0;
+    if (pw.length >= 8) score++;
+    if (pw.length >= 12) score++;
+    if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^a-zA-Z0-9]/.test(pw)) score++;
+    var labels = ['', '弱', '较弱', '中等', '强', '很强'];
+    return { score: Math.min(score, 5), label: labels[Math.min(score, 5)] };
+  }
+
+  passwordInp.addEventListener('input', function() {
+    var result = checkPwStrength(passwordInp.value);
+    if (result.score > 0) {
+      pwStrength.style.display = '';
+      pwStrengthBar.style.width = (result.score * 20) + '%';
+      pwStrengthBar.setAttribute('data-strength', String(result.score));
+      pwStrengthLabel.textContent = '密码强度：' + result.label;
+    } else {
+      pwStrength.style.display = 'none';
+    }
+  });
+
+  // old email login for migrated users
+  oldLoginBtn.addEventListener('click', function() {
+    var ef = document.getElementById('emailField');
+    var pf = document.getElementById('passwordField');
+    if (ef) ef.style.display = '';
+    if (pf) pf.style.display = 'none';
+    if (oldLoginToggle) oldLoginToggle.style.display = 'none';
+    submitText.textContent = '邮箱登录';
+    state._oldLogin = true;
+  });
+
 
   function copyText(text, btn) {
     if (navigator.clipboard) {
