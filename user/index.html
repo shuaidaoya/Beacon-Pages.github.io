@@ -434,14 +434,14 @@ body{
       const data = await resp.json();
       setText("globalUpValue", data.累计上行 || "--");
       setText("globalDownValue", data.累计下行 || "--");
-      setText("globalUpDaily", "当天 " + (data.当天上行 || "--"));
-      setText("globalDownDaily", "当天 " + (data.当天下行 || "--"));
+      setText("globalUpDaily", "本日 " + (data.本日上行 || "--"));
+      setText("globalDownDaily", "本日 " + (data.本日下行 || "--"));
       setText("onlineCount", data.在线人数 != null ? String(data.在线人数) : "--");
     } catch(e) {
       setText("globalUpValue", "--");
       setText("globalDownValue", "--");
-      setText("globalUpDaily", "当天 --");
-      setText("globalDownDaily", "当天 --");
+      setText("globalUpDaily", "本日 --");
+      setText("globalDownDaily", "本日 --");
       setText("onlineCount", "--");
     }
   }
@@ -682,12 +682,12 @@ body{
         <div class="stat-card accent-blue">
           <div class="stat-value" id="globalDownValue">--</div>
           <div class="stat-label">全站下行</div>
-          <div class="stat-sub" id="globalDownDaily">当天 --</div>
+          <div class="stat-sub" id="globalDownDaily">本日 --</div>
         </div>
         <div class="stat-card accent-amber">
           <div class="stat-value" id="globalUpValue">--</div>
           <div class="stat-label">全站上行</div>
-          <div class="stat-sub" id="globalUpDaily">当天 --</div>
+          <div class="stat-sub" id="globalUpDaily">本日 --</div>
         </div>
       </div>
 
