@@ -246,7 +246,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
         <div class="field-hint" id="accountHint"></div>
       </div>
       <div class="field" id="emailField">
-        <label for="email">邮箱 <span style="font-weight:400;color:#94a3b8;font-size:11px">(选填，用于密码找回)</span></label>
+        <label for="email">邮箱 <span style="font-weight:400;color:#f59e0b;font-size:11px">(必填，用于找回密码和身份识别)</span></label>
         <input type="email" id="email" placeholder="your@email.com" autocomplete="email" maxlength="128">
         <div class="field-hint" id="emailHint"></div>
       </div>
@@ -529,7 +529,18 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
     // account always required
     if (!account) { accountHint.textContent = '请输入用户名'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
-    else { accountInp.removeAttribute('aria-invalid'); }
+    else if (/@/.test(account)) { accountHint.textContent = '用户名不应包含 @ 符号，请填写纯文本用户名'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
+    else {
+      if (state.mode === 'signup') {
+        if (account.length < 4 || account.length > 16) { accountHint.textContent = '用户名需为4-16位'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
+        else if (!/^[一-龥a-zA-Z0-9_\-]+$/.test(account)) { accountHint.textContent = '用户名仅支持中英文、数字、下划线、短横线'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
+        else if (/^[0-9]+$/.test(account)) { accountHint.textContent = '用户名不能为纯数字'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
+        else if (/^(.)\1+$/.test(account)) { accountHint.textContent = '用户名不能为重复字符'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
+        else { accountInp.removeAttribute('aria-invalid'); }
+      } else {
+        accountInp.removeAttribute('aria-invalid');
+      }
+    }
 
     if (isOldEmailLogin) {
       // old email login: email required, no password
@@ -539,6 +550,10 @@ button:disabled{opacity:.5;cursor:not-allowed}
     } else {
       // new password login / signup
       if (state.mode === 'signup') {
+        // email required for signup
+        if (!email) { emailHint.textContent = '请输入邮箱地址'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
+        else if (!/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(email)) { emailHint.textContent = '邮箱格式不正确，请输入合法的邮箱地址'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
+        else { emailInp.removeAttribute('aria-invalid'); }
         // password required for signup
         if (!password) { passwordHint.textContent = '请设置密码'; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
         else {
@@ -548,9 +563,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
           else if (!hasLetter || !hasNumber) { passwordHint.textContent = '密码必须包含字母和数字'; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
           else { passwordInp.removeAttribute('aria-invalid'); }
         }
-        // email optional for signup
-        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { emailHint.textContent = '邮箱格式不正确'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
-        else { emailInp.removeAttribute('aria-invalid'); }
       } else {
         // signin with password: password required
         if (!password) { passwordHint.textContent = '请输入密码'; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
@@ -565,8 +577,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
       var endpoint, body;
       if (state.mode === 'signup') {
         endpoint = API_BASE + '/register/api';
-        body = { account: account, password: password };
-        if (email) body.email = email;
+        body = { account: account, password: password, email: email };
       } else {
         endpoint = API_BASE + '/register/login';
         if (isOldEmailLogin) {
