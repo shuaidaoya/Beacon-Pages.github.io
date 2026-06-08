@@ -529,12 +529,18 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
     // account always required
     if (!account) { accountHint.textContent = '请输入用户名'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
-    else if (account.length < 4 || account.length > 16) { accountHint.textContent = '用户名需为4-16位'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
     else if (/@/.test(account)) { accountHint.textContent = '用户名不应包含 @ 符号，请填写纯文本用户名'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
-    else if (!/^[一-龥a-zA-Z0-9_\-]+$/.test(account)) { accountHint.textContent = '用户名仅支持中英文、数字、下划线、短横线'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
-    else if (/^[0-9]+$/.test(account)) { accountHint.textContent = '用户名不能为纯数字'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
-    else if (/^(.)\1+$/.test(account)) { accountHint.textContent = '用户名不能为重复字符'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
-    else { accountInp.removeAttribute('aria-invalid'); }
+    else {
+      if (state.mode === 'signup') {
+        if (account.length < 4 || account.length > 16) { accountHint.textContent = '用户名需为4-16位'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
+        else if (!/^[一-龥a-zA-Z0-9_\-]+$/.test(account)) { accountHint.textContent = '用户名仅支持中英文、数字、下划线、短横线'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
+        else if (/^[0-9]+$/.test(account)) { accountHint.textContent = '用户名不能为纯数字'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
+        else if (/^(.)\1+$/.test(account)) { accountHint.textContent = '用户名不能为重复字符'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
+        else { accountInp.removeAttribute('aria-invalid'); }
+      } else {
+        accountInp.removeAttribute('aria-invalid');
+      }
+    }
 
     if (isOldEmailLogin) {
       // old email login: email required, no password
