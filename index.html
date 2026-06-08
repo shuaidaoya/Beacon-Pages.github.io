@@ -271,6 +271,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
         <input type="checkbox" id="rememberMe" style="width:18px;height:18px;accent-color:#3b82f6;cursor:pointer;flex-shrink:0;margin:0">
         <label for="rememberMe" style="margin:0;cursor:pointer;user-select:none;font-weight:500;font-size:13px;color:#cbd5e1">记住用户名和密码</label>
       </div>
+      <div style="text-align:center;margin-top:4px">
+        <a href="#" onclick="showForgotPassword();return false" style="font-size:12px;color:#f59e0b;text-decoration:underline">忘记密码？</a>
+      </div>
       <div class="actions">
         <button class="primary-btn" id="submitBtn">
           <span id="submitText">创建账户</span>
@@ -279,6 +282,44 @@ button:disabled{opacity:.5;cursor:not-allowed}
       </div>
     </div>
     <div class="msg" id="authMsg"></div>
+  </section>
+
+  <!-- forgot password panel -->
+  <section class="panel auth-panel" id="forgotPanel" style="display:none">
+    <div class="auth-head"><div class="auth-title">忘记密码</div></div>
+    <div id="forgotStep1">
+      <p style="font-size:13px;color:#94a3b8;margin:0 0 12px">请输入您注册时使用的邮箱地址或 UUID 来找回密码。</p>
+      <div class="field">
+        <label for="forgotId">邮箱或 UUID</label>
+        <input type="text" id="forgotId" placeholder="user@email.com 或 f8f48c96-095a-49a7-...">
+      </div>
+      <div class="actions" style="margin-top:12px">
+        <button class="primary-btn" id="forgotSubmitBtn"><span id="forgotSubmitText">验证身份</span><span class="spinner" id="forgotSpin"></span></button>
+        <button class="copy-btn" onclick="hideForgotPassword()">返回登录</button>
+      </div>
+    </div>
+    <div id="forgotStep2" style="display:none">
+      <div class="msg msg-success show" style="margin-bottom:12px" id="forgotStep2Msg"></div>
+      <div class="field"><label id="forgotTokenLabel">重置令牌（1小时有效）</label><input type="text" id="forgotToken" readonly></div>
+      <div class="actions" style="margin-top:12px">
+        <button class="primary-btn" id="forgotToResetBtn">设置新密码</button>
+        <button class="copy-btn" onclick="document.getElementById('forgotToken').select();document.execCommand('copy');showToast('令牌已复制')">复制令牌</button>
+      </div>
+    </div>
+    <div id="forgotStep3" style="display:none">
+      <p style="font-size:13px;color:#94a3b8;margin:0 0 12px">为 <strong id="forgotAccountName">-</strong> 设置新密码。</p>
+      <div class="field"><label for="forgotNewPw">新密码</label>
+        <div style="position:relative">
+          <input type="password" id="forgotNewPw" placeholder="至少8位，含字母+数字+特殊字符">
+          <button type="button" id="forgotPwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px">👁</button>
+        </div>
+      </div>
+      <div class="field"><label for="forgotConfirmPw">确认密码</label><input type="password" id="forgotConfirmPw" placeholder="再次输入新密码"></div>
+      <div class="msg" id="forgotMsg"></div>
+      <div class="actions" style="margin-top:12px">
+        <button class="primary-btn" id="forgotResetBtn"><span id="forgotResetText">重置密码</span><span class="spinner" id="forgotResetSpin"></span></button>
+      </div>
+    </div>
   </section>
 
   <!-- result panel (shown after successful signin) -->
@@ -879,9 +920,129 @@ button:disabled{opacity:.5;cursor:not-allowed}
     t.className = 'copy-toast';
     t.textContent = msg;
     document.body.appendChild(t);
-    setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; }, 1500);
-    setTimeout(() => document.body.removeChild(t), 2000);
+    setTimeout(function() { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; }, 1500);
+    setTimeout(function() { document.body.removeChild(t); }, 2000);
   }
+
+  // ── forgot password flow ──
+  var forgotState = { token: '', uuid: '', account: '' };
+
+  function showForgotPassword() {
+    document.getElementById('forgotPanel').style.display = '';
+    document.getElementById('authPanel').style.display = 'none';
+    document.getElementById('resultPanel').classList.remove('show');
+    document.getElementById('forgotStep1').style.display = '';
+    document.getElementById('forgotStep2').style.display = 'none';
+    document.getElementById('forgotStep3').style.display = 'none';
+    document.getElementById('forgotId').value = '';
+    document.getElementById('forgotId').focus();
+    forgotState = { token: '', uuid: '', account: '' };
+  }
+
+  function hideForgotPassword() {
+    document.getElementById('forgotPanel').style.display = 'none';
+    document.getElementById('authPanel').style.display = '';
+  }
+
+  (function setupForgotPassword() {
+    var forgotId = document.getElementById('forgotId');
+    var forgotSubmitBtn = document.getElementById('forgotSubmitBtn');
+    var forgotSubmitText = document.getElementById('forgotSubmitText');
+    var forgotSpin = document.getElementById('forgotSpin');
+    var forgotToResetBtn = document.getElementById('forgotToResetBtn');
+    var forgotResetBtn = document.getElementById('forgotResetBtn');
+    var forgotResetText = document.getElementById('forgotResetText');
+    var forgotResetSpin = document.getElementById('forgotResetSpin');
+    var forgotPwToggle = document.getElementById('forgotPwToggle');
+    var forgotPwVisible = false;
+
+    forgotPwToggle.addEventListener('click', function() {
+      forgotPwVisible = !forgotPwVisible;
+      document.getElementById('forgotNewPw').type = forgotPwVisible ? 'text' : 'password';
+      forgotPwToggle.textContent = forgotPwVisible ? '🙈' : '👁';
+    });
+
+    // Step 1: verify identity
+    forgotSubmitBtn.addEventListener('click', async function() {
+      var id = forgotId.value.trim();
+      if (!id) { alert('请输入邮箱或 UUID'); return; }
+      forgotSubmitText.textContent = '验证中...';
+      forgotSpin.classList.add('show');
+      forgotSubmitBtn.disabled = true;
+      try {
+        var resp = await fetch('/register/forgot-password', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier: id }),
+        });
+        var d = await resp.json();
+        if (d.code === 'FORGOT_PASSWORD_SUCCESS') {
+          forgotState.token = d.data.token;
+          forgotState.uuid = d.data.uuid;
+          forgotState.account = d.data.account;
+          document.getElementById('forgotStep1').style.display = 'none';
+          document.getElementById('forgotStep2').style.display = '';
+          document.getElementById('forgotStep2Msg').innerHTML = '<strong>✅ 验证通过</strong><br>账户：' + escHtml(d.data.account) + ' · 邮箱：' + escHtml(d.data.emailHint);
+          document.getElementById('forgotToken').value = d.data.token;
+        } else {
+          alert(d.message || '验证失败');
+        }
+      } catch(e) { alert('网络错误: ' + (e.message || '请求失败')); }
+      forgotSubmitText.textContent = '验证身份';
+      forgotSpin.classList.remove('show');
+      forgotSubmitBtn.disabled = false;
+    });
+
+    // Enter key on forgotId triggers submit
+    forgotId.addEventListener('keydown', function(e) { if (e.key === 'Enter') forgotSubmitBtn.click(); });
+
+    // Step 2 → Step 3
+    forgotToResetBtn.addEventListener('click', function() {
+      document.getElementById('forgotStep2').style.display = 'none';
+      document.getElementById('forgotStep3').style.display = '';
+      document.getElementById('forgotAccountName').textContent = forgotState.account || forgotState.uuid;
+      document.getElementById('forgotNewPw').value = '';
+      document.getElementById('forgotConfirmPw').value = '';
+    });
+
+    // Step 3: reset password
+    forgotResetBtn.addEventListener('click', async function() {
+      var pw = document.getElementById('forgotNewPw').value;
+      var cpw = document.getElementById('forgotConfirmPw').value;
+      var msgEl = document.getElementById('forgotMsg');
+      if (!pw) { msgEl.className = 'msg msg-error show'; msgEl.innerHTML = '请输入新密码'; return; }
+      if (pw.length < 8 || pw.length > 20) { msgEl.className = 'msg msg-error show'; msgEl.innerHTML = '密码长度需为8-20位'; return; }
+      if (!/[a-zA-Z]/.test(pw) || !/[0-9]/.test(pw) || !/[^a-zA-Z0-9]/.test(pw)) {
+        msgEl.className = 'msg msg-error show'; msgEl.innerHTML = '密码需含字母、数字及特殊字符'; return;
+      }
+      if (pw !== cpw) { msgEl.className = 'msg msg-error show'; msgEl.innerHTML = '两次输入密码不一致'; return; }
+      msgEl.className = 'msg'; msgEl.innerHTML = '';
+      forgotResetText.textContent = '重置中...';
+      forgotResetSpin.classList.add('show');
+      forgotResetBtn.disabled = true;
+      try {
+        var resp = await fetch('/register/reset-password', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: forgotState.token, newPassword: pw, confirmPassword: cpw }),
+        });
+        var d = await resp.json();
+        if (d.code === 'PASSWORD_RESET_SUCCESS') {
+          msgEl.className = 'msg msg-success show';
+          msgEl.innerHTML = '<strong>✅ 密码重置成功</strong><br>即将跳转到登录页面...';
+          document.getElementById('account').value = forgotState.account || '';
+          setTimeout(function() { hideForgotPassword(); switchMode('signin'); }, 1500);
+        } else {
+          msgEl.className = 'msg msg-error show';
+          msgEl.innerHTML = '<strong>❌ 重置失败</strong><br>' + (d.message || '未知错误');
+        }
+      } catch(e) {
+        msgEl.className = 'msg msg-error show';
+        msgEl.innerHTML = '<strong>🌐 网络错误</strong><br>' + (e.message || '请求发送失败');
+      }
+      forgotResetText.textContent = '重置密码';
+      forgotResetSpin.classList.remove('show');
+      forgotResetBtn.disabled = false;
+    });
+  })();
 
   function escHtml(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
