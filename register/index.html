@@ -246,7 +246,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
         <div class="field-hint" id="accountHint"></div>
       </div>
       <div class="field" id="emailField">
-        <label for="email">邮箱 <span style="font-weight:400;color:#94a3b8;font-size:11px">(选填，用于密码找回)</span></label>
+        <label for="email">邮箱 <span style="font-weight:400;color:#f59e0b;font-size:11px">(推荐填写，用于找回密码和身份识别)</span></label>
         <input type="email" id="email" placeholder="your@email.com" autocomplete="email" maxlength="128">
         <div class="field-hint" id="emailHint"></div>
       </div>
@@ -265,7 +265,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
         </div>
       </div>
       <div class="field" id="oldLoginToggle" style="display:none;text-align:center;padding-top:0">
-        <button type="button" id="oldLoginBtn" style="background:none;border:none;color:#f59e0b;cursor:pointer;font-size:12px;text-decoration:underline">使用邮箱登录（存量用户）</button>
+        <button type="button" id="oldLoginBtn" style="background:none;border:none;color:#f59e0b;cursor:pointer;font-size:12px;text-decoration:underline">使用邮箱登录（仅限旧版无密码存量用户）</button>
       </div>
       <div class="field" style="flex-direction:row;align-items:center;gap:8px;padding-top:2px">
         <input type="checkbox" id="rememberMe" style="width:18px;height:18px;accent-color:#3b82f6;cursor:pointer;flex-shrink:0;margin:0">
@@ -484,6 +484,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
     // account always required
     if (!account) { accountHint.textContent = '请输入用户名'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
+    else if (/@/.test(account)) { accountHint.textContent = '用户名不应包含 @ 符号，请填写纯文本用户名'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
     else { accountInp.removeAttribute('aria-invalid'); }
 
     if (isOldEmailLogin) {
@@ -848,11 +849,14 @@ button:disabled{opacity:.5;cursor:not-allowed}
   oldLoginBtn.addEventListener('click', function() {
     var ef = document.getElementById('emailField');
     var pf = document.getElementById('passwordField');
+    var accountInp = document.getElementById('account');
     if (ef) ef.style.display = '';
     if (pf) pf.style.display = 'none';
     if (oldLoginToggle) oldLoginToggle.style.display = 'none';
     submitText.textContent = '邮箱登录';
     state._oldLogin = true;
+    // 提示：旧登录模式下用户名框填入邮箱即可
+    if (accountInp) accountInp.placeholder = '在此输入您的注册邮箱';
   });
 
 
