@@ -253,8 +253,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
       <div class="field" id="passwordField">
         <label for="password">密码</label>
         <div style="position:relative">
-          <input type="password" id="password" placeholder="至少8位，包含字母和数字" autocomplete="new-password" maxlength="128" style="padding-right:44px">
-          <button type="button" id="pwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px;padding:4px;line-height:1" title="显示/隐藏密码" aria-label="切换密码可见性">👁</button>
+          <input type="password" id="password" placeholder="至少8位，包含字母和数字" autocomplete="new-password" maxlength="128" style="width:100%;box-sizing:border-box;padding-right:44px">
+          <button type="button" id="pwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px;padding:4px;line-height:1;z-index:1" title="显示/隐藏密码" aria-label="切换密码可见性">👁</button>
         </div>
         <div class="field-hint" id="passwordHint"></div>
         <div id="pwStrength" style="display:none;margin-top:6px">
@@ -292,7 +292,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
       </div>
       <div class="actions" style="margin-top:12px">
         <button class="primary-btn" id="forgotSubmitBtn"><span id="forgotSubmitText">验证身份</span><span class="spinner" id="forgotSpin"></span></button>
-        <button class="copy-btn" onclick="hideForgotPassword()">返回登录</button>
+        <button class="copy-btn" onclick="location.reload()">返回登录</button>
       </div>
     </div>
     <div id="forgotStep2" style="display:none">
@@ -307,7 +307,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
       <p style="font-size:13px;color:#94a3b8;margin:0 0 12px">为 <strong id="forgotAccountName">-</strong> 设置新密码。</p>
       <div class="field"><label for="forgotNewPw">新密码</label>
         <div style="position:relative">
-          <input type="password" id="forgotNewPw" placeholder="至少8位，含字母+数字+特殊字符">
+          <input type="password" id="forgotNewPw" placeholder="至少8位，含字母+数字+特殊字符" style="width:100%;box-sizing:border-box;padding-right:44px">
           <button type="button" id="forgotPwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px">👁</button>
         </div>
       </div>
