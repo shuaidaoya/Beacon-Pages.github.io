@@ -272,7 +272,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
         <label for="rememberMe" style="margin:0;cursor:pointer;user-select:none;font-weight:500;font-size:13px;color:#cbd5e1">记住用户名和密码</label>
       </div>
       <div style="text-align:center;margin-top:4px">
-        <a href="#" onclick="showForgotPassword();return false" style="font-size:12px;color:#f59e0b;text-decoration:underline">忘记密码？</a>
+        <a href="#" id="forgotPwLink" style="font-size:12px;color:#f59e0b;text-decoration:underline">忘记密码？</a>
       </div>
       <div class="actions">
         <button class="primary-btn" id="submitBtn">
@@ -930,6 +930,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   function showForgotPassword() {
     document.getElementById('forgotPanel').style.display = '';
     document.getElementById('authPanel').style.display = 'none';
+
     document.getElementById('resultPanel').classList.remove('show');
     document.getElementById('forgotStep1').style.display = '';
     document.getElementById('forgotStep2').style.display = 'none';
@@ -955,6 +956,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
     var forgotResetSpin = document.getElementById('forgotResetSpin');
     var forgotPwToggle = document.getElementById('forgotPwToggle');
     var forgotPwVisible = false;
+
+    document.getElementById('forgotPwLink').addEventListener('click', function(e) { e.preventDefault(); showForgotPassword(); });
 
     forgotPwToggle.addEventListener('click', function() {
       forgotPwVisible = !forgotPwVisible;
