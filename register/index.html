@@ -269,7 +269,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
       </div>
       <div class="field" style="flex-direction:row;align-items:center;gap:8px;padding-top:2px">
         <input type="checkbox" id="rememberMe" style="width:18px;height:18px;accent-color:#3b82f6;cursor:pointer;flex-shrink:0;margin:0">
-        <label for="rememberMe" style="margin:0;cursor:pointer;user-select:none;font-weight:500;font-size:13px;color:#cbd5e1">记住用户名</label>
+        <label for="rememberMe" style="margin:0;cursor:pointer;user-select:none;font-weight:500;font-size:13px;color:#cbd5e1">记住用户名和密码</label>
       </div>
       <div class="actions">
         <button class="primary-btn" id="submitBtn">
@@ -318,6 +318,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
       const remembered = JSON.parse(localStorage.getItem('beacon_remembered') || 'null');
       if (remembered && remembered.account) {
         document.getElementById('account').value = remembered.account || '';
+        if (remembered.password && passwordInp) passwordInp.value = remembered.password;
         if (remembered.email && document.getElementById('email')) {
           document.getElementById('email').value = remembered.email || '';
         }
@@ -555,7 +556,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
         var u = user.user || {};
         if (document.getElementById('rememberMe').checked) {
           localStorage.setItem('beacon_remembered', JSON.stringify({
-            account: user.account || ''
+            account: user.account || '',
+            password: password || ''
           }));
         } else {
           localStorage.removeItem('beacon_remembered');
