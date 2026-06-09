@@ -417,6 +417,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
   const CODE_MESSAGES = {
     AUTH_SIGNUP_SUCCESS:    { cls:'msg-success', title:'注册成功' },
     AUTH_SIGNUP_EXISTS:     { cls:'msg-warn',   title:'用户已存在' },
+    AUTH_SIGNUP_DUPLICATE_USERNAME: { cls:'msg-error', title:'用户名重复' },
+    AUTH_SIGNUP_DUPLICATE_EMAIL:    { cls:'msg-error', title:'邮箱重复' },
+    AUTH_SIGNUP_DUPLICATE:  { cls:'msg-error',  title:'注册信息重复' },
     AUTH_VALIDATION_ERROR:  { cls:'msg-error',  title:'输入校验失败' },
     AUTH_SIGNUP_DISABLED:   { cls:'msg-warn',   title:'注册已关闭' },
     AUTH_SIGNUP_FAILED:     { cls:'msg-error',  title:'注册失败' },
@@ -601,6 +604,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
       } else if (code === 'AUTH_SIGNUP_EXISTS') {
         showMsg('msg-warn', 'ℹ️ ' + meta.title, message);
         setTimeout(function() { switchMode('signin'); }, 1200);
+      } else if (code === 'AUTH_SIGNUP_DUPLICATE_USERNAME' || code === 'AUTH_SIGNUP_DUPLICATE_EMAIL' || code === 'AUTH_SIGNUP_DUPLICATE') {
+        showMsg('msg-error', '❌ ' + meta.title, message);
       } else if (code === 'AUTH_SIGNIN_SUCCESS') {
         var user = data.data || {};
         var node = user.node || {};
@@ -649,7 +654,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
         showMsg('msg-error', '❌ ' + meta.title, message + ' 请检查用户名和密码。');
         if (passwordInp) passwordInp.value = '';
       } else if (code === 'AUTH_PASSWORD_TOO_WEAK') {
-        showMsg('msg-error', '⚠️ ' + meta.title, message + ' 密码需要至少8位，包含字母和数字。');
+        showMsg('msg-error', '⚠️ ' + meta.title, message);
       } else if (code === 'AUTH_VALIDATION_ERROR') {
         var errors = (data.data && data.data.errors) || {};
         if (errors.account) accountHint.textContent = errors.account;
@@ -759,11 +764,13 @@ button:disabled{opacity:.5;cursor:not-allowed}
         migMsg.innerHTML = '<strong>\u26a0\ufe0f 请输入密码</strong><br>密码不能为空';
         return;
       }
-      var hasLetter = /[a-zA-Z]/.test(pw);
+      var hasLower = /[a-z]/.test(pw);
+      var hasUpper = /[A-Z]/.test(pw);
       var hasNumber = /[0-9]/.test(pw);
-      if (pw.length < 8 || !hasLetter || !hasNumber) {
+      var hasSpecial = /[^a-zA-Z0-9]/.test(pw);
+      if (pw.length < 8 || !hasLower || !hasUpper || !hasNumber || !hasSpecial) {
         migMsg.className = 'msg msg-error show';
-        migMsg.innerHTML = '<strong>\u26a0\ufe0f 密码强度不足</strong><br>密码需要至少8位，包含字母和数字';
+        migMsg.innerHTML = '<strong>\u26a0\ufe0f 密码强度不足</strong><br>密码需至少8位，包含大小写字母、数字和特殊符号';
         return;
       }
       migMsg.className = 'msg';
