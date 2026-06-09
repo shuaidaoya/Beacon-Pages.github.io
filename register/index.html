@@ -153,6 +153,27 @@ button:disabled{opacity:.5;cursor:not-allowed}
   body{padding:16px 12px}.hero{padding:20px 16px}.hero-slogan{font-size:22px}
   .auth-head{flex-direction:column}.auth-title{font-size:20px}
 }
+/* ── TG verify step ── */
+.verify-step{text-align:center;padding:24px 20px}
+.verify-step-icon{font-size:48px;margin-bottom:12px}
+.verify-code-box{background:#020817;border:2px dashed #334155;border-radius:16px;padding:20px 16px;margin:16px 0}
+.verify-code-label{font-size:12px;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:2px}
+.verify-code{font-size:36px;font-weight:800;letter-spacing:8px;font-family:"SF Mono","Fira Code","Cascadia Code",monospace;background:linear-gradient(135deg,#3b82f6,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:8px 0;user-select:all;line-height:1.2}
+.verify-expires{font-size:12px;color:#94a3b8;margin-top:4px}
+.verify-instructions{text-align:left;background:#111c31;border:1px solid rgba(148,163,184,.14);border-radius:14px;padding:16px;margin:16px 0;font-size:13px;color:#cbd5e1;line-height:1.8}
+.verify-instructions ol{margin:0;padding-left:20px}
+.verify-instructions li{margin-bottom:6px}
+.verify-instructions code{background:rgba(99,102,241,.18);color:#a5b4fc;padding:2px 8px;border-radius:4px;font-size:13px;font-weight:600;white-space:nowrap}
+.verify-tg-link{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#2a94e1,#37aee2);color:#fff;padding:12px 24px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;margin:8px 0;transition:all .2s}
+.verify-tg-link:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(42,148,225,.35)}
+.verify-group-btn{display:inline-block;background:rgba(148,163,184,.1);border:1px solid rgba(148,163,184,.2);color:#cbd5e1;padding:10px 20px;border-radius:12px;text-decoration:none;font-weight:600;font-size:13px;margin:4px;transition:all .2s}
+.verify-group-btn:hover{background:rgba(148,163,184,.18)}
+.verify-polling{display:flex;align-items:center;justify-content:center;gap:8px;color:#94a3b8;font-size:13px;margin:12px 0}
+.verify-polling .spinner-sm{width:16px;height:16px;border:2px solid #1e293b;border-top-color:#3b82f6;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.verify-back-btn{background:none;border:none;color:#94a3b8;cursor:pointer;font-size:13px;margin-top:16px;text-decoration:underline}
+.verify-back-btn:hover{color:#cbd5e1}
+.verify-success-icon{font-size:56px;margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -436,6 +457,19 @@ button:disabled{opacity:.5;cursor:not-allowed}
     AUTH_PASSWORD_NOT_SET:  { cls:'msg-warn',   title:'尚未设置密码' },
     AUTH_EMAIL_LOGIN_EXPIRED:{ cls:'msg-error', title:'邮箱登录已关闭' },
     AUTH_PASSWORD_TOO_WEAK: { cls:'msg-error',  title:'密码强度不足' },
+    // TG verification codes
+    AUTH_TG_VERIFY_REQUIRED: { cls:'msg-info',   title:'需要TG验证' },
+    AUTH_TG_PENDING:        { cls:'msg-info',   title:'等待验证' },
+    AUTH_TG_CODE_INVALID:   { cls:'msg-error',  title:'验证码无效' },
+    AUTH_TG_CODE_EXPIRED:   { cls:'msg-error',  title:'验证码过期' },
+    AUTH_TG_DUPLICATE:      { cls:'msg-error',  title:'TG已绑定' },
+    AUTH_TG_NOT_CONFIGURED: { cls:'msg-error',  title:'TG未配置' },
+    AUTH_TG_CHECK_FAILED:   { cls:'msg-error',  title:'验证失败' },
+    AUTH_TG_ACCOUNT_MISMATCH:{ cls:'msg-error', title:'账号不匹配' },
+    AUTH_TG_INCOMPLETE:     { cls:'msg-error',  title:'数据不完整' },
+    AUTH_TG_UNKNOWN_STATUS: { cls:'msg-error',  title:'未知状态' },
+    AUTH_TG_CODE_FAILED:    { cls:'msg-error',  title:'验证码生成失败' },
+    AUTH_TG_VERIFY_FAILED:  { cls:'msg-error',  title:'验证发起失败' },
   };
 
   // ── DOM refs ──
@@ -606,6 +640,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
         setTimeout(function() { switchMode('signin'); }, 1200);
       } else if (code === 'AUTH_SIGNUP_DUPLICATE_USERNAME' || code === 'AUTH_SIGNUP_DUPLICATE_EMAIL' || code === 'AUTH_SIGNUP_DUPLICATE') {
         showMsg('msg-error', '❌ ' + meta.title, message);
+      } else if (code === 'AUTH_TG_VERIFY_REQUIRED') {
+        showTGVerifyStep(data.data);
       } else if (code === 'AUTH_SIGNIN_SUCCESS') {
         var user = data.data || {};
         var node = user.node || {};
@@ -842,6 +878,151 @@ button:disabled{opacity:.5;cursor:not-allowed}
     resultItems.querySelectorAll('.copy-btn').forEach(btn => {
       btn.addEventListener('click', () => copyText(btn.dataset.copy, btn));
     });
+  }
+
+  // ── TG verification step ──
+  var tgVerifyPollTimer = null;
+  var tgVerifyData = null;
+
+  function showTGVerifyStep(data) {
+    tgVerifyData = data;
+    authPanel.style.display = 'none';
+    resultPanel.classList.add('show');
+    resultTitle.textContent = '📱 Telegram 验证';
+    resultSub.textContent = data.account || '';
+
+    var code = data.code || '';
+    var botUsername = data.botUsername || 'unknown_bot';
+    var groupInviteLink = data.groupInviteLink || '';
+    var expiresAt = data.expiresAt || 0;
+    var remaining = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
+    var minutes = Math.floor(remaining / 60);
+    var seconds = remaining % 60;
+
+    var tgDeepLink = 'https://t.me/' + botUsername + '?start=' + code;
+    var html = '';
+    html += '<div class="verify-step">';
+    html += '<div class="verify-step-icon">🔐</div>';
+    html += '<p style="font-size:15px;color:#e2e8f0;margin:0 0 4px;font-weight:600">请通过 Telegram 完成身份验证</p>';
+    html += '<p style="font-size:13px;color:#94a3b8;margin:0">向 Bot 发送验证码即可自动验证群组成员身份</p>';
+
+    // verification code box
+    html += '<div class="verify-code-box">';
+    html += '<div class="verify-code-label">验证码</div>';
+    html += '<div class="verify-code">' + escHtml(code) + '</div>';
+    html += '<div class="verify-expires">⏰ 有效期 ' + minutes + '分' + seconds + '秒</div>';
+    html += '</div>';
+
+    // instructions
+    html += '<div class="verify-instructions">';
+    html += '<ol>';
+    html += '<li>点击下方按钮打开 Telegram Bot</li>';
+    html += '<li>向 Bot 发送 <code>/start ' + escHtml(code) + '</code>（点击链接自动填充）</li>';
+    html += '<li>Bot 将自动验证您的群组成员身份</li>';
+    html += '<li>验证通过后本页面将自动完成注册</li>';
+    html += '</ol>';
+    html += '</div>';
+
+    // action buttons
+    html += '<a class="verify-tg-link" href="' + escHtml(tgDeepLink) + '" target="_blank" rel="noopener">';
+    html += '<span>🤖</span> 打开 Telegram Bot</a>';
+    if (groupInviteLink) {
+      html += '<br><a class="verify-group-btn" href="' + escHtml(groupInviteLink) + '" target="_blank" rel="noopener">📋 加入官方群组（如未加入）</a>';
+    }
+
+    // polling indicator
+    html += '<div class="verify-polling" id="verifyPolling">';
+    html += '<span class="spinner-sm"></span>';
+    html += '<span id="verifyPollText">等待 Telegram 验证中...</span>';
+    html += '</div>';
+
+    // back button
+    html += '<button class="verify-back-btn" onclick="stopTGVerifyPolling(); switchMode(\'signup\');">← 返回修改注册信息</button>';
+    html += '</div>';
+
+    resultItems.innerHTML = html;
+
+    // start polling
+    startTGVerifyPolling(data.account || '', code);
+  }
+
+  function startTGVerifyPolling(account, code) {
+    stopTGVerifyPolling();
+    var attempts = 0;
+    var maxAttempts = 200; // ~10 minutes at 3s intervals
+
+    tgVerifyPollTimer = setInterval(async function() {
+      attempts++;
+      if (attempts > maxAttempts) {
+        stopTGVerifyPolling();
+        var pollEl = document.getElementById('verifyPolling');
+        if (pollEl) pollEl.innerHTML = '<span style="color:#ef4444">⏰ 验证超时，请返回重新注册。</span>';
+        return;
+      }
+
+      try {
+        var resp = await fetch(API_BASE + '/register/verify-tg/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ account: account, code: code }),
+        });
+        var data = await resp.json();
+        var vcode = data.code || '';
+
+        if (vcode === 'AUTH_SIGNUP_SUCCESS') {
+          // Verified and user created!
+          stopTGVerifyPolling();
+          resultTitle.textContent = '✅ 注册成功';
+          resultSub.textContent = data.data?.account || account;
+          var html2 = '';
+          html2 += '<div class="verify-step">';
+          html2 += '<div class="verify-success-icon">🎉</div>';
+          html2 += '<p style="font-size:18px;color:#e2e8f0;font-weight:700;margin:0 0 8px">注册成功！</p>';
+          html2 += '<p style="font-size:14px;color:#94a3b8;margin:0 0 4px">TG账号 ' + (data.data?.tgUsername || '') + ' 已绑定</p>';
+          html2 += '<p style="font-size:13px;color:#64748b;margin:0 0 20px">即将跳转到登录页面...</p>';
+          html2 += '</div>';
+          resultItems.innerHTML = html2;
+          setTimeout(function() { switchMode('signin'); }, 2000);
+        } else if (vcode === 'AUTH_TG_PENDING') {
+          // Still waiting - update remaining time
+          var remaining = data.data?.remainingSeconds || 0;
+          var pollText = document.getElementById('verifyPollText');
+          if (pollText && remaining > 0) {
+            var m = Math.floor(remaining / 60);
+            var s = remaining % 60;
+            pollText.textContent = '等待验证中... 剩余 ' + m + '分' + s + '秒 (' + attempts + ')';
+          } else if (pollText) {
+            pollText.textContent = '等待 Telegram 验证中... (' + attempts + ')';
+          }
+        } else if (vcode === 'AUTH_TG_CODE_EXPIRED') {
+          stopTGVerifyPolling();
+          var pollEl = document.getElementById('verifyPolling');
+          if (pollEl) pollEl.innerHTML = '<span style="color:#ef4444">⏰ 验证码已过期，请返回重新注册。</span>';
+        } else if (vcode === 'AUTH_TG_DUPLICATE') {
+          stopTGVerifyPolling();
+          var pollEl2 = document.getElementById('verifyPolling');
+          if (pollEl2) pollEl2.innerHTML = '<span style="color:#ef4444">⚠️ 该TG账号已被其他用户绑定。</span>';
+        } else if (vcode === 'AUTH_SIGNUP_DUPLICATE_USERNAME' || vcode === 'AUTH_SIGNUP_DUPLICATE_EMAIL') {
+          stopTGVerifyPolling();
+          var pollEl3 = document.getElementById('verifyPolling');
+          if (pollEl3) pollEl3.innerHTML = '<span style="color:#ef4444">❌ ' + (data.message || '注册信息冲突，请返回重新注册。') + '</span>';
+        } else if (resp.status >= 500) {
+          // Server error - keep polling but log
+          console.warn('[TG Verify] Server error:', vcode, data.message);
+        }
+        // other errors: keep polling silently
+      } catch (err) {
+        // Network error - keep polling
+        console.warn('[TG Verify] Poll error:', err.message);
+      }
+    }, 3000);
+  }
+
+  function stopTGVerifyPolling() {
+    if (tgVerifyPollTimer) {
+      clearInterval(tgVerifyPollTimer);
+      tgVerifyPollTimer = null;
+    }
   }
 
   // ── helpers ──
