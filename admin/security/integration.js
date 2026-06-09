@@ -1004,11 +1004,6 @@
       } catch(e) { /* use defaults */ }
       window._secTgCfg = tgCfg;
 
-      html += '<div class="sec-config-group"><h4>TG 通知</h4>';
-      html += '<div class="sec-config-row"><label>面板选择</label><select id="cfg-tgpanel"><option value="A"'+(tgCfg.panelId==='B'?'':' selected')+'>面板 A</option><option value="B"'+(tgCfg.panelId==='B'?' selected':'')+'>面板 B</option></select></div>';
-      html += '<div class="sec-config-row"><label>安全事件通知</label><select id="cfg-tgsecurity"><option value="1"'+(tgCfg.securityNotifyEnabled?' selected':'')+'>开启</option><option value="0"'+(tgCfg.securityNotifyEnabled?'':' selected')+'>关闭</option></select></div>';
-      html += '</div>';
-
       // adminApi
       html += '<div class="sec-config-group"><h4>管理API</h4>';
       html += input('列表限制','apill', cfg.adminApi?.listLimit, 10, 200);
@@ -1019,6 +1014,13 @@
       html += '<div style="margin-top:20px;display:flex;gap:8px">';
       html += '<button class="sec-btn sec-btn-primary" onclick="window._secSaveConfig()">💾 保存配置</button>';
       html += '<button class="sec-btn" onclick="window._secResetConfig()">🔄 重置推荐值</button>';
+      html += '</div>';
+
+      // 消息通知设置（独立于策略配置）
+      const tg = window._secTgCfg || {};
+      html += '<div class="sec-config-group" style="margin-top:24px;border-top:2px solid #e5e7eb;padding-top:16px"><h4>消息通知设置</h4>';
+      html += '<div class="sec-config-row"><label>TG 面板选择</label><select id="cfg-tgpanel"><option value="A"'+(tg.panelId==='B'?'':' selected')+'>面板 A</option><option value="B"'+(tg.panelId==='B'?' selected':'')+'>面板 B</option></select></div>';
+      html += '<div class="sec-config-row"><label>安全事件通知</label><select id="cfg-tgsecurity"><option value="1"'+(tg.securityNotifyEnabled?' selected':'')+'>开启</option><option value="0"'+(tg.securityNotifyEnabled?'':' selected')+'>关闭</option></select></div>';
       html += '</div>';
 
       el.innerHTML = html;
