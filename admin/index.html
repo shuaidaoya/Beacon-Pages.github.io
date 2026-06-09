@@ -12007,12 +12007,14 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                 // "清除配置"按钮为灰色，且不可点击
             }
 
-            // 加载安全事件通知状态
-            try {
-                const tgCfgResp = await fetch('/admin/system/tg-config');
-                const tgCfg = await tgCfgResp.json();
-                document.getElementById('telegramSecurityNotify').checked = !!tgCfg.securityNotifyEnabled;
-            } catch(e) { /* 安全配置未就绪，使用默认值 */ }
+            // 加载安全事件通知状态（非阻塞）
+            (async () => {
+                try {
+                    const resp = await fetch('/admin/system/tg-config');
+                    const cfg = await resp.json();
+                    document.getElementById('telegramSecurityNotify').checked = !!cfg.securityNotifyEnabled;
+                } catch(e) { /* 安全配置未就绪 */ }
+            })();
 
             modifiedSections.clear();
             resetAllButtons();
