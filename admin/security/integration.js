@@ -1016,12 +1016,6 @@
       html += '<button class="sec-btn" onclick="window._secResetConfig()">🔄 重置推荐值</button>';
       html += '</div>';
 
-      // 消息通知设置（独立于策略配置）
-      const tg = window._secTgCfg || {};
-      html += '<div class="sec-config-group" style="margin-top:24px;border-top:2px solid #e5e7eb;padding-top:16px"><h4>消息通知设置</h4>';
-      html += '<div class="sec-config-row"><label>安全事件通知</label><select id="cfg-tgsecurity"><option value="1"'+(tg.securityNotifyEnabled?' selected':'')+'>开启</option><option value="0"'+(tg.securityNotifyEnabled?'':' selected')+'>关闭</option></select></div>';
-      html += '</div>';
-
       el.innerHTML = html;
       window._secCfgData = cfg;
     } catch(e) {
