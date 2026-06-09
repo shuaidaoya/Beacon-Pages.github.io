@@ -1019,7 +1019,6 @@
       // 消息通知设置（独立于策略配置）
       const tg = window._secTgCfg || {};
       html += '<div class="sec-config-group" style="margin-top:24px;border-top:2px solid #e5e7eb;padding-top:16px"><h4>消息通知设置</h4>';
-      html += '<div class="sec-config-row"><label>TG 面板选择</label><select id="cfg-tgpanel"><option value="A"'+(tg.panelId==='B'?'':' selected')+'>面板 A</option><option value="B"'+(tg.panelId==='B'?' selected':'')+'>面板 B</option></select></div>';
       html += '<div class="sec-config-row"><label>安全事件通知</label><select id="cfg-tgsecurity"><option value="1"'+(tg.securityNotifyEnabled?' selected':'')+'>开启</option><option value="0"'+(tg.securityNotifyEnabled?'':' selected')+'>关闭</option></select></div>';
       html += '</div>';
 
@@ -1082,14 +1081,13 @@
 
       // also save TG settings
       const tgCfg = window._secTgCfg || {};
-      const tgPanel = $('#cfg-tgpanel')?.value || 'A';
       const tgSecurity = ($('#cfg-tgsecurity')?.value === '1');
       await api('/tg-config', {
         method: 'POST',
         body: JSON.stringify({
           BotToken: tgCfg.botToken || '',
           ChatID: tgCfg.chatId || '',
-          PanelID: tgPanel,
+          PanelID: 'A',
           securityNotifyEnabled: tgSecurity,
         }),
       });
