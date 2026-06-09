@@ -183,11 +183,11 @@ button:disabled{opacity:.5;cursor:not-allowed}
       <div class="hero-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
       <span class="hero-name">Beacon 灯塔</span>
     </div>
-    <h1 class="hero-slogan">连接世界，自由无�?/h1>
-    <p class="hero-desc">基于 Cloudflare Workers 构建的高性能公益网络服务，稳定、快速、免费�?/p>
+    <h1 class="hero-slogan">连接世界，自由无界</h1>
+    <p class="hero-desc">基于 Cloudflare Workers 构建的高性能公益网络服务，稳定、快速、免费。</p>
     <div class="features">
       <span class="feature-tag"><i class="feature-dot"></i>全球节点覆盖</span>
-      <span class="feature-tag"><i class="feature-dot"></i>多协议支�?/span>
+      <span class="feature-tag"><i class="feature-dot"></i>多协议支持</span>
       <span class="feature-tag"><i class="feature-dot"></i>免费使用</span>
     </div>
   </div>
@@ -202,35 +202,35 @@ button:disabled{opacity:.5;cursor:not-allowed}
       <div class="rules-modal-body">
         <ul class="rules-list">
           <li>本服务节点为固定节点不需要更新也不推荐更新！！！</li>
-          <li>本服务为公益性质，仅供个人学习、研究使�?/li>
+          <li>本服务为公益性质，仅供个人学习、研究使用</li>
           <li>请勿用于任何商业用途或非法活动</li>
-          <li>禁止分享、转卖账号或订阅链接给他�?/li>
-          <li>请合理使用资源，避免频繁请求造成服务不稳�?/li>
+          <li>禁止分享、转卖账号或订阅链接给他人</li>
+          <li>请合理使用资源，避免频繁请求造成服务不稳定</li>
           <li>管理员保留随时封禁违规账号的权利</li>
         </ul>
         <div class="rules-limit">
-          <div class="rules-limit-title">⚠️ 使用限制与安全策�?/div>
+          <div class="rules-limit-title">⚠️ 使用限制与安全策略</div>
           <div class="rules-limit-group">
             <div class="rules-limit-subtitle">📊 订阅频率限制</div>
-            <div class="rules-limit-item"><span class="limit-num">6�?小时</span>每小时订阅拉取上�?/div>
+            <div class="rules-limit-item"><span class="limit-num">6次/小时</span>每小时订阅拉取上限</div>
           </div>
           <div class="rules-limit-group">
             <div class="rules-limit-subtitle">🌐 IP使用限制</div>
-            <div class="rules-limit-item"><span class="limit-num">6�?小时</span>每小时最�?个不同IP访问</div>
-            <div class="rules-limit-item"><span class="limit-num banned">自动封禁</span>超出6个不同IP后立即封禁账�?/div>
+            <div class="rules-limit-item"><span class="limit-num">6个/小时</span>每小时最多6个不同IP访问</div>
+            <div class="rules-limit-item"><span class="limit-num banned">自动封禁</span>超出6个不同IP后立即封禁账号</div>
           </div>
           <div class="rules-limit-group">
-            <div class="rules-limit-subtitle">🔑 无效令牌检�?/div>
-            <div class="rules-limit-item"><span class="limit-num">4�?/span>无效令牌触发告警次数</div>
+            <div class="rules-limit-subtitle">🔑 无效令牌检测</div>
+            <div class="rules-limit-item"><span class="limit-num">4次</span>无效令牌触发告警次数</div>
             <div class="rules-limit-item"><span class="limit-num banned">直接封禁</span>达到阈值后立即封禁账号</div>
           </div>
           <div class="rules-limit-group">
-            <div class="rules-limit-subtitle">🛡�?路径访问安全</div>
-            <div class="rules-limit-item"><span class="limit-num">12�?/span>�?0秒内最大独立路径数</div>
-            <div class="rules-limit-item"><span class="limit-num">6�?/span>敏感路径�?admin�?login）访问上�?/div>
+            <div class="rules-limit-subtitle">🛡️ 路径访问安全</div>
+            <div class="rules-limit-item"><span class="limit-num">12条</span>每30秒内最大独立路径数</div>
+            <div class="rules-limit-item"><span class="limit-num">6次</span>敏感路径（/admin、/login）访问上限</div>
           </div>
           <div class="rules-limit-group">
-            <div class="rules-limit-subtitle">🤖 用户代理检�?/div>
+            <div class="rules-limit-subtitle">🤖 用户代理检测</div>
             <div class="rules-limit-item"><span class="limit-num banned">自动拦截</span>扫描工具（sqlmap/nmap/curl等）将被拒绝</div>
           </div>
         </div>
@@ -240,9 +240,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
           <span style="font-size:12px;color:#fbbf24;text-align:center;display:block;margin-bottom:4px" id="rulesCountdown">请仔细阅读使用须知（15秒后可勾选同意）</span>
           <label class="rules-check" style="opacity:.4;pointer-events:none" id="rulesCheckLabel">
             <input type="checkbox" id="rulesCheckbox" disabled onchange="var b=document.getElementById('rulesAgreeBtn');b.classList.toggle('enabled',this.checked);b.disabled=!this.checked">
-            我已阅读并同意以上使用须�?
+            我已阅读并同意以上使用须知
           </label>
-          <button class="rules-agree-btn" id="rulesAgreeBtn" disabled onclick="agreeRules()">同意并继�?/button>
+          <button class="rules-agree-btn" id="rulesAgreeBtn" disabled onclick="agreeRules()">同意并继续</button>
       </div>
     </div>
   </div>
@@ -252,7 +252,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
     <div class="auth-head">
       <div>
         <div class="auth-title" id="authTitle">创建用户账户</div>
-        <div class="auth-desc" id="authDesc">先完成注册，成功后会自动切换到登录模式�?/div>
+        <div class="auth-desc" id="authDesc">先完成注册，成功后会自动切换到登录模式。</div>
       </div>
       <div class="tabs" role="tablist">
         <button class="tab-btn" role="tab" aria-selected="true" data-mode="signup">注册</button>
@@ -262,8 +262,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
     <div class="form" id="authForm">
       <div class="field">
-        <label for="account">用户�?/label>
-        <input type="text" id="account" placeholder="输入你的用户�? autocomplete="username" maxlength="64">
+        <label for="account">用户名</label>
+        <input type="text" id="account" placeholder="输入你的用户名" autocomplete="username" maxlength="64">
         <div class="field-hint" id="accountHint"></div>
       </div>
       <div class="field" id="emailField">
@@ -275,7 +275,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
         <label for="password">密码</label>
         <div style="position:relative">
           <input type="password" id="password" placeholder="至少8位，含大小写字母+数字+特殊符号" autocomplete="new-password" maxlength="128" style="width:100%;box-sizing:border-box;padding-right:44px">
-          <button type="button" id="pwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px;padding:4px;line-height:1;z-index:1" title="显示/隐藏密码" aria-label="切换密码可见�?>👁</button>
+          <button type="button" id="pwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px;padding:4px;line-height:1;z-index:1" title="显示/隐藏密码" aria-label="切换密码可见性">👁</button>
         </div>
         <div class="field-hint" id="passwordHint"></div>
         <div id="pwStrength" style="display:none;margin-top:6px">
@@ -286,11 +286,11 @@ button:disabled{opacity:.5;cursor:not-allowed}
         </div>
       </div>
       <div class="field" id="oldLoginToggle" style="display:none;text-align:center;padding-top:0">
-        <button type="button" id="oldLoginBtn" style="background:none;border:none;color:#f59e0b;cursor:pointer;font-size:12px;text-decoration:underline">使用邮箱登录（仅限旧版无密码存量用户�?/button>
+        <button type="button" id="oldLoginBtn" style="background:none;border:none;color:#f59e0b;cursor:pointer;font-size:12px;text-decoration:underline">使用邮箱登录（仅限旧版无密码存量用户）</button>
       </div>
       <div class="field" style="display:flex;flex-direction:row;align-items:center;gap:8px;padding-top:2px">
         <input type="checkbox" id="rememberMe" style="width:18px;height:18px;accent-color:#3b82f6;cursor:pointer;flex-shrink:0;margin:0">
-        <label for="rememberMe" style="margin:0;cursor:pointer;user-select:none;font-weight:500;font-size:13px;color:#cbd5e1">记住用户名和密码</label> <a href="#" id="forgotPwLink" style="margin-left:auto;font-size:12px;color:#f59e0b;text-decoration:underline">忘记密码�?/a>
+        <label for="rememberMe" style="margin:0;cursor:pointer;user-select:none;font-weight:500;font-size:13px;color:#cbd5e1">记住用户名和密码</label> <a href="#" id="forgotPwLink" style="margin-left:auto;font-size:12px;color:#f59e0b;text-decoration:underline">忘记密码？</a>
       </div>
       <div class="actions">
         <button class="primary-btn" id="submitBtn">
@@ -306,10 +306,10 @@ button:disabled{opacity:.5;cursor:not-allowed}
   <section class="panel auth-panel" id="forgotPanel" style="display:none">
     <div class="auth-head"><div class="auth-title">忘记密码</div></div>
     <div id="forgotStep1">
-      <p style="font-size:13px;color:#94a3b8;margin:0 0 12px">请输入您注册时使用的邮箱地址�?UUID 来找回密码�?/p>
+      <p style="font-size:13px;color:#94a3b8;margin:0 0 12px">请输入您注册时使用的邮箱地址或 UUID 来找回密码。</p>
       <div class="field">
-        <label for="forgotId">邮箱�?UUID</label>
-        <input type="text" id="forgotId" placeholder="user@email.com �?f8f48c96-095a-49a7-...">
+        <label for="forgotId">邮箱或 UUID</label>
+        <input type="text" id="forgotId" placeholder="user@email.com 或 f8f48c96-095a-49a7-...">
       </div>
       <div class="actions" style="margin-top:12px">
         <button class="primary-btn" id="forgotSubmitBtn"><span id="forgotSubmitText">验证身份</span><span class="spinner" id="forgotSpin"></span></button>
@@ -318,21 +318,21 @@ button:disabled{opacity:.5;cursor:not-allowed}
     </div>
     <div id="forgotStep2" style="display:none">
       <div class="msg msg-success show" style="margin-bottom:12px" id="forgotStep2Msg"></div>
-      <div class="field"><label id="forgotTokenLabel">重置令牌�?小时有效�?/label><input type="text" id="forgotToken" readonly></div>
+      <div class="field"><label id="forgotTokenLabel">重置令牌（1小时有效）</label><input type="text" id="forgotToken" readonly></div>
       <div class="actions" style="margin-top:12px">
-        <button class="primary-btn" id="forgotToResetBtn">设置新密�?/button>
-        <button class="copy-btn" onclick="document.getElementById('forgotToken').select();document.execCommand('copy');showToast('令牌已复�?)">复制令牌</button>
+        <button class="primary-btn" id="forgotToResetBtn">设置新密码</button>
+        <button class="copy-btn" onclick="document.getElementById('forgotToken').select();document.execCommand('copy');showToast('令牌已复制')">复制令牌</button>
       </div>
     </div>
     <div id="forgotStep3" style="display:none">
-      <p style="font-size:13px;color:#94a3b8;margin:0 0 12px">�?<strong id="forgotAccountName">-</strong> 设置新密码�?/p>
-      <div class="field"><label for="forgotNewPw">新密�?/label>
+      <p style="font-size:13px;color:#94a3b8;margin:0 0 12px">为 <strong id="forgotAccountName">-</strong> 设置新密码。</p>
+      <div class="field"><label for="forgotNewPw">新密码</label>
         <div style="position:relative">
-          <input type="password" id="forgotNewPw" placeholder="至少8位，含字�?数字+特殊字符" style="width:100%;box-sizing:border-box;padding-right:44px">
+          <input type="password" id="forgotNewPw" placeholder="至少8位，含字母+数字+特殊字符" style="width:100%;box-sizing:border-box;padding-right:44px">
           <button type="button" id="forgotPwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px">👁</button>
         </div>
       </div>
-      <div class="field"><label for="forgotConfirmPw">确认密码</label><input type="password" id="forgotConfirmPw" placeholder="再次输入新密�?></div>
+      <div class="field"><label for="forgotConfirmPw">确认密码</label><input type="password" id="forgotConfirmPw" placeholder="再次输入新密码"></div>
       <div class="msg" id="forgotMsg"></div>
       <div class="actions" style="margin-top:12px">
         <button class="primary-btn" id="forgotResetBtn"><span id="forgotResetText">重置密码</span><span class="spinner" id="forgotResetSpin"></span></button>
@@ -385,7 +385,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
           if (emailEl) emailEl.value = remembered.email || '';
         }
         document.getElementById('rememberMe').checked = true;
-        // 延迟自动切换到登录模�?
+        // 延迟自动切换到登录模式
         var _origAgree = window.agreeRules;
         window.agreeRules = function() {
           document.getElementById('rulesOverlay').classList.add('hidden');
@@ -426,7 +426,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   })();
 
   // ── state ──
-  const API_BASE = '';  // e.g. 'https://your-worker-domain.workers.dev' �?leave empty when served by the Worker
+  const API_BASE = '';  // e.g. 'https://your-worker-domain.workers.dev' — leave empty when served by the Worker
   const state = {
     mode: 'signup',   // 'signup' | 'signin' | 'result'
     loading: false,
@@ -437,38 +437,38 @@ button:disabled{opacity:.5;cursor:not-allowed}
   // ── API response code handlers ──
   const CODE_MESSAGES = {
     AUTH_SIGNUP_SUCCESS:    { cls:'msg-success', title:'注册成功' },
-    AUTH_SIGNUP_EXISTS:     { cls:'msg-warn',   title:'用户已存�? },
-    AUTH_SIGNUP_DUPLICATE_USERNAME: { cls:'msg-error', title:'用户名重�? },
+    AUTH_SIGNUP_EXISTS:     { cls:'msg-warn',   title:'用户已存在' },
+    AUTH_SIGNUP_DUPLICATE_USERNAME: { cls:'msg-error', title:'用户名重复' },
     AUTH_SIGNUP_DUPLICATE_EMAIL:    { cls:'msg-error', title:'邮箱重复' },
     AUTH_SIGNUP_DUPLICATE:  { cls:'msg-error',  title:'注册信息重复' },
     AUTH_VALIDATION_ERROR:  { cls:'msg-error',  title:'输入校验失败' },
-    AUTH_SIGNUP_DISABLED:   { cls:'msg-warn',   title:'注册已关�? },
+    AUTH_SIGNUP_DISABLED:   { cls:'msg-warn',   title:'注册已关闭' },
     AUTH_SIGNUP_FAILED:     { cls:'msg-error',  title:'注册失败' },
-    AUTH_STORAGE_UNAVAILABLE:{ cls:'msg-error', title:'存储不可�? },
+    AUTH_STORAGE_UNAVAILABLE:{ cls:'msg-error', title:'存储不可用' },
     AUTH_SIGNIN_SUCCESS:    { cls:'msg-success',title:'登录成功' },
     AUTH_SIGNIN_FAILED:     { cls:'msg-error',  title:'登录失败' },
-    AUTH_USER_NOT_FOUND:    { cls:'msg-warn',   title:'用户不存�? },
-    AUTH_USER_BANNED:       { cls:'msg-error',  title:'用户已封�? },
+    AUTH_USER_NOT_FOUND:    { cls:'msg-warn',   title:'用户不存在' },
+    AUTH_USER_BANNED:       { cls:'msg-error',  title:'用户已封禁' },
     AUTH_METHOD_NOT_ALLOWED:{ cls:'msg-error',  title:'请求方式错误' },
     KV_WRITE_LIMIT_EXCEEDED:{ cls:'msg-error',  title:'写入额度用尽' },
     AUTH_PASSWORD_SET:      { cls:'msg-success',title:'密码设置成功' },
     AUTH_INVALID_CREDENTIALS:{ cls:'msg-error', title:'用户名或密码错误' },
     AUTH_RATE_LIMITED:      { cls:'msg-error',  title:'尝试次数过多' },
     AUTH_PASSWORD_NOT_SET:  { cls:'msg-warn',   title:'尚未设置密码' },
-    AUTH_EMAIL_LOGIN_EXPIRED:{ cls:'msg-error', title:'邮箱登录已关�? },
+    AUTH_EMAIL_LOGIN_EXPIRED:{ cls:'msg-error', title:'邮箱登录已关闭' },
     AUTH_PASSWORD_TOO_WEAK: { cls:'msg-error',  title:'密码强度不足' },
     // TG verification codes
     AUTH_TG_VERIFY_REQUIRED: { cls:'msg-info',   title:'需要TG验证' },
     AUTH_TG_PENDING:        { cls:'msg-info',   title:'等待验证' },
-    AUTH_TG_CODE_INVALID:   { cls:'msg-error',  title:'验证码无�? },
-    AUTH_TG_CODE_EXPIRED:   { cls:'msg-error',  title:'验证码过�? },
-    AUTH_TG_DUPLICATE:      { cls:'msg-error',  title:'TG已绑�? },
-    AUTH_TG_NOT_CONFIGURED: { cls:'msg-error',  title:'TG未配�? },
+    AUTH_TG_CODE_INVALID:   { cls:'msg-error',  title:'验证码无效' },
+    AUTH_TG_CODE_EXPIRED:   { cls:'msg-error',  title:'验证码过期' },
+    AUTH_TG_DUPLICATE:      { cls:'msg-error',  title:'TG已绑定' },
+    AUTH_TG_NOT_CONFIGURED: { cls:'msg-error',  title:'TG未配置' },
     AUTH_TG_CHECK_FAILED:   { cls:'msg-error',  title:'验证失败' },
-    AUTH_TG_ACCOUNT_MISMATCH:{ cls:'msg-error', title:'账号不匹�? },
-    AUTH_TG_INCOMPLETE:     { cls:'msg-error',  title:'数据不完�? },
-    AUTH_TG_UNKNOWN_STATUS: { cls:'msg-error',  title:'未知状�? },
-    AUTH_TG_CODE_FAILED:    { cls:'msg-error',  title:'验证码生成失�? },
+    AUTH_TG_ACCOUNT_MISMATCH:{ cls:'msg-error', title:'账号不匹配' },
+    AUTH_TG_INCOMPLETE:     { cls:'msg-error',  title:'数据不完整' },
+    AUTH_TG_UNKNOWN_STATUS: { cls:'msg-error',  title:'未知状态' },
+    AUTH_TG_CODE_FAILED:    { cls:'msg-error',  title:'验证码生成失败' },
     AUTH_TG_VERIFY_FAILED:  { cls:'msg-error',  title:'验证发起失败' },
   };
 
@@ -511,11 +511,11 @@ button:disabled{opacity:.5;cursor:not-allowed}
     $$('.tab-btn').forEach(b => b.setAttribute('aria-selected', b.dataset.mode === mode ? 'true' : 'false'));
     if (mode === 'signup') {
       authTitle.textContent = '创建用户账户';
-      authDesc.textContent  = '设置用户名和密码，邮箱选填用于找回�?;
+      authDesc.textContent  = '设置用户名和密码，邮箱选填用于找回。';
       submitText.textContent = '创建账户';
     } else {
       authTitle.textContent = '登录账户';
-      authDesc.textContent  = '输入用户名和密码完成登录�?;
+      authDesc.textContent  = '输入用户名和密码完成登录。';
       submitText.textContent = '登录';
     }
     clearMsg();
@@ -563,12 +563,12 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
     // account always required
     if (!account) { accountHint.textContent = '请输入用户名'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
-    else if (/@/.test(account)) { accountHint.textContent = '用户名不应包�?@ 符号，请填写纯文本用户名'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
+    else if (/@/.test(account)) { accountHint.textContent = '用户名不应包含 @ 符号，请填写纯文本用户名'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
     else {
       if (state.mode === 'signup') {
-        if (account.length < 4 || account.length > 16) { accountHint.textContent = '用户名需�?-16�?; accountInp.setAttribute('aria-invalid','true'); valid = false; }
+        if (account.length < 4 || account.length > 16) { accountHint.textContent = '用户名需为4-16位'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
         else if (!/^[一-龥a-zA-Z0-9_\-]+$/.test(account)) { accountHint.textContent = '用户名仅支持中英文、数字、下划线、短横线'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
-        else if (/^[0-9]+$/.test(account)) { accountHint.textContent = '用户名不能为纯数�?; accountInp.setAttribute('aria-invalid','true'); valid = false; }
+        else if (/^[0-9]+$/.test(account)) { accountHint.textContent = '用户名不能为纯数字'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
         else if (/^(.)\1+$/.test(account)) { accountHint.textContent = '用户名不能为重复字符'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
         else { accountInp.removeAttribute('aria-invalid'); }
       } else {
@@ -578,8 +578,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
     if (isOldEmailLogin) {
       // old email login: email required, no password
-      if (!email) { emailHint.textContent = '请输入邮�?; emailInp.setAttribute('aria-invalid','true'); valid = false; }
-      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { emailHint.textContent = '邮箱格式不正�?; emailInp.setAttribute('aria-invalid','true'); valid = false; }
+      if (!email) { emailHint.textContent = '请输入邮箱'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { emailHint.textContent = '邮箱格式不正确'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
       else { emailInp.removeAttribute('aria-invalid'); }
     } else {
       // new password login / signup
@@ -589,17 +589,17 @@ button:disabled{opacity:.5;cursor:not-allowed}
         else if (!/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(email)) { emailHint.textContent = '邮箱格式不正确，请输入合法的邮箱地址'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
         else { emailInp.removeAttribute('aria-invalid'); }
         // password required for signup
-        if (!password) { passwordHint.textContent = '请设置密�?; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
+        if (!password) { passwordHint.textContent = '请设置密码'; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
         else {
           var hasLetter = /[a-zA-Z]/.test(password);
           var hasNumber = /[0-9]/.test(password);
-          if (password.length < 8) { passwordHint.textContent = '密码至少需�?个字�?; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
-          else if (!hasLetter || !hasNumber) { passwordHint.textContent = '密码必须包含字母和数�?; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
+          if (password.length < 8) { passwordHint.textContent = '密码至少需要8个字符'; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
+          else if (!hasLetter || !hasNumber) { passwordHint.textContent = '密码必须包含字母和数字'; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
           else { passwordInp.removeAttribute('aria-invalid'); }
         }
       } else {
         // signin with password: password required
-        if (!password) { passwordHint.textContent = '请输入密�?; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
+        if (!password) { passwordHint.textContent = '请输入密码'; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
         else { passwordInp.removeAttribute('aria-invalid'); }
       }
     }
@@ -630,16 +630,16 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
       const code = data.code || '';
       const meta = CODE_MESSAGES[code] || { cls:'msg-error', title:'未知响应' };
-      const message = data.message || '服务器没有返回具体信�?;
+      const message = data.message || '服务器没有返回具体信息';
 
       if (code === 'AUTH_SIGNUP_SUCCESS') {
-        showMsg('msg-success', '�?' + meta.title, message + ' 请切换到登录页面完成登录�?);
+        showMsg('msg-success', '✅ ' + meta.title, message + ' 请切换到登录页面完成登录。');
         setTimeout(function() { switchMode('signin'); }, 1200);
       } else if (code === 'AUTH_SIGNUP_EXISTS') {
         showMsg('msg-warn', 'ℹ️ ' + meta.title, message);
         setTimeout(function() { switchMode('signin'); }, 1200);
       } else if (code === 'AUTH_SIGNUP_DUPLICATE_USERNAME' || code === 'AUTH_SIGNUP_DUPLICATE_EMAIL' || code === 'AUTH_SIGNUP_DUPLICATE') {
-        showMsg('msg-error', '�?' + meta.title, message);
+        showMsg('msg-error', '❌ ' + meta.title, message);
       } else if (code === 'AUTH_TG_VERIFY_REQUIRED') {
         showTGVerifyStep(data.data);
       } else if (code === 'AUTH_SIGNIN_SUCCESS') {
@@ -666,7 +666,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
           used_traffic: u.used_traffic || 0,
         }));
 
-        // Check if migration token present �?show migration wizard
+        // Check if migration token present → show migration wizard
         if (data.migrationToken) {
           showMigrationWizard(data.migrationToken, user.account || '');
           setLoading(false);
@@ -676,17 +676,17 @@ button:disabled{opacity:.5;cursor:not-allowed}
         location.href = '/user';
         return;
       } else if (code === 'AUTH_PASSWORD_SET') {
-        showMsg('msg-success', '�?' + meta.title, message + ' 请使用新密码登录�?);
+        showMsg('msg-success', '✅ ' + meta.title, message + ' 请使用新密码登录。');
         switchMode('signin');
         if (passwordInp) passwordInp.value = '';
       } else if (code === 'AUTH_PASSWORD_NOT_SET') {
-        showMsg('msg-warn', '⚠️ ' + meta.title, message + ' 请使用邮箱登录或联系管理员�?);
+        showMsg('msg-warn', '⚠️ ' + meta.title, message + ' 请使用邮箱登录或联系管理员。');
       } else if (code === 'AUTH_EMAIL_LOGIN_EXPIRED') {
-        showMsg('msg-error', '�?' + meta.title, message + ' 请联系管理员重置密码�?);
+        showMsg('msg-error', '⏰ ' + meta.title, message + ' 请联系管理员重置密码。');
       } else if (code === 'AUTH_RATE_LIMITED') {
-        showMsg('msg-error', '�?' + meta.title, message + ' 请等�?5分钟再试�?);
+        showMsg('msg-error', '❌ ' + meta.title, message + ' 请等待15分钟再试。');
       } else if (code === 'AUTH_INVALID_CREDENTIALS') {
-        showMsg('msg-error', '�?' + meta.title, message + ' 请检查用户名和密码�?);
+        showMsg('msg-error', '❌ ' + meta.title, message + ' 请检查用户名和密码。');
         if (passwordInp) passwordInp.value = '';
       } else if (code === 'AUTH_PASSWORD_TOO_WEAK') {
         showMsg('msg-error', '⚠️ ' + meta.title, message);
@@ -697,19 +697,19 @@ button:disabled{opacity:.5;cursor:not-allowed}
         if (errors.password) passwordHint.textContent = errors.password;
         showMsg(meta.cls, '⚠️ ' + meta.title, message);
       } else if (code === 'AUTH_USER_NOT_FOUND') {
-        showMsg('msg-warn', '🔍 ' + meta.title, message + ' 请切换到注册模式完成注册�?);
+        showMsg('msg-warn', '🔍 ' + meta.title, message + ' 请切换到注册模式完成注册。');
         if (data.data && data.data.nextMode === 'signup') {
           setTimeout(function() { switchMode('signup'); }, 1200);
         }
       } else if (code === 'AUTH_SIGNUP_DISABLED') {
         showMsg('msg-warn', '🚫 ' + meta.title, message);
       } else if (code === 'AUTH_USER_BANNED') {
-        showMsg('msg-error', '�?' + meta.title, message + ' 请联系管理员解封�?);
+        showMsg('msg-error', '⛔ ' + meta.title, message + ' 请联系管理员解封。');
       } else {
         showMsg(meta.cls, '⚠️ ' + meta.title, message);
       }
     } catch (err) {
-      showMsg('msg-error', '🌐 网络错误', '请求发送失败，请检查网络连接后重试�? + (err.message ? ' (' + err.message + ')' : ''));
+      showMsg('msg-error', '🌐 网络错误', '请求发送失败，请检查网络连接后重试。' + (err.message ? ' (' + err.message + ')' : ''));
     } finally {
       setLoading(false);
     }
@@ -725,13 +725,13 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
     resultItems.innerHTML = ''
       + '<div class="migration-card" style="background:#111c31;border:1px solid rgba(148,163,184,.14);border-radius:14px;padding:20px;text-align:center">'
-      + '<p style="font-size:14px;color:#fde68a;margin:0 0 8px">\u26a0\ufe0f 您的账户尚未设置密码，请在下方设置密码以完成迁移�?/p>'
-      + '<p style="font-size:12px;color:#94a3b8;margin:0 0 16px">邮箱登录功能将在30天后关闭，请尽快设置密码�?/p>'
+      + '<p style="font-size:14px;color:#fde68a;margin:0 0 8px">\u26a0\ufe0f 您的账户尚未设置密码，请在下方设置密码以完成迁移。</p>'
+      + '<p style="font-size:12px;color:#94a3b8;margin:0 0 16px">邮箱登录功能将在30天后关闭，请尽快设置密码。</p>'
       + '<div style="display:grid;gap:12px;text-align:left">'
       + '<div>'
-      + '<label style="font-size:13px;color:#cbd5e1;font-weight:600;display:block;margin-bottom:6px">新密�?/label>'
+      + '<label style="font-size:13px;color:#cbd5e1;font-weight:600;display:block;margin-bottom:6px">新密码</label>'
       + '<div style="position:relative">'
-      + '<input type="password" id="migPw" placeholder="至少8位，包含字母和数�? style="width:100%;background:#020817;border:1px solid #334155;border-radius:12px;padding:13px 44px 13px 14px;color:#f8fafc;font-size:14px;outline:none" maxlength="128">'
+      + '<input type="password" id="migPw" placeholder="至少8位，包含字母和数字" style="width:100%;background:#020817;border:1px solid #334155;border-radius:12px;padding:13px 44px 13px 14px;color:#f8fafc;font-size:14px;outline:none" maxlength="128">'
       + '<button type="button" id="migPwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px;padding:4px;line-height:1">👁</button>'
       + '</div>'
       + '<div id="migPwStrength" style="display:none;margin-top:6px">'
@@ -744,10 +744,10 @@ button:disabled{opacity:.5;cursor:not-allowed}
       + '</div>'
       + '<div class="msg" id="migMsg"></div>'
       + '<button id="migSubmitBtn" class="primary-btn" style="width:100%;margin-top:12px">'
-      + '<span id="migSubmitText">设置密码并完成迁�?/span>'
+      + '<span id="migSubmitText">设置密码并完成迁移</span>'
       + '<span class="spinner" id="migSubmitSpin"></span>'
       + '</button>'
-      + '<button id="migSkipBtn" style="width:100%;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:13px;margin-top:8px;text-decoration:underline">暂时跳过，进入面�?/button>'
+      + '<button id="migSkipBtn" style="width:100%;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:13px;margin-top:8px;text-decoration:underline">暂时跳过，进入面板</button>'
       + '</div>'
       + '</div>';
 
@@ -776,7 +776,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
         migPwStrength.style.display = '';
         migPwStrengthBar.style.width = (result.score * 20) + '%';
         migPwStrengthBar.setAttribute('data-strength', String(result.score));
-        migPwStrengthLabel.textContent = '密码强度�? + result.label;
+        migPwStrengthLabel.textContent = '密码强度：' + result.label;
       } else {
         migPwStrength.style.display = 'none';
       }
@@ -796,7 +796,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
       var pw = migPw.value;
       if (!pw) {
         migMsg.className = 'msg msg-error show';
-        migMsg.innerHTML = '<strong>\u26a0\ufe0f 请输入密�?/strong><br>密码不能为空';
+        migMsg.innerHTML = '<strong>\u26a0\ufe0f 请输入密码</strong><br>密码不能为空';
         return;
       }
       var hasLower = /[a-z]/.test(pw);
@@ -820,7 +820,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
         var d = await resp.json();
         if (d.code === 'AUTH_PASSWORD_SET') {
           migMsg.className = 'msg msg-success show';
-          migMsg.innerHTML = '<strong>\u2705 密码设置成功</strong><br>即将跳转到用户面�?..';
+          migMsg.innerHTML = '<strong>\u2705 密码设置成功</strong><br>即将跳转到用户面板...';
           setTimeout(function() { location.href = '/user'; }, 1500);
         } else {
           migMsg.className = 'msg msg-error show';
@@ -828,7 +828,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
         }
       } catch (err) {
         migMsg.className = 'msg msg-error show';
-        migMsg.innerHTML = '<strong>\U0001f310 网络错误</strong><br>请求发送失败，请检查网络连�?;
+        migMsg.innerHTML = '<strong>\U0001f310 网络错误</strong><br>请求发送失败，请检查网络连接';
       } finally {
         setMigLoading(false);
       }
@@ -899,66 +899,48 @@ button:disabled{opacity:.5;cursor:not-allowed}
     var minutes = Math.floor(remaining / 60);
     var seconds = remaining % 60;
 
-    var tgDeepLink = ''; // 不再使用个人对话链接，改为引导到群组
+    var tgDeepLink = 'https://t.me/' + botUsername + '?start=' + code;
     var html = '';
     html += '<div class="verify-step">';
     html += '<div class="verify-step-icon">🔐</div>';
-    html += '<p style="font-size:15px;color:#e2e8f0;margin:0 0 4px;font-weight:600">请通过 Telegram 官方群组完成验证</p>';
-    html += '<p style="font-size:13px;color:#94a3b8;margin:0">在官方群组内发送验证码，Bot 将自动验证您的身�?/p>';
+    html += '<p style="font-size:15px;color:#e2e8f0;margin:0 0 4px;font-weight:600">请通过 Telegram 完成身份验证</p>';
+    html += '<p style="font-size:13px;color:#94a3b8;margin:0">向 Bot 发送验证码即可自动验证群组成员身份</p>';
 
     // verification code box
     html += '<div class="verify-code-box">';
-    html += '<div class="verify-code-label">验证�?/div>';
+    html += '<div class="verify-code-label">验证码</div>';
     html += '<div class="verify-code">' + escHtml(code) + '</div>';
-    html += '<div style="margin-top:6px"><button class="copy-btn" data-copy="' + escAttr('/start ' + code) + '" style="background:#334155;color:#e2e8f0;border:1px solid #475569;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:13px">📋 复制 /start ' + escHtml(code) + '</button></div>';
-    html += '<div class="verify-expires">�?有效�?' + minutes + '�? + seconds + '�?/div>';
+    html += '<div class="verify-expires">⏰ 有效期 ' + minutes + '分' + seconds + '秒</div>';
     html += '</div>';
 
     // instructions
     html += '<div class="verify-instructions">';
     html += '<ol>';
-    if (groupInviteLink) {
-      html += '<li>点击下方按钮<b>加入官方群组</b></li>';
-      html += '<li>�?b>群组�?/b>发�?<code>/start ' + escHtml(code) + '</code></li>';
-    } else {
-      html += '<li>打开 Telegram �?b>进入官方群组</b></li>';
-      html += '<li>�?b>群组�?/b>发�?<code>/start ' + escHtml(code) + '</code></li>';
-    }
-    html += '<li>Bot 将在群组�?b>公开回复</b>验证结果</li>';
-    html += '<li>验证通过后本页面�?b>自动完成注册</b></li>';
+    html += '<li>点击下方按钮打开 Telegram Bot</li>';
+    html += '<li>向 Bot 发送 <code>/start ' + escHtml(code) + '</code>（点击链接自动填充）</li>';
+    html += '<li>Bot 将自动验证您的群组成员身份</li>';
+    html += '<li>验证通过后本页面将自动完成注册</li>';
     html += '</ol>';
     html += '</div>';
 
-    // action buttons: primary is group invite, secondary is copy command
+    // action buttons
+    html += '<a class="verify-tg-link" href="' + escHtml(tgDeepLink) + '" target="_blank" rel="noopener">';
+    html += '<span>🤖</span> 打开 Telegram Bot</a>';
     if (groupInviteLink) {
-      html += '<a class="verify-tg-link" href="' + escHtml(groupInviteLink) + '" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#25a55a,#2ecc71)">';
-      html += '<span>📋</span> 加入官方群组</a>';
-    } else {
-      html += '<div class="verify-tg-link" style="background:#334155;cursor:not-allowed;opacity:0.7">';
-      html += '<span>⚠️</span> 群组邀请链接不可用，请联系管理�?/div>';
+      html += '<br><a class="verify-group-btn" href="' + escHtml(groupInviteLink) + '" target="_blank" rel="noopener">📋 加入官方群组（如未加入）</a>';
     }
-    // secondary copy button
-    html += '<br><button class="verify-copy-cmd-btn" data-copy="' + escAttr('/start ' + code) + '" style="display:inline-flex;align-items:center;gap:6px;background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:10px 18px;border-radius:10px;cursor:pointer;font-size:13px;margin-top:8px;transition:all .2s" onmouseover="this.style.borderColor=\'#475569\';this.style.color=\'#e2e8f0\'" onmouseout="this.style.borderColor=\'#334155\';this.style.color=\'#94a3b8\'">📋 复制命令 /start ' + escHtml(code) + '</button>';
 
-    // polling indicator with status display
+    // polling indicator
     html += '<div class="verify-polling" id="verifyPolling">';
     html += '<span class="spinner-sm"></span>';
-    html += '<span id="verifyPollText">等待 Telegram 验证�?..</span>';
+    html += '<span id="verifyPollText">等待 Telegram 验证中...</span>';
     html += '</div>';
 
-    // failure display area
-    html += '<div id="verifyFailMsg" style="display:none;margin-top:12px"></div>';
-
     // back button
-    html += '<button class="verify-back-btn" onclick="stopTGVerifyPolling(); switchMode(\'signup\');">�?返回修改注册信息</button>';
+    html += '<button class="verify-back-btn" onclick="stopTGVerifyPolling(); switchMode(\'signup\');">← 返回修改注册信息</button>';
     html += '</div>';
 
     resultItems.innerHTML = html;
-
-    // attach copy handlers
-    resultItems.querySelectorAll('.copy-btn, .verify-copy-cmd-btn').forEach(function(btn) {
-      btn.addEventListener('click', function() { copyText(btn.dataset.copy, btn); });
-    });
 
     // start polling
     startTGVerifyPolling(data.account || '', code);
@@ -971,7 +953,12 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
     tgVerifyPollTimer = setInterval(async function() {
       attempts++;
-      if (attempts > maxAttempts) {`n        stopTGVerifyPolling();`n        var pollEl = document.getElementById('verifyPolling');`n        if (pollEl) pollEl.innerHTML = '<span style=```"color:#ef4444```">? ��֤��ʱ���뷵������ע�ᡣ</span>';`n        showVerifyFail('��֤�ѳ�ʱ��10���ӣ����뷵��ע��ҳ�����·���ע�ᡣ');`n        return;`n      }
+      if (attempts > maxAttempts) {
+        stopTGVerifyPolling();
+        var pollEl = document.getElementById('verifyPolling');
+        if (pollEl) pollEl.innerHTML = '<span style="color:#ef4444">⏰ 验证超时，请返回重新注册。</span>';
+        return;
+      }
 
       try {
         var resp = await fetch(API_BASE + '/register/verify-tg/check', {
@@ -985,14 +972,14 @@ button:disabled{opacity:.5;cursor:not-allowed}
         if (vcode === 'AUTH_SIGNUP_SUCCESS') {
           // Verified and user created!
           stopTGVerifyPolling();
-          resultTitle.textContent = '�?注册成功';
+          resultTitle.textContent = '✅ 注册成功';
           resultSub.textContent = data.data?.account || account;
           var html2 = '';
           html2 += '<div class="verify-step">';
           html2 += '<div class="verify-success-icon">🎉</div>';
-          html2 += '<p style="font-size:18px;color:#e2e8f0;font-weight:700;margin:0 0 8px">注册成功�?/p>';
-          html2 += '<p style="font-size:14px;color:#94a3b8;margin:0 0 4px">TG账号 ' + (data.data?.tgUsername || '') + ' 已绑�?/p>';
-          html2 += '<p style="font-size:13px;color:#64748b;margin:0 0 20px">即将跳转到登录页�?..</p>';
+          html2 += '<p style="font-size:18px;color:#e2e8f0;font-weight:700;margin:0 0 8px">注册成功！</p>';
+          html2 += '<p style="font-size:14px;color:#94a3b8;margin:0 0 4px">TG账号 ' + (data.data?.tgUsername || '') + ' 已绑定</p>';
+          html2 += '<p style="font-size:13px;color:#64748b;margin:0 0 20px">即将跳转到登录页面...</p>';
           html2 += '</div>';
           resultItems.innerHTML = html2;
           setTimeout(function() { switchMode('signin'); }, 2000);
@@ -1003,22 +990,22 @@ button:disabled{opacity:.5;cursor:not-allowed}
           if (pollText && remaining > 0) {
             var m = Math.floor(remaining / 60);
             var s = remaining % 60;
-            pollText.textContent = '等待验证�?.. 剩余 ' + m + '�? + s + '�?(' + attempts + ')';
+            pollText.textContent = '等待验证中... 剩余 ' + m + '分' + s + '秒 (' + attempts + ')';
           } else if (pollText) {
-            pollText.textContent = '等待 Telegram 验证�?.. (' + attempts + ')';
+            pollText.textContent = '等待 Telegram 验证中... (' + attempts + ')';
           }
         } else if (vcode === 'AUTH_TG_CODE_EXPIRED') {
           stopTGVerifyPolling();
           var pollEl = document.getElementById('verifyPolling');
-          if (pollEl) pollEl.innerHTML = '<span style="color:#ef4444">�?验证码已过期，请返回重新注册�?/span>';
+          if (pollEl) pollEl.innerHTML = '<span style="color:#ef4444">⏰ 验证码已过期，请返回重新注册。</span>';
         } else if (vcode === 'AUTH_TG_DUPLICATE') {
           stopTGVerifyPolling();
           var pollEl2 = document.getElementById('verifyPolling');
-          if (pollEl2) pollEl2.innerHTML = '<span style="color:#ef4444">⚠️ 该TG账号已被其他用户绑定�?/span>';
+          if (pollEl2) pollEl2.innerHTML = '<span style="color:#ef4444">⚠️ 该TG账号已被其他用户绑定。</span>';
         } else if (vcode === 'AUTH_SIGNUP_DUPLICATE_USERNAME' || vcode === 'AUTH_SIGNUP_DUPLICATE_EMAIL') {
           stopTGVerifyPolling();
           var pollEl3 = document.getElementById('verifyPolling');
-          if (pollEl3) pollEl3.innerHTML = '<span style="color:#ef4444">�?' + (data.message || '注册信息冲突，请返回重新注册�?) + '</span>';
+          if (pollEl3) pollEl3.innerHTML = '<span style="color:#ef4444">❌ ' + (data.message || '注册信息冲突，请返回重新注册。') + '</span>';
         } else if (resp.status >= 500) {
           // Server error - keep polling but log
           console.warn('[TG Verify] Server error:', vcode, data.message);
@@ -1029,14 +1016,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
         console.warn('[TG Verify] Poll error:', err.message);
       }
     }, 3000);
-  }
-
-  function showVerifyFail(message) {
-    var failEl = document.getElementById('verifyFailMsg');
-    if (failEl) {
-      failEl.style.display = 'block';
-      failEl.innerHTML = '<div style="background:#450a0a;border:1px solid #dc2626;border-radius:10px;padding:12px 16px;color:#fca5a5;font-size:13px">' + escHtml(message) + '</div>';
-    }
   }
 
   function stopTGVerifyPolling() {
@@ -1091,7 +1070,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
     if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
     if (/[0-9]/.test(pw)) score++;
     if (/[^a-zA-Z0-9]/.test(pw)) score++;
-    var labels = ['', '�?, '较弱', '中等', '�?, '很强'];
+    var labels = ['', '弱', '较弱', '中等', '强', '很强'];
     return { score: Math.min(score, 5), label: labels[Math.min(score, 5)] };
   }
 
@@ -1101,7 +1080,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
       pwStrength.style.display = '';
       pwStrengthBar.style.width = (result.score * 20) + '%';
       pwStrengthBar.setAttribute('data-strength', String(result.score));
-      pwStrengthLabel.textContent = '密码强度�? + result.label;
+      pwStrengthLabel.textContent = '密码强度：' + result.label;
     } else {
       pwStrength.style.display = 'none';
     }
@@ -1117,20 +1096,20 @@ button:disabled{opacity:.5;cursor:not-allowed}
     if (oldLoginToggle) oldLoginToggle.style.display = 'none';
     submitText.textContent = '邮箱登录';
     state._oldLogin = true;
-    // 提示：旧登录模式下用户名框填入邮箱即�?
+    // 提示：旧登录模式下用户名框填入邮箱即可
     if (accountInp) accountInp.placeholder = '在此输入您的注册邮箱';
   });
 
 
   function copyText(text, btn) {
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(text).then(() => showToast('已复制到剪贴�?));
+      navigator.clipboard.writeText(text).then(() => showToast('已复制到剪贴板'));
     } else {
       const ta = document.createElement('textarea');
       ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
       document.body.appendChild(ta); ta.select();
       document.execCommand('copy'); document.body.removeChild(ta);
-      showToast('已复制到剪贴�?);
+      showToast('已复制到剪贴板');
     }
   }
 
@@ -1187,7 +1166,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
     forgotSubmitBtn.addEventListener('click', async function() {
       var id = forgotId.value.trim();
       if (!id) { alert('请输入邮箱或 UUID'); return; }
-      forgotSubmitText.textContent = '验证�?..';
+      forgotSubmitText.textContent = '验证中...';
       forgotSpin.classList.add('show');
       forgotSubmitBtn.disabled = true;
       try {
@@ -1202,7 +1181,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
           forgotState.account = d.data.account;
           document.getElementById('forgotStep1').style.display = 'none';
           document.getElementById('forgotStep2').style.display = '';
-          document.getElementById('forgotStep2Msg').innerHTML = '<strong>�?验证通过</strong><br>账户�? + escHtml(d.data.account) + ' · 邮箱�? + escHtml(d.data.emailHint);
+          document.getElementById('forgotStep2Msg').innerHTML = '<strong>✅ 验证通过</strong><br>账户：' + escHtml(d.data.account) + ' · 邮箱：' + escHtml(d.data.emailHint);
           document.getElementById('forgotToken').value = d.data.token;
         } else {
           alert(d.message || '验证失败');
@@ -1216,7 +1195,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
     // Enter key on forgotId triggers submit
     forgotId.addEventListener('keydown', function(e) { if (e.key === 'Enter') forgotSubmitBtn.click(); });
 
-    // Step 2 �?Step 3
+    // Step 2 → Step 3
     forgotToResetBtn.addEventListener('click', function() {
       document.getElementById('forgotStep2').style.display = 'none';
       document.getElementById('forgotStep3').style.display = '';
@@ -1231,13 +1210,13 @@ button:disabled{opacity:.5;cursor:not-allowed}
       var cpw = document.getElementById('forgotConfirmPw').value;
       var msgEl = document.getElementById('forgotMsg');
       if (!pw) { msgEl.className = 'msg msg-error show'; msgEl.innerHTML = '请输入新密码'; return; }
-      if (pw.length < 8 || pw.length > 20) { msgEl.className = 'msg msg-error show'; msgEl.innerHTML = '密码长度需�?-20�?; return; }
+      if (pw.length < 8 || pw.length > 20) { msgEl.className = 'msg msg-error show'; msgEl.innerHTML = '密码长度需为8-20位'; return; }
       if (!/[a-zA-Z]/.test(pw) || !/[0-9]/.test(pw) || !/[^a-zA-Z0-9]/.test(pw)) {
         msgEl.className = 'msg msg-error show'; msgEl.innerHTML = '密码需含字母、数字及特殊字符'; return;
       }
-      if (pw !== cpw) { msgEl.className = 'msg msg-error show'; msgEl.innerHTML = '两次输入密码不一�?; return; }
+      if (pw !== cpw) { msgEl.className = 'msg msg-error show'; msgEl.innerHTML = '两次输入密码不一致'; return; }
       msgEl.className = 'msg'; msgEl.innerHTML = '';
-      forgotResetText.textContent = '重置�?..';
+      forgotResetText.textContent = '重置中...';
       forgotResetSpin.classList.add('show');
       forgotResetBtn.disabled = true;
       try {
@@ -1248,16 +1227,16 @@ button:disabled{opacity:.5;cursor:not-allowed}
         var d = await resp.json();
         if (d.code === 'PASSWORD_RESET_SUCCESS') {
           msgEl.className = 'msg msg-success show';
-          msgEl.innerHTML = '<strong>�?密码重置成功</strong><br>即将跳转到登录页�?..';
+          msgEl.innerHTML = '<strong>✅ 密码重置成功</strong><br>即将跳转到登录页面...';
           document.getElementById('account').value = forgotState.account || '';
           setTimeout(function() { hideForgotPassword(); switchMode('signin'); }, 1500);
         } else {
           msgEl.className = 'msg msg-error show';
-          msgEl.innerHTML = '<strong>�?重置失败</strong><br>' + (d.message || '未知错误');
+          msgEl.innerHTML = '<strong>❌ 重置失败</strong><br>' + (d.message || '未知错误');
         }
       } catch(e) {
         msgEl.className = 'msg msg-error show';
-        msgEl.innerHTML = '<strong>🌐 网络错误</strong><br>' + (e.message || '请求发送失�?);
+        msgEl.innerHTML = '<strong>🌐 网络错误</strong><br>' + (e.message || '请求发送失败');
       }
       forgotResetText.textContent = '重置密码';
       forgotResetSpin.classList.remove('show');
