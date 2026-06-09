@@ -8692,6 +8692,11 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                                     onchange="markModified('notification')" disabled>
                                 <label for="telegramEnabled" class="checkbox-label">启用</label>
                             </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="telegramSecurityNotify" title="封禁/解封等安全事件通过TG通知"
+                                    onchange="markModified('notification')" disabled>
+                                <label for="telegramSecurityNotify" class="checkbox-label">安全事件通知</label>
+                            </div>
                         </label>
                         <div class="notification-controls">
                             <button type="button" class="btn btn-notification-config"
@@ -11981,12 +11986,14 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             const telegramBotToken = currentConfig.TG?.BotToken || currentConfig.通知?.Telegram?.BotToken;
             const telegramChatID = currentConfig.TG?.ChatID || currentConfig.通知?.Telegram?.ChatID;
             const telegramCheckbox = document.getElementById('telegramEnabled');
+            const telegramSecurityCheckbox = document.getElementById('telegramSecurityNotify');
 
             // 判断TG配置是否完整（BotToken和ChatID都非null且非空字符串）
             if (telegramBotToken && telegramChatID) {
                 // 两个都有，启用checkbox，并加载 TG.启用 的状态
                 telegramCheckbox.disabled = false;
                 telegramCheckbox.checked = currentConfig.TG?.启用 ?? false;
+                telegramSecurityCheckbox.disabled = false;
                 // "参数配置"按钮颜色为绿色，表示已配置
                 updateTelegramButtonStates(true);
                 // "清除配置"按钮为红色，且可点击
@@ -11994,10 +12001,18 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                 // 任意一个缺少，禁用checkbox
                 telegramCheckbox.disabled = true;
                 telegramCheckbox.checked = false;
+                telegramSecurityCheckbox.disabled = true;
                 // "参数配置"按钮颜色为默认色，表示未配置
                 updateTelegramButtonStates(false);
                 // "清除配置"按钮为灰色，且不可点击
             }
+
+            // 加载安全事件通知状态
+            try {
+                const tgCfgResp = await fetch('/admin/system/tg-config');
+                const tgCfg = await tgCfgResp.json();
+                document.getElementById('telegramSecurityNotify').checked = !!tgCfg.securityNotifyEnabled;
+            } catch(e) { /* 安全配置未就绪，使用默认值 */ }
 
             modifiedSections.clear();
             resetAllButtons();
@@ -17110,11 +17125,11 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
         // 保存通知设置
         async function saveNotification() {
             try {
-                // 只更新 TG.启用 字段
+                // 更新 TG.启用 字段
                 if (!currentConfig.TG) currentConfig.TG = {};
                 currentConfig.TG.启用 = document.getElementById('telegramEnabled').checked;
 
-                // 提交到服务器，但整个 currentConfig
+                // 提交 config.json
                 const response = await fetch('/admin/config.json', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -17123,7 +17138,15 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
 
                 if (!response.ok) throw new Error('保存失败');
 
-                showToast('✅ 启用状态已保存', 'success');
+                // 同步保存安全事件通知开关
+                const securityNotifyEnabled = document.getElementById('telegramSecurityNotify').checked;
+                await fetch('/admin/system/tg-config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ securityNotifyEnabled: securityNotifyEnabled })
+                });
+
+                showToast('✅ 通知设置已保存', 'success');
                 modifiedSections.delete('notification');
                 updateButtonStates();
             } catch (error) {
