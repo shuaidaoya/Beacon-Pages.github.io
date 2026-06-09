@@ -8971,6 +8971,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             <div id="telegramStatus" class="subapi-status"></div>
             <div class="subapi-buttons">
                 <button type="button" class="btn btn-primary btn-test-api" onclick="testTelegramConfig()">可用性验证</button>
+                <button type="button" class="btn btn-primary btn-test-api" onclick="registerTelegramWebhook()">注册 Webhook</button>
                 <button type="button" class="btn btn-primary btn-confirm-api" id="telegramConfirmBtn"
                     onclick="confirmTelegramConfig()" disabled>保存</button>
                 <button type="button" class="btn btn-secondary btn-cancel-api"
@@ -16865,6 +16866,40 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                 showToast('❌ 保存失败: ' + error.message, 'error');
                 confirmBtn.disabled = false;
                 confirmBtn.textContent = '保存';
+            }
+        }
+
+        // 注册 TG Webhook + 注入统一命令
+        async function registerTelegramWebhook() {
+            const token = document.getElementById('telegramBotToken').value.trim();
+            const statusEl = document.getElementById('telegramStatus');
+            if (!token) {
+                if (statusEl) { statusEl.style.background = 'linear-gradient(135deg, #ef4444 0, #dc2626 100%)'; statusEl.textContent = '❌ 请先填写 Bot Token'; }
+                return;
+            }
+            try {
+                const webhookUrl = window.location.origin + '/tg-webhook';
+                const wr = await fetch('https://api.telegram.org/bot' + token + '/setWebhook?url=' + encodeURIComponent(webhookUrl));
+                const wrData = await wr.json();
+                const cmds = { commands: [
+                    { command: 'bchelp', description: '显示可用命令' },
+                    { command: 'bcbanned', description: '列出被封禁用户' },
+                    { command: 'bcbaninfo', description: '查封禁详情' },
+                    { command: 'bcunban', description: '解封用户' }
+                ]};
+                const cr = await fetch('https://api.telegram.org/bot' + token + '/setMyCommands', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cmds) });
+                await fetch('https://api.telegram.org/bot' + token + '/deleteMyCommands', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ scope: { type: 'all_group_chats' } }) });
+                const crData = await cr.json();
+                if (wrData.ok && crData.ok) {
+                    if (statusEl) { statusEl.style.background = 'linear-gradient(135deg, #10b981 0, #059669 100%)'; statusEl.textContent = '✅ Webhook + 命令已注册: /bchelp /bcbanned /bcbaninfo /bcunban'; }
+                } else {
+                    const parts = [];
+                    if (!wrData.ok) parts.push('Webhook: ' + (wrData.description || '失败'));
+                    if (!crData.ok) parts.push('命令: ' + (crData.description || '失败'));
+                    if (statusEl) { statusEl.style.background = 'linear-gradient(135deg, #f59e0b 0, #d97706 100%)'; statusEl.textContent = '⚠️ ' + parts.join(' | '); }
+                }
+            } catch(e) {
+                if (statusEl) { statusEl.style.background = 'linear-gradient(135deg, #ef4444 0, #dc2626 100%)'; statusEl.textContent = '❌ 注册失败: ' + e.message; }
             }
         }
 
