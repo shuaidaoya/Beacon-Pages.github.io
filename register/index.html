@@ -899,48 +899,66 @@ button:disabled{opacity:.5;cursor:not-allowed}
     var minutes = Math.floor(remaining / 60);
     var seconds = remaining % 60;
 
-    var tgDeepLink = 'https://t.me/' + botUsername + '?start=' + code;
+    var tgDeepLink = '';
     var html = '';
     html += '<div class="verify-step">';
     html += '<div class="verify-step-icon">🔐</div>';
-    html += '<p style="font-size:15px;color:#e2e8f0;margin:0 0 4px;font-weight:600">请通过 Telegram 完成身份验证</p>';
-    html += '<p style="font-size:13px;color:#94a3b8;margin:0">向 Bot 发送验证码即可自动验证群组成员身份</p>';
+    html += '<p style="font-size:15px;color:#e2e8f0;margin:0 0 4px;font-weight:600">请通过 Telegram 官方群组完成验证</p>';
+    html += '<p style="font-size:13px;color:#94a3b8;margin:0">在官方群组内发送验证码，Bot 将自动验证您的身份</p>';
 
     // verification code box
     html += '<div class="verify-code-box">';
     html += '<div class="verify-code-label">验证码</div>';
     html += '<div class="verify-code">' + escHtml(code) + '</div>';
+    html += '<div style="margin-top:6px"><button class="copy-btn" data-copy="' + escAttr('/start ' + code) + '" style="background:#334155;color:#e2e8f0;border:1px solid #475569;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:13px">📋 复制 /start ' + escHtml(code) + '</button></div>';
     html += '<div class="verify-expires">⏰ 有效期 ' + minutes + '分' + seconds + '秒</div>';
     html += '</div>';
 
     // instructions
     html += '<div class="verify-instructions">';
     html += '<ol>';
-    html += '<li>点击下方按钮打开 Telegram Bot</li>';
-    html += '<li>向 Bot 发送 <code>/start ' + escHtml(code) + '</code>（点击链接自动填充）</li>';
-    html += '<li>Bot 将自动验证您的群组成员身份</li>';
-    html += '<li>验证通过后本页面将自动完成注册</li>';
+    if (groupInviteLink) {
+      html += '<li>点击下方按钮<b>加入官方群组</b></li>';
+      html += '<li>在<b>群组内</b>发送 <code>/start ' + escHtml(code) + '</code></li>';
+    } else {
+      html += '<li>打开 Telegram 并<b>进入官方群组</b></li>';
+      html += '<li>在<b>群组内</b>发送 <code>/start ' + escHtml(code) + '</code></li>';
+    }
+    html += '<li>Bot 将在群组内<b>公开回复</b>验证结果</li>';
+    html += '<li>验证通过后本页面将<b>自动完成注册</b></li>';
     html += '</ol>';
     html += '</div>';
 
-    // action buttons
-    html += '<a class="verify-tg-link" href="' + escHtml(tgDeepLink) + '" target="_blank" rel="noopener">';
-    html += '<span>🤖</span> 打开 Telegram Bot</a>';
+    // action button: join official group + copy verify command
     if (groupInviteLink) {
-      html += '<br><a class="verify-group-btn" href="' + escHtml(groupInviteLink) + '" target="_blank" rel="noopener">📋 加入官方群组（如未加入）</a>';
+      html += '<a class="verify-tg-link" href="' + escHtml(groupInviteLink) + '" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#25a55a,#2ecc71)">';
+      html += '<span>📋</span> 加入官方群组并发送验证码</a>';
+      html += '<br><button class="verify-copy-cmd-btn" data-copy="' + escAttr('/start ' + code) + '" style="display:inline-flex;align-items:center;gap:6px;background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:10px 18px;border-radius:10px;cursor:pointer;font-size:13px;margin-top:8px;transition:all .2s" onmouseover="this.style.borderColor=\'#475569\';this.style.color=\'#e2e8f0\'" onmouseout="this.style.borderColor=\'#334155\';this.style.color=\'#94a3b8\'">📋 复制命令 /start ' + escHtml(code) + '</button>';
+    } else {
+      html += '<div class="verify-tg-link" style="background:#334155;cursor:not-allowed;opacity:0.7">';
+      html += '<span>⚠️</span> 群组邀请链接不可用，请联系管理员</div>';
+      html += '<br><button class="verify-copy-cmd-btn" data-copy="' + escAttr('/start ' + code) + '" style="display:inline-flex;align-items:center;gap:6px;background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:10px 18px;border-radius:10px;cursor:pointer;font-size:13px;margin-top:8px;transition:all .2s" onmouseover="this.style.borderColor=\'#475569\';this.style.color=\'#e2e8f0\'" onmouseout="this.style.borderColor=\'#334155\';this.style.color=\'#94a3b8\'">📋 复制命令 /start ' + escHtml(code) + '</button>';
     }
 
-    // polling indicator
+    // polling indicator with status display
     html += '<div class="verify-polling" id="verifyPolling">';
     html += '<span class="spinner-sm"></span>';
     html += '<span id="verifyPollText">等待 Telegram 验证中...</span>';
     html += '</div>';
+
+    // failure display area
+    html += '<div id="verifyFailMsg" style="display:none;margin-top:12px"></div>';
 
     // back button
     html += '<button class="verify-back-btn" onclick="stopTGVerifyPolling(); switchMode(\'signup\');">← 返回修改注册信息</button>';
     html += '</div>';
 
     resultItems.innerHTML = html;
+
+    // attach copy handlers
+    resultItems.querySelectorAll('.copy-btn, .verify-copy-cmd-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() { copyText(btn.dataset.copy, btn); });
+    });
 
     // start polling
     startTGVerifyPolling(data.account || '', code);
@@ -957,6 +975,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
         stopTGVerifyPolling();
         var pollEl = document.getElementById('verifyPolling');
         if (pollEl) pollEl.innerHTML = '<span style="color:#ef4444">⏰ 验证超时，请返回重新注册。</span>';
+        showVerifyFail('验证已超时（10分钟），请返回注册页面重新发起注册。');
         return;
       }
 
@@ -1016,6 +1035,14 @@ button:disabled{opacity:.5;cursor:not-allowed}
         console.warn('[TG Verify] Poll error:', err.message);
       }
     }, 3000);
+  }
+
+  function showVerifyFail(message) {
+    var failEl = document.getElementById('verifyFailMsg');
+    if (failEl) {
+      failEl.style.display = 'block';
+      failEl.innerHTML = '<div style="background:#450a0a;border:1px solid #dc2626;border-radius:10px;padding:12px 16px;color:#fca5a5;font-size:13px">' + escHtml(message) + '</div>';
+    }
   }
 
   function stopTGVerifyPolling() {
