@@ -460,6 +460,7 @@
       '<code style="font-size:11px">'+esc((u.uuid||'').slice(0,12)+'...')+'</code>',
       esc(u.profile?.account||'-'),
       esc(u.profile?.email||'-'),
+      esc(u.profile?.tgUsername||'未绑定'),
       '<span class="sec-badge sec-badge-'+(u.status==='banned'?'banned':'active')+'">'+esc(u.status||'-')+'</span>',
       (u.subscription?.risk?.level ? '<span class="sec-badge sec-badge-'+(u.subscription.risk.level==='high'?'high':u.subscription.risk.level==='medium'?'medium':'low')+'">'+esc(u.subscription.risk.level)+(u.subscription.risk.score?' '+u.subscription.risk.score:'')+'</span>' : '-'),
       '<span style="font-size:11px">'+fmtBytes(u.used_traffic||0)+' / '+fmtQuota(u)+'</span>',
@@ -477,7 +478,7 @@
 
     const tblEl = $('#sec-users-table');
     if (tblEl) {
-      tblEl.innerHTML = '<div class="sec-table-wrap"><table class="sec-table"><tr><th></th><th>UUID</th><th>账户</th><th>邮箱</th><th>状态</th><th>风险</th><th>用量</th><th>最后IP</th><th>最后活跃</th><th>多账号</th><th>操作</th></tr>' +
+      tblEl.innerHTML = '<div class="sec-table-wrap"><table class="sec-table"><tr><th></th><th>UUID</th><th>账户</th><th>邮箱</th><th>TG</th><th>状态</th><th>风险</th><th>用量</th><th>最后IP</th><th>最后活跃</th><th>多账号</th><th>操作</th></tr>' +
         rows.map(r => '<tr>'+r.map(c => '<td>'+c+'</td>').join('')+'</tr>').join('') +
         '</table></div>';
       bindUserTableActions(tblEl);
@@ -520,6 +521,7 @@
       '<code style="font-size:11px">'+esc((u.uuid||'').slice(0,12)+'...')+'</code>',
       esc(u.profile?.account||'-'),
       esc(u.profile?.email||'-'),
+      esc(u.profile?.tgUsername||'未绑定'),
       '<span class="sec-badge sec-badge-'+(u.status==='banned'?'banned':'active')+'">'+esc(u.status||'-')+'</span>',
       (u.subscription?.risk?.level ? '<span class="sec-badge sec-badge-'+(u.subscription.risk.level==='high'?'high':u.subscription.risk.level==='medium'?'medium':'low')+'">'+esc(u.subscription.risk.level)+'</span>' : '-'),
       '<span style="font-size:11px">'+fmtBytes(u.used_traffic||0)+' / '+fmtQuota(u)+'</span>',
@@ -657,7 +659,7 @@
 
       // 账号信息
       html += '<div class="sec-drawer-section"><h4>账号信息</h4>';
-      html += '<pre>UUID:   ' + esc(uuid || '-') + '\n账户:   ' + esc(profile.account || '-') + '\n邮箱:   ' + esc(profile.email || '-') + '\n来源:   ' + esc(profile.source || '-') + '\n创建:   ' + ts(user?.lifecycle?.createdAt || user?.createdAt) + '\n最近活跃: ' + ago(user?.lastSeenAt || user?.lifecycle?.lastSeenAt) + '\n最后IP: ' + esc(user?.lastIp || '-') + '</pre></div>';
+      html += '<pre>UUID:   ' + esc(uuid || '-') + '\n账户:   ' + esc(profile.account || '-') + '\n邮箱:   ' + esc(profile.email || '-') + '\nTG ID:  ' + esc(profile.tgUserId || '未绑定') + '\nTG用户名: ' + esc(profile.tgUsername || '未绑定') + '\n来源:   ' + esc(profile.source || '-') + '\n创建:   ' + ts(user?.lifecycle?.createdAt || user?.createdAt) + '\n最近活跃: ' + ago(user?.lastSeenAt || user?.lifecycle?.lastSeenAt) + '\n最后IP: ' + esc(user?.lastIp || '-') + '</pre></div>';
 
       // 流量配额（带进度条）
       html += '<div class="sec-drawer-section"><h4>流量配额</h4>';

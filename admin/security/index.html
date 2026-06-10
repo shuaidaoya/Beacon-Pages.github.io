@@ -404,6 +404,7 @@ tr:hover td{background:rgba(59,130,246,.04)}
       mono(u.uuid),
       esc(u.profile?.account||'-'),
       esc(u.profile?.email||'-'),
+      esc(u.profile?.tgUsername||'未绑定'),
       statusBadge(u.status),
       u.subscription?.risk?.level ? riskBadge(u.subscription.risk.level) : '-',
       esc(u.lastIp||'-'),
@@ -414,7 +415,7 @@ tr:hover td{background:rgba(59,130,246,.04)}
         : ' <button class="btn btn-danger btn-sm" onclick="userAction(\'ban\',\''+escAttr(u.uuid)+'\')">封禁</button>') +
       ' <button class="btn btn-outline btn-sm" onclick="userAction(\'reset-subscription\',\''+escAttr(u.uuid)+'\')">重置</button>',
     ]);
-    renderTable($('#usersTable'), ['','UUID','账户','邮箱','状态','风险','最后IP','最后活跃','操作'], rows);
+    renderTable($('#usersTable'), ['','UUID','账户','邮箱','TG','状态','风险','最后IP','最后活跃','操作'], rows);
 
     // checkbox events
     $$('.user-cb').forEach(cb => {
