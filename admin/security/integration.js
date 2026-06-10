@@ -1000,7 +1000,7 @@
       html += '</div>';
 
       // TG notification (fetched separately)
-      let tgCfg = { botToken:'', chatId:'', panelId:'A', securityNotifyEnabled:false };
+      let tgCfg = { botToken:'', chatId:'', panelId:'A', securityNotifyEnabled:false, syncEnabled:false };
       try {
         tgCfg = await api('/tg-config');
       } catch(e) { /* use defaults */ }
@@ -1012,6 +1012,17 @@
       html += '</div>';
 
       html += '</div>';
+
+      // ── TG Bot 设置 ──
+      html += '<div class="sec-config-group" style="grid-column:1/-1"><h4>🤖 TG Bot 通知设置</h4>';
+      html += '<div class="sec-config-row"><label>Bot Token</label><input type="text" id="cfg-tgbot" value="'+esc(tgCfg.botToken||'')+'" style="width:100%;max-width:400px;text-align:left"></div>';
+      html += '<div class="sec-config-row"><label>Chat ID</label><input type="text" id="cfg-tgchat" value="'+esc(tgCfg.chatId||'')+'" style="width:100%;max-width:200px;text-align:left"></div>';
+      html += '<div class="sec-config-row"><label>安全事件通知</label><select id="cfg-tgsecurity"><option value="1"'+(tgCfg.securityNotifyEnabled?' selected':'')+'>开启</option><option value="0"'+(tgCfg.securityNotifyEnabled?'':' selected')+'>关闭</option></select></div>';
+      html += '<div class="sec-config-row"><label>退群自动封禁</label><select id="cfg-tgsync"><option value="1"'+(tgCfg.syncEnabled?' selected':'')+'>启用</option><option value="0"'+(tgCfg.syncEnabled?'':' selected')+'>关闭</option></select></div>';
+      html += '<div style="margin-top:10px;display:flex;gap:8px">';
+      html += '<button class="sec-btn sec-btn-sm" onclick="window._secTestTg()">📨 发送测试</button>';
+      html += '<button class="sec-btn sec-btn-sm" onclick="window._secSetWebhook()">🔗 注册Webhook</button>';
+      html += '</div></div>';
 
       html += '<div style="margin-top:20px;display:flex;gap:8px">';
       html += '<button class="sec-btn sec-btn-primary" onclick="window._secSaveConfig()">💾 保存配置</button>';
@@ -1078,13 +1089,15 @@
       // also save TG settings
       const tgCfg = window._secTgCfg || {};
       const tgSecurity = ($('#cfg-tgsecurity')?.value === '1');
+      const tgSync = ($('#cfg-tgsync')?.value === '1');
       await api('/tg-config', {
         method: 'POST',
         body: JSON.stringify({
-          BotToken: tgCfg.botToken || '',
-          ChatID: tgCfg.chatId || '',
+          BotToken: $('#cfg-tgbot')?.value?.trim() || tgCfg.botToken || '',
+          ChatID: $('#cfg-tgchat')?.value?.trim() || tgCfg.chatId || '',
           PanelID: 'A',
           securityNotifyEnabled: tgSecurity,
+          syncEnabled: tgSync,
         }),
       });
 
@@ -1128,6 +1141,55 @@
     toast('已重置为推荐值，点击"保存配置"生效');
   }
 
+  // ── TG Bot 测试 / Webhook ──
+  async function testTg() {
+    const tgCfg = window._secTgCfg || {};
+    const botToken = $('#cfg-tgbot')?.value?.trim() || tgCfg.botToken || '';
+    const chatId = $('#cfg-tgchat')?.value?.trim() || tgCfg.chatId || '';
+    if (!botToken || !chatId) { toast('请先填写 Bot Token 和 Chat ID', 'error'); return; }
+    try {
+      const testMsg = '<b>🧪 测试消息</b>\n\nTG Bot 安全管理通知配置成功！\n\n发送 <b>/bchelp</b> 查看可用命令。';
+      const resp = await fetch('https://api.telegram.org/bot' + botToken + '/sendMessage?' + new URLSearchParams({ chat_id: chatId, parse_mode: 'HTML', text: testMsg }).toString());
+      const result = await resp.json();
+      if (result.ok) {
+        toast('测试消息发送成功！请检查 TG 群组');
+      } else {
+        toast('发送失败: ' + (result.description || '未知错误'), 'error');
+      }
+    } catch(e) {
+      toast('发送失败: ' + e.message, 'error');
+    }
+  }
+
+  async function setWebhook() {
+    const tgCfg = window._secTgCfg || {};
+    const botToken = $('#cfg-tgbot')?.value?.trim() || tgCfg.botToken || '';
+    if (!botToken) { toast('请先填写 Bot Token', 'error'); return; }
+    try {
+      const webhookUrl = window.location.origin + '/tg-webhook';
+      const resp = await fetch('https://api.telegram.org/bot' + botToken + '/setWebhook?url=' + encodeURIComponent(webhookUrl) + '&allowed_updates=' + encodeURIComponent(JSON.stringify(['message','edited_message','chat_member'])));
+      const result = await resp.json();
+      const cmds = { commands: [
+        { command: 'bchelp', description: '显示帮助' },
+        { command: 'bcbanned', description: '列出被封用户' },
+        { command: 'bcbaninfo', description: '查封禁详情' },
+        { command: 'bcunban', description: '解封用户' },
+        { command: 'bcsync', description: '同步群成员并封禁退群用户' }
+      ]};
+      const cmdResp = await fetch('https://api.telegram.org/bot' + botToken + '/setMyCommands', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cmds) });
+      await fetch('https://api.telegram.org/bot' + botToken + '/deleteMyCommands', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ scope: { type: 'all_group_chats' } }) });
+      const cmdResult = await cmdResp.json();
+      const parts = [];
+      if (!result.ok) parts.push('Webhook: ' + (result.description || '失败'));
+      else parts.push('Webhook 注册成功');
+      if (!cmdResult.ok) parts.push('命令: ' + (cmdResult.description || '失败'));
+      else parts.push('命令注册成功');
+      toast(parts.join(' | '));
+    } catch(e) {
+      toast('Webhook 注册失败: ' + e.message, 'error');
+    }
+  }
+
   // ══════════════════════════════════════════
   //  Tab routing
   // ══════════════════════════════════════════
@@ -1167,6 +1229,8 @@
     _secLoadConfig: loadConfig,
     _secSaveConfig: saveConfig,
     _secResetConfig: resetConfig,
+    _secTestTg: testTg,
+    _secSetWebhook: setWebhook,
   };
   Object.assign(window, EXPORTS);
 

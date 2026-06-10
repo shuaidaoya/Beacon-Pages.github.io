@@ -255,6 +255,7 @@ tr:hover td{background:rgba(59,130,246,.04)}
       <button class="btn btn-outline" onclick="resetConfig()">🔄 重置推荐值</button>
     </div>
     <div id="configForm" style="display:grid;gap:16px"></div>
+    <div id="tgFormContainer"></div>
   </div>
 
 </div>
@@ -680,9 +681,30 @@ tr:hover td{background:rgba(59,130,246,.04)}
     try {
       configData = await api('/config.json');
       renderConfigForm(configData);
+      // also fetch TG config
+      try { tgConfig = await api('/tg-config'); } catch(e) {}
+      renderTgForm(tgConfig || {});
     } catch(e) {
       if (e.message !== 'auth_redirect') toast('加载配置失败: ' + e.message, 'error');
     }
+  }
+
+let tgConfig = { botToken:'', chatId:'', securityNotifyEnabled:false, syncEnabled:false };
+  function renderTgForm(tg) {
+    let h = '<h3 style="margin:0;color:#93c5fd;font-size:14px">🤖 TG Bot 通知设置</h3>';
+    h += '<div style="display:grid;gap:12px;margin-bottom:16px">';
+    h += '<div style="display:grid;gap:4px"><label style="font-size:12px;color:#94a3b8">Bot Token</label><input id="tgBotToken" value="'+esc(tg.botToken||'')+'" style="background:#020817;border:1px solid #334155;border-radius:10px;padding:8px 12px;color:#f8fafc;font-size:13px;max-width:400px"></div>';
+    h += '<div style="display:grid;gap:4px"><label style="font-size:12px;color:#94a3b8">Chat ID</label><input id="tgChatId" value="'+esc(tg.chatId||'')+'" style="background:#020817;border:1px solid #334155;border-radius:10px;padding:8px 12px;color:#f8fafc;font-size:13px;max-width:200px"></div>';
+    h += '<div style="display:flex;align-items:center;gap:16px">';
+    h += '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#cbd5e1"><input type="checkbox" id="tgNotify" '+(tg.securityNotifyEnabled?'checked':'')+'> 安全事件通知</label>';
+    h += '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#cbd5e1"><input type="checkbox" id="tgSync" '+(tg.syncEnabled?'checked':'')+'> 退群自动封禁</label>';
+    h += '</div>';
+    h += '<div style="display:flex;gap:8px;margin-top:8px">';
+    h += '<button class="topbar-btn" onclick="testTg()">📨 发送测试</button>';
+    h += '<button class="topbar-btn" onclick="setWebhook()">🔗 注册Webhook</button>';
+    h += '</div></div>';
+    const container = document.getElementById('tgFormContainer');
+    if (container) container.innerHTML = h;
   }
 
   function renderConfigForm(cfg) {
@@ -786,6 +808,14 @@ tr:hover td{background:rgba(59,130,246,.04)}
       });
       if (data.success) {
         configData = data.config;
+        // also save TG settings
+        const tgSave = {
+          BotToken: document.getElementById('tgBotToken')?.value?.trim() || tgConfig.botToken || '',
+          ChatID: document.getElementById('tgChatId')?.value?.trim() || tgConfig.chatId || '',
+          securityNotifyEnabled: document.getElementById('tgNotify')?.checked || false,
+          syncEnabled: document.getElementById('tgSync')?.checked || false,
+        };
+        try { await api('/tg-config', { method:'POST', body: JSON.stringify(tgSave) }); tgConfig = { ...tgConfig, ...tgSave }; } catch(e) {}
         toast('配置已保存');
       } else {
         toast(data.error||'保存失败', 'error');
@@ -793,6 +823,32 @@ tr:hover td{background:rgba(59,130,246,.04)}
     } catch(e) {
       if (e.message !== 'auth_redirect') toast('保存失败: ' + e.message, 'error');
     }
+  }
+
+  async function testTg() {
+    const bt = document.getElementById('tgBotToken')?.value?.trim() || tgConfig.botToken || '';
+    const cid = document.getElementById('tgChatId')?.value?.trim() || tgConfig.chatId || '';
+    if (!bt || !cid) { toast('请先填写 Bot Token 和 Chat ID', 'error'); return; }
+    try {
+      const msg = '<b>🧪 测试消息</b>\n\nTG Bot 安全管理通知配置成功！';
+      const r = await fetch('https://api.telegram.org/bot'+bt+'/sendMessage?'+new URLSearchParams({chat_id:cid,parse_mode:'HTML',text:msg}));
+      const j = await r.json();
+      toast(j.ok ? '测试消息发送成功！' : '发送失败: '+(j.description||'未知错误'), j.ok?'':'error');
+    } catch(e) { toast('失败: '+e.message, 'error'); }
+  }
+  async function setWebhook() {
+    const bt = document.getElementById('tgBotToken')?.value?.trim() || tgConfig.botToken || '';
+    if (!bt) { toast('请先填写 Bot Token', 'error'); return; }
+    try {
+      const wh = location.origin+'/tg-webhook';
+      const r = await fetch('https://api.telegram.org/bot'+bt+'/setWebhook?url='+encodeURIComponent(wh)+'&allowed_updates='+encodeURIComponent(JSON.stringify(['message','edited_message','chat_member'])));
+      const j = await r.json();
+      const c = await fetch('https://api.telegram.org/bot'+bt+'/setMyCommands',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({commands:[{command:'bchelp',description:'显示帮助'},{command:'bcbanned',description:'列出被封用户'},{command:'bcbaninfo',description:'查封禁详情'},{command:'bcunban',description:'解封用户'},{command:'bcsync',description:'同步群成员并封禁退群用户'}]})});
+      await fetch('https://api.telegram.org/bot'+bt+'/deleteMyCommands',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({scope:{type:'all_group_chats'}})});
+      const cj = await c.json();
+      const p = []; if (!j.ok) p.push('Webhook: '+(j.description||'失败')); else p.push('Webhook 注册成功'); if (!cj.ok) p.push('命令: '+(cj.description||'失败')); else p.push('命令注册成功');
+      toast(p.join(' | '));
+    } catch(e) { toast('Webhook 注册失败: '+e.message, 'error'); }
   }
 
   function resetConfig() {
