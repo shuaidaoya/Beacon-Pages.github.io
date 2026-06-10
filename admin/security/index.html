@@ -336,7 +336,7 @@ tr:hover td{background:rgba(59,130,246,.04)}
       // risks table
       renderTable($('#overviewRisks'), ['用户','风险等级','评分','账户','最后活跃'], (data.topSubscriptionRisks||[]).map(r => [
         mono(r.uuid), riskBadge(r.subscription?.risk?.level),
-        r.subscription?.risk?.score||0, esc(r.profile?.account||'-'), fmtTime(r.lifecycle?.lastSeenAt),
+        r.subscription?.risk?.score||0, esc(r.profile?.account||r.label||(r.uuid||'').slice(0,8)||'未绑定'), fmtTime(r.lifecycle?.lastSeenAt),
       ]));
       // events timeline
       renderTimeline($('#overviewEvents'), data.recentEvents||[]);
@@ -403,8 +403,8 @@ tr:hover td{background:rgba(59,130,246,.04)}
     const rows = users.map(u => [
       '<input type="checkbox" class="user-cb" data-uuid="' + escAttr(u.uuid) + '">',
       mono(u.uuid),
-      esc(u.profile?.account||'-'),
-      esc(u.profile?.email||'-'),
+      esc(u.profile?.account||u.label||(u.uuid||'').slice(0,8)||'未绑定'),
+      esc(u.profile?.email||u.email||'未绑定邮箱'),
       esc(u.profile?.tgUsername||'未绑定'),
       statusBadge(u.status),
       u.subscription?.risk?.level ? riskBadge(u.subscription.risk.level) : '-',

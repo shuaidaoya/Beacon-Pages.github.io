@@ -458,8 +458,8 @@
     const rows = users.map(u => [
       '<input type="checkbox" class="sec-user-cb" data-uuid="'+escAttr(u.uuid||'')+'">',
       '<code style="font-size:11px">'+esc((u.uuid||'').slice(0,12)+'...')+'</code>',
-      esc(u.profile?.account||'-'),
-      esc(u.profile?.email||'-'),
+      esc(u.profile?.account||u.label||(u.uuid||'').slice(0,8)||'未绑定'),
+      esc(u.profile?.email||u.email||'未绑定邮箱'),
       esc(u.profile?.tgUsername||'未绑定'),
       '<span class="sec-badge sec-badge-'+(u.status==='banned'?'banned':'active')+'">'+esc(u.status||'-')+'</span>',
       (u.subscription?.risk?.level ? '<span class="sec-badge sec-badge-'+(u.subscription.risk.level==='high'?'high':u.subscription.risk.level==='medium'?'medium':'low')+'">'+esc(u.subscription.risk.level)+(u.subscription.risk.score?' '+u.subscription.risk.score:'')+'</span>' : '-'),
@@ -519,8 +519,8 @@
     const rows = users.map(u => [
       '<input type="checkbox" class="sec-user-cb" data-uuid="'+escAttr(u.uuid||'')+'">',
       '<code style="font-size:11px">'+esc((u.uuid||'').slice(0,12)+'...')+'</code>',
-      esc(u.profile?.account||'-'),
-      esc(u.profile?.email||'-'),
+      esc(u.profile?.account||u.label||(u.uuid||'').slice(0,8)||'未绑定'),
+      esc(u.profile?.email||u.email||'未绑定邮箱'),
       esc(u.profile?.tgUsername||'未绑定'),
       '<span class="sec-badge sec-badge-'+(u.status==='banned'?'banned':'active')+'">'+esc(u.status||'-')+'</span>',
       (u.subscription?.risk?.level ? '<span class="sec-badge sec-badge-'+(u.subscription.risk.level==='high'?'high':u.subscription.risk.level==='medium'?'medium':'low')+'">'+esc(u.subscription.risk.level)+'</span>' : '-'),
@@ -659,7 +659,7 @@
 
       // 账号信息
       html += '<div class="sec-drawer-section"><h4>账号信息</h4>';
-      html += '<pre>UUID:   ' + esc(uuid || '-') + '\n账户:   ' + esc(profile.account || '-') + '\n邮箱:   ' + esc(profile.email || '-') + '\nTG ID:  ' + esc(profile.tgUserId || '未绑定') + '\nTG用户名: ' + esc(profile.tgUsername || '未绑定') + '\n来源:   ' + esc(profile.source || '-') + '\n创建:   ' + ts(user?.lifecycle?.createdAt || user?.createdAt) + '\n最近活跃: ' + ago(user?.lastSeenAt || user?.lifecycle?.lastSeenAt) + '\n最后IP: ' + esc(user?.lastIp || '-') + '</pre></div>';
+      html += '<pre>UUID:   ' + esc(uuid || '-') + '\n账户:   ' + esc(profile.account || profile.email || (uuid||'').slice(0,8) || '未绑定') + '\n邮箱:   ' + esc(profile.email || user?.email || '未绑定邮箱') + '\nTG ID:  ' + esc(profile.tgUserId || '未绑定') + '\nTG用户名: ' + esc(profile.tgUsername || '未绑定') + '\n来源:   ' + esc(profile.source || '-') + '\n创建:   ' + ts(user?.lifecycle?.createdAt || user?.createdAt) + '\n最近活跃: ' + ago(user?.lastSeenAt || user?.lifecycle?.lastSeenAt) + '\n最后IP: ' + esc(user?.lastIp || '-') + '</pre></div>';
 
       // 流量配额（带进度条）
       html += '<div class="sec-drawer-section"><h4>流量配额</h4>';
