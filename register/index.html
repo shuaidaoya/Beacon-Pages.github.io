@@ -71,6 +71,33 @@ body::before{
   100%{transform:translateY(105vh) rotate(360deg) translateX(-10px);opacity:.2}
 }
 
+/* ── 漫画网点背景 ── */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.06;
+  background-image:radial-gradient(circle,rgba(160,130,180,.8) 1px,transparent 1px);
+  background-size:18px 18px;
+}
+
+/* ── kira-kira 闪亮爆射 ── */
+.kira-container{position:fixed;inset:0;pointer-events:none;z-index:0}
+.kira{
+  position:absolute;animation:kira-spin 6s linear infinite;
+  animation-delay:var(--kdelay,0s);opacity:0;
+}
+.kira::before{
+  content:'✦';font-size:var(--ksize,18px);
+  background:linear-gradient(135deg,#FFD4E0,#FFF0C0,#FFD4E0);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;filter:drop-shadow(0 0 4px rgba(255,200,180,.6));
+}
+@keyframes kira-spin{
+  0%{transform:rotate(0deg) scale(.5);opacity:0}
+  15%{opacity:.9}
+  30%{transform:rotate(180deg) scale(1.1);opacity:.7}
+  50%{transform:rotate(360deg) scale(.6);opacity:0}
+  100%{transform:rotate(720deg) scale(.5);opacity:0}
+}
+
 /* ── 主容器 ── */
 .wrap{max-width:500px;width:100%;position:relative;z-index:1}
 
@@ -91,6 +118,19 @@ body::before{
 .hero-deco--tl{top:-6px;left:16px;animation:float-deco 4s ease-in-out infinite}
 .hero-deco--br{bottom:-6px;right:16px;animation:float-deco 4s ease-in-out infinite;animation-delay:-2s}
 @keyframes float-deco{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+/* ── 看板娘 ── */
+.hero-mascot{
+  position:absolute;right:-22px;top:-30px;width:76px;height:76px;
+  z-index:2;animation:mascot-float 3s ease-in-out infinite;
+  filter:drop-shadow(0 4px 10px rgba(255,154,162,.3));
+}
+@keyframes mascot-float{
+  0%,100%{transform:translateY(0) rotate(-2deg)}
+  50%{transform:translateY(-8px) rotate(2deg)}
+}
+@media(max-width:520px){
+  .hero-mascot{right:-12px;top:-24px;width:58px;height:58px}
+}
 .hero-logo{display:inline-flex;align-items:center;gap:10px;margin-bottom:12px;position:relative}
 .hero-icon{
   width:42px;height:42px;
@@ -374,6 +414,17 @@ button:disabled{opacity:.5;cursor:not-allowed}
   <span class="star" style="top:35%;left:8%;--d:3s;--delay:.5s;width:2px;height:2px"></span>
   <span class="star" style="top:90%;left:35%;--d:4.2s;--delay:2.1s;width:3px;height:3px"></span>
 </div>
+<!-- kira-kira 闪亮 -->
+<div class="kira-container" aria-hidden="true">
+  <span class="kira" style="top:12%;left:10%;--ksize:16px;--kdelay:0s"></span>
+  <span class="kira" style="top:22%;left:85%;--ksize:22px;--kdelay:2s"></span>
+  <span class="kira" style="top:45%;left:8%;--ksize:14px;--kdelay:4s"></span>
+  <span class="kira" style="top:65%;left:90%;--ksize:20px;--kdelay:1.5s"></span>
+  <span class="kira" style="top:78%;left:18%;--ksize:18px;--kdelay:3.5s"></span>
+  <span class="kira" style="top:88%;left:75%;--ksize:12px;--kdelay:5s"></span>
+  <span class="kira" style="top:35%;left:50%;--ksize:24px;--kdelay:2.8s"></span>
+  <span class="kira" style="top:55%;left:42%;--ksize:15px;--kdelay:4.5s"></span>
+</div>
 <!-- 樱花飘落 -->
 <div class="sakura-container" aria-hidden="true">
   <span class="sakura-petal" style="--sz:10px;--fall-dur:11s;--fall-delay:0s;--start-x:8%"></span>
@@ -395,6 +446,31 @@ button:disabled{opacity:.5;cursor:not-allowed}
   <div class="hero">
     <span class="hero-deco hero-deco--tl">🌸</span>
     <span class="hero-deco hero-deco--br">✨</span>
+    <!-- 看板娘 マスコット -->
+    <div class="hero-mascot" aria-hidden="true">
+      <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="bodyGrad2" cx="40%" cy="35%"><stop offset="0%" stop-color="#FFF0F5"/><stop offset="100%" stop-color="#FFD4E0"/></radialGradient>
+          <radialGradient id="cheekGrad2" cx="50%" cy="50%"><stop offset="0%" stop-color="#FFB7C5"/><stop offset="100%" stop-color="#FF9AA2"/></radialGradient>
+        </defs>
+        <ellipse cx="40" cy="45" rx="28" ry="26" fill="url(#bodyGrad2)" stroke="#FFB7C5" stroke-width="1.5"/>
+        <path d="M18 30 L22 12 L32 26Z" fill="url(#bodyGrad2)" stroke="#FFB7C5" stroke-width="1.2"/>
+        <path d="M62 30 L58 12 L48 26Z" fill="url(#bodyGrad2)" stroke="#FFB7C5" stroke-width="1.2"/>
+        <path d="M21 28 L23 17 L29 26Z" fill="#FFD4E0" opacity=".6"/>
+        <path d="M59 28 L57 17 L51 26Z" fill="#FFD4E0" opacity=".6"/>
+        <ellipse cx="31" cy="42" rx="5" ry="6" fill="#5D4E6D"/>
+        <ellipse cx="49" cy="42" rx="5" ry="6" fill="#5D4E6D"/>
+        <circle cx="33" cy="39" r="2" fill="#fff"/>
+        <circle cx="51" cy="39" r="2" fill="#fff"/>
+        <ellipse cx="24" cy="50" rx="5" ry="3.5" fill="url(#cheekGrad2)" opacity=".45"/>
+        <ellipse cx="56" cy="50" rx="5" ry="3.5" fill="url(#cheekGrad2)" opacity=".45"/>
+        <path d="M35 52 Q40 58 45 52" fill="none" stroke="#C44D5A" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M18 28 Q28 22 40 26 Q52 22 62 28" fill="none" stroke="#FFB7C5" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M38 54 L28 48 L38 50Z" fill="#FF9AA2" opacity=".8"/>
+        <path d="M42 54 L52 48 L42 50Z" fill="#FF9AA2" opacity=".8"/>
+        <circle cx="40" cy="54" r="3" fill="#FF808D"/>
+      </svg>
+    </div>
     <div class="hero-logo">
       <div class="hero-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
       <span class="hero-name">Beacon 灯塔</span>
