@@ -425,58 +425,34 @@ button:disabled{opacity:.5;cursor:not-allowed}
   <div class="hero">
     <span class="hero-deco hero-deco--tl">🌸</span>
     <span class="hero-deco hero-deco--br">✨</span>
-    <!-- 看板娘 マスコット -->
+    <!-- 看板娘 マスコット — 星之卡比风格星形角色 -->
     <div class="hero-mascot" aria-hidden="true">
       <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <radialGradient id="bodyGrad" cx="45%" cy="35%"><stop offset="0%" stop-color="#FFF5F7"/><stop offset="70%" stop-color="#FFE0E8"/><stop offset="100%" stop-color="#FFD0DA"/></radialGradient>
-          <radialGradient id="earGrad" cx="50%" cy="30%"><stop offset="0%" stop-color="#FFD4DE"/><stop offset="100%" stop-color="#FFB7C5"/></radialGradient>
-          <radialGradient id="ribbonG" cx="30%" cy="30%"><stop offset="0%" stop-color="#FFB0BB"/><stop offset="100%" stop-color="#FF808D"/></radialGradient>
+          <radialGradient id="starBody" cx="38%" cy="30%"><stop offset="0%" stop-color="#FFF5F0"/><stop offset="60%" stop-color="#FFE8DC"/><stop offset="100%" stop-color="#FFD4C0"/></radialGradient>
+          <radialGradient id="cheekG" cx="50%" cy="50%"><stop offset="0%" stop-color="#FFB7B2"/><stop offset="100%" stop-color="#FF9A94"/></radialGradient>
         </defs>
-        <!-- 左耳 -->
-        <path d="M22 42 L12 10 Q10 6 14 8 Q24 14 32 34Z" fill="url(#earGrad)" stroke="#E898A5" stroke-width="1"/>
-        <path d="M18 30 L15 16 Q14 12 17 13 Q22 17 26 30Z" fill="#FFE0E8" opacity=".7"/>
-        <!-- 右耳 -->
-        <path d="M78 42 L88 10 Q90 6 86 8 Q76 14 68 34Z" fill="url(#earGrad)" stroke="#E898A5" stroke-width="1"/>
-        <path d="M82 30 L85 16 Q86 12 83 13 Q78 17 74 30Z" fill="#FFE0E8" opacity=".7"/>
-        <!-- 头主体 -->
-        <ellipse cx="50" cy="52" rx="32" ry="30" fill="url(#bodyGrad)" stroke="#E898A5" stroke-width="1.2"/>
-        <!-- 脸颊绒毛 -->
-        <ellipse cx="22" cy="52" rx="6" ry="8" fill="url(#bodyGrad)" stroke="#E898A5" stroke-width="1"/>
-        <ellipse cx="78" cy="52" rx="6" ry="8" fill="url(#bodyGrad)" stroke="#E898A5" stroke-width="1"/>
-        <!-- 前刘海 -->
-        <path d="M28 30 Q35 22 42 28 Q50 20 58 28 Q65 22 72 30" fill="url(#earGrad)" stroke="#E898A5" stroke-width=".8"/>
+        <!-- 五角星主体 -->
+        <polygon points="50,5 61,35 94,35 68,56 78,88 50,68 22,88 32,56 6,35 39,35" fill="url(#starBody)" stroke="#F0B0A0" stroke-width="1.5" stroke-linejoin="round"/>
         <!-- 左眼 -->
-        <ellipse cx="36" cy="48" rx="7" ry="8" fill="#4A3F5C"/>
-        <ellipse cx="36" cy="46" rx="3.5" ry="4.5" fill="#fff" opacity=".9"/>
-        <circle cx="34" cy="44" r="2" fill="#fff"/>
-        <circle cx="38" cy="48" r="1" fill="#fff" opacity=".6"/>
+        <ellipse cx="35" cy="48" rx="6" ry="7" fill="#4A3535"/>
+        <ellipse cx="36" cy="45" rx="3" ry="3.5" fill="#fff" opacity=".85"/>
+        <circle cx="34" cy="43.5" r="1.8" fill="#fff"/>
         <!-- 右眼 -->
-        <ellipse cx="64" cy="48" rx="7" ry="8" fill="#4A3F5C"/>
-        <ellipse cx="64" cy="46" rx="3.5" ry="4.5" fill="#fff" opacity=".9"/>
-        <circle cx="62" cy="44" r="2" fill="#fff"/>
-        <circle cx="66" cy="48" r="1" fill="#fff" opacity=".6"/>
+        <ellipse cx="65" cy="48" rx="6" ry="7" fill="#4A3535"/>
+        <ellipse cx="66" cy="45" rx="3" ry="3.5" fill="#fff" opacity=".85"/>
+        <circle cx="64" cy="43.5" r="1.8" fill="#fff"/>
         <!-- 腮红 -->
-        <ellipse cx="28" cy="58" rx="7" ry="4" fill="#FFB7C5" opacity=".35"/>
-        <ellipse cx="72" cy="58" rx="7" ry="4" fill="#FFB7C5" opacity=".35"/>
-        <!-- 鼻子 -->
-        <ellipse cx="50" cy="58" rx="3" ry="2" fill="#FFB0BB"/>
-        <!-- 嘴 -->
-        <path d="M44 62 Q50 68 56 62" fill="none" stroke="#D47885" stroke-width="1.2" stroke-linecap="round"/>
-        <path d="M50 60 L50 62" fill="none" stroke="#D47885" stroke-width="1" stroke-linecap="round"/>
-        <!-- 胡须 -->
-        <line x1="28" y1="56" x2="6" y2="52" stroke="#C8A0B0" stroke-width=".7" stroke-linecap="round" opacity=".5"/>
-        <line x1="28" y1="60" x2="6" y2="62" stroke="#C8A0B0" stroke-width=".7" stroke-linecap="round" opacity=".5"/>
-        <line x1="72" y1="56" x2="94" y2="52" stroke="#C8A0B0" stroke-width=".7" stroke-linecap="round" opacity=".5"/>
-        <line x1="72" y1="60" x2="94" y2="62" stroke="#C8A0B0" stroke-width=".7" stroke-linecap="round" opacity=".5"/>
-        <!-- 蝴蝶结 -->
-        <path d="M50 70 L32 62 Q28 58 32 56 L50 64Z" fill="url(#ribbonG)"/>
-        <path d="M50 70 L68 62 Q72 58 68 56 L50 64Z" fill="url(#ribbonG)"/>
-        <circle cx="50" cy="67" r="4" fill="#FF707D"/>
-        <!-- 小身体 -->
-        <ellipse cx="50" cy="82" rx="16" ry="10" fill="url(#bodyGrad)" stroke="#E898A5" stroke-width=".8"/>
-        <!-- 领口蝴蝶结下摆 -->
-        <path d="M50 74 L44 80 L50 78 L56 80Z" fill="#FFB0BB" opacity=".6"/>
+        <ellipse cx="25" cy="58" rx="6" ry="3.5" fill="url(#cheekG)" opacity=".4"/>
+        <ellipse cx="75" cy="58" rx="6" ry="3.5" fill="url(#cheekG)" opacity=".4"/>
+        <!-- 嘴巴 -->
+        <path d="M46 58 Q50 54 54 58" fill="none" stroke="#D48880" stroke-width="1.6" stroke-linecap="round"/>
+        <!-- 小手 -->
+        <ellipse cx="20" cy="65" rx="9" ry="6" fill="url(#starBody)" stroke="#F0B0A0" stroke-width="1.2"/>
+        <ellipse cx="80" cy="65" rx="9" ry="6" fill="url(#starBody)" stroke="#F0B0A0" stroke-width="1.2"/>
+        <!-- 小脚 -->
+        <ellipse cx="38" cy="88" rx="7" ry="5" fill="url(#starBody)" stroke="#F0B0A0" stroke-width="1"/>
+        <ellipse cx="62" cy="88" rx="7" ry="5" fill="url(#starBody)" stroke="#F0B0A0" stroke-width="1"/>
       </svg>
     </div>
     <div class="hero-logo">
