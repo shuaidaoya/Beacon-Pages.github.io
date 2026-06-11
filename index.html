@@ -161,6 +161,39 @@ body::before{
 .field input[aria-invalid="true"]{border-color:var(--error-text);box-shadow:0 0 0 3px rgba(196,77,90,.15)}
 .field-hint{font-size:11px;color:var(--text-muted);min-height:16px}
 
+/* ── 记住密码行 ── */
+.remember-row{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;
+  background:rgba(255,210,220,.18);border:1px solid rgba(255,180,200,.22);
+  border-radius:14px;margin-top:2px;transition:all .25s;
+}
+.remember-row:hover{background:rgba(255,210,220,.28);border-color:rgba(255,180,200,.35)}
+.remember-check{position:relative;display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+.remember-check input[type=checkbox]{
+  position:absolute;opacity:0;width:0;height:0;pointer-events:none;
+}
+.remember-check .check-box{
+  width:22px;height:22px;border-radius:7px;border:2px solid rgba(195,160,210,.45);
+  background:rgba(255,255,255,.7);flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;transition:all .25s;position:relative;
+}
+.remember-check input:checked + .check-box{
+  background:linear-gradient(135deg,var(--pink),var(--pink-deep));
+  border-color:var(--pink-deep);box-shadow:0 0 0 3px var(--pink-glow);
+}
+.remember-check input:focus-visible + .check-box{
+  outline:2px solid var(--pink-deep);outline-offset:2px;
+}
+.remember-check .check-box::after{
+  content:'';width:6px;height:11px;border:solid #fff;border-width:0 2px 2px 0;
+  transform:rotate(45deg) scale(0);transition:transform .2s cubic-bezier(.34,1.56,.64,1);
+  margin-top:-2px;
+}
+.remember-check input:checked + .check-box::after{transform:rotate(45deg) scale(1)}
+.remember-check .check-label{font-size:13px;font-weight:600;color:var(--text);line-height:1}
+.forgot-link{font-size:12px;color:var(--pink-deep);text-decoration:underline;font-weight:600;margin-left:auto;white-space:nowrap}
+.forgot-link:hover{color:var(--pink)}
+
 /* ── 密码强度条 ── */
 #pwStrengthBar[data-strength="1"]{background:var(--error-text)}
 #pwStrengthBar[data-strength="2"]{background:#E8905A}
@@ -449,9 +482,13 @@ button:disabled{opacity:.5;cursor:not-allowed}
       <div class="field" id="oldLoginToggle" style="display:none;text-align:center;padding-top:0">
         <button type="button" id="oldLoginBtn" style="background:none;border:none;color:var(--warn-text);cursor:pointer;font-size:12px;text-decoration:underline">使用邮箱登录（存量用户）</button>
       </div>
-      <div class="field" style="display:flex;flex-direction:row;align-items:center;gap:8px;padding-top:2px">
-        <input type="checkbox" id="rememberMe" style="width:18px;height:18px;accent-color:var(--pink);cursor:pointer;flex-shrink:0;margin:0">
-        <label for="rememberMe" style="margin:0;cursor:pointer;user-select:none;font-weight:500;font-size:13px;color:var(--text-soft)">记住用户名和密码</label> <a href="#" id="forgotPwLink" style="margin-left:auto;font-size:12px;color:var(--warn-text);text-decoration:underline">忘记密码？</a>
+      <div class="remember-row">
+        <label class="remember-check" for="rememberMe">
+          <input type="checkbox" id="rememberMe">
+          <span class="check-box"></span>
+          <span class="check-label">记住用户名和密码</span>
+        </label>
+        <a href="#" class="forgot-link" id="forgotPwLink">忘记密码？</a>
       </div>
       <div class="actions">
         <button class="primary-btn" id="submitBtn">
