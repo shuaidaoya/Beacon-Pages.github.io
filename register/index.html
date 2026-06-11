@@ -6,305 +6,198 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Beacon 灯塔 · 认证面板</title>
 <style>
-/* ══════════════════════════════════════════════════════
-   二次元 · 左右布局 + 背景图 + 毛玻璃
-   ══════════════════════════════════════════════════════ */
 *{box-sizing:border-box}
-:root{
-  --pink:#FF9AA2; --pink-deep:#FF808D;
-  --lavender:#C3B1E1; --lavender-deep:#B5A0D8;
-  --glass:rgba(255,255,255,.78); --glass-border:rgba(255,255,255,.45);
-  --text:#4A3F50; --text-soft:#6B5E78; --text-muted:#9A8DAA;
-  --input-bg:rgba(255,255,255,.65); --input-border:rgba(200,185,215,.35);
-  --success:#C5EAD8; --success-text:#357A55;
-  --error:#FFD4D8; --error-text:#B8404A;
-  --warn:#FFE8D4; --warn-text:#A06830;
-  --info:#D8E4FA; --info-text:#4A60A0;
-}
-
-/* ══════════ 全屏背景图 ══════════ */
 body{
-  margin:0;font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,-apple-system,sans-serif;
-  min-height:100vh;overflow-x:hidden;color:var(--text);
-  /* 背景图 — 替换为你的壁纸链接 */
-  background:url('https://haowallpaper.com/link//common/file/previewFileImg/18834482406280576') center/cover no-repeat fixed;
-  display:flex;align-items:center;justify-content:center;
-  position:relative;
+  margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:#020817;color:#e2e8f0;min-height:100vh;
+  display:flex;align-items:center;justify-content:center;padding:24px 16px;
 }
-/* 暗色遮罩保证可读性 */
-body::before{
-  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:rgba(30,20,40,.42);
-}
-
-/* ══════════ 左右双栏容器 ══════════ */
-.split-layout{
-  position:relative;z-index:1;
-  display:flex;width:100%;max-width:960px;min-height:580px;
-  border-radius:24px;overflow:hidden;
-  box-shadow:0 20px 60px rgba(0,0,0,.28),0 0 0 1px rgba(255,255,255,.08) inset;
-  background:var(--glass);
-  -webkit-backdrop-filter:blur(28px) saturate(140%);
-  backdrop-filter:blur(28px) saturate(140%);
-  margin:20px;
-}
-/* 左栏 — 品牌区 */
-.split-left{
-  flex:0 0 42%;background:rgba(0,0,0,.18);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:40px 32px;position:relative;overflow:hidden;text-align:center;
-  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
-}
-.split-left::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(255,180,210,.15) 0%,rgba(180,150,220,.10) 50%,rgba(140,180,220,.08) 100%);
-}
-.split-left > *{position:relative;z-index:1}
-.split-brand-icon{
-  width:64px;height:64px;background:linear-gradient(135deg,#FF9AA2,#C3B1E1);
-  border-radius:18px;display:flex;align-items:center;justify-content:center;
-  margin-bottom:18px;box-shadow:0 8px 28px rgba(255,154,162,.3);
-}
-.split-brand-icon svg{width:32px;height:32px;fill:#fff}
-.split-brand-name{font-size:22px;font-weight:800;color:#fff;margin:0 0 6px}
-.split-brand-slogan{font-size:28px;font-weight:800;color:#fff;line-height:1.3;margin:0 0 8px}
-.split-brand-desc{font-size:13px;color:rgba(255,255,255,.65);line-height:1.6;margin:0}
-.split-tags{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:18px}
-.split-tag{
-  padding:5px 14px;border-radius:99px;font-size:11px;font-weight:600;
-  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.8);
-}
-/* 看板娘浮在左栏底部 */
-.split-mascot{
-  position:absolute;bottom:-8px;right:-16px;width:90px;height:99px;
-  z-index:2;opacity:.92;animation:mascot-float 3s ease-in-out infinite;
-  filter:drop-shadow(0 4px 12px rgba(0,0,0,.2));
-}
-@keyframes mascot-float{
-  0%,100%{transform:translateY(0) rotate(-1deg)}
-  50%{transform:translateY(-6px) rotate(1deg)}
-}
-
-/* 右栏 — 表单区 */
-.split-right{
-  flex:1;display:flex;flex-direction:column;justify-content:center;
-  padding:36px 40px;overflow-y:auto;max-height:90vh;
-}
-
-/* ── Tab 切换 ── */
-.tabs{display:inline-flex;gap:4px;padding:4px;background:rgba(0,0,0,.06);border-radius:12px;margin-bottom:18px}
-.tab-btn{
-  border:none;border-radius:9px;padding:8px 18px;font-size:13px;font-weight:700;
-  cursor:pointer;background:transparent;color:var(--text-soft);transition:all .2s;
-}
-.tab-btn[aria-selected="true"]{background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;box-shadow:0 2px 8px rgba(255,154,162,.25)}
-.tab-btn:not([aria-selected]):hover{color:var(--text)}
-
-/* ── 标题 ── */
-.auth-title{font-size:20px;font-weight:700;margin:0 0 2px}
-.auth-desc{color:var(--text-soft);font-size:13px;line-height:1.5;margin:0 0 16px}
-
-/* ── 表单 ── */
-.form{display:grid;gap:13px}
-.field{display:grid;gap:5px}
-.field label{font-size:12px;color:var(--text-soft);font-weight:600}
-.field input{
-  background:var(--input-bg);border:1.5px solid var(--input-border);
-  border-radius:12px;padding:11px 13px;color:var(--text);font-size:14px;
-  outline:none;transition:all .2s;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
-}
-.field input::placeholder{color:var(--text-muted)}
-.field input:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,154,162,.18)}
-.field input[aria-invalid="true"]{border-color:var(--error-text);box-shadow:0 0 0 3px rgba(184,64,74,.12)}
-.field-hint{font-size:11px;color:var(--text-muted);min-height:16px}
-
-/* ── 记住密码行 ── */
-.remember-row{
-  display:flex;align-items:center;gap:10px;padding:9px 12px;
-  background:rgba(255,210,220,.15);border:1px solid rgba(255,180,200,.20);
-  border-radius:12px;margin-top:2px;transition:all .25s;
-}
-.remember-row:hover{background:rgba(255,210,220,.25)}
-.remember-check{position:relative;display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
-.remember-check input[type=checkbox]{position:absolute;opacity:0;width:0;height:0;pointer-events:none}
-.remember-check .check-box{
-  width:20px;height:20px;border-radius:6px;border:2px solid rgba(170,140,190,.4);
-  background:rgba(255,255,255,.6);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .25s;
-}
-.remember-check input:checked+.check-box{background:linear-gradient(135deg,var(--pink),var(--pink-deep));border-color:var(--pink-deep);box-shadow:0 0 0 3px rgba(255,154,162,.2)}
-.remember-check .check-box::after{content:'';width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg) scale(0);transition:transform .2s cubic-bezier(.34,1.56,.64,1);margin-top:-1px}
-.remember-check input:checked+.check-box::after{transform:rotate(45deg) scale(1)}
-.remember-check .check-label{font-size:13px;font-weight:600;color:var(--text)}
-.forgot-link{font-size:12px;color:var(--pink-deep);text-decoration:underline;font-weight:600;margin-left:auto;white-space:nowrap}
-
-/* ── 密码强度条 ── */
-#pwStrengthBar[data-strength="1"]{background:var(--error-text)}
-#pwStrengthBar[data-strength="2"]{background:#E8905A}
-#pwStrengthBar[data-strength="3"]{background:#E0B050}
-#pwStrengthBar[data-strength="4"]{background:#60B87A}
-#pwStrengthBar[data-strength="5"]{background:#4A9EC0}
-#migPwStrengthBar[data-strength="1"]{background:var(--error-text)}
-#migPwStrengthBar[data-strength="2"]{background:#E8905A}
-#migPwStrengthBar[data-strength="3"]{background:#E0B050}
-#migPwStrengthBar[data-strength="4"]{background:#60B87A}
-#migPwStrengthBar[data-strength="5"]{background:#4A9EC0}
-
-/* ── 按钮 ── */
-.actions{display:flex;gap:10px;flex-wrap:wrap}
-button{border:none;border-radius:12px;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer;transition:all .25s}
-.primary-btn{background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;flex:1;box-shadow:0 4px 14px rgba(255,154,162,.25)}
-.primary-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 18px rgba(255,154,162,.35)}
+.wrap{max-width:480px;width:100%}
+/* ── hero ── */
+.hero{text-align:center;margin-bottom:24px;padding:28px 20px 24px;
+  background:linear-gradient(135deg,rgba(37,99,235,.08),rgba(124,58,237,.06));
+  border:1px solid rgba(99,102,241,.15);border-radius:20px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(circle at 30% 40%,rgba(99,102,241,.12) 0%,transparent 50%),
+             radial-gradient(circle at 70% 60%,rgba(139,92,246,.08) 0%,transparent 50%);pointer-events:none}
+.hero-logo{display:inline-flex;align-items:center;gap:10px;margin-bottom:16px;position:relative}
+.hero-icon{width:40px;height:40px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hero-icon svg{width:22px;height:22px;fill:#fff}
+.hero-name{font-size:20px;font-weight:800;
+  background:linear-gradient(135deg,#60a5fa,#c084fc);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text}
+.hero-slogan{font-size:26px;font-weight:800;line-height:1.3;margin:0 0 8px;letter-spacing:.5px;position:relative;color:#f1f5f9}
+.hero-desc{font-size:14px;color:#94a3b8;line-height:1.6;margin:0;position:relative}
+.features{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px;position:relative}
+.feature-tag{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:999px;
+  font-size:12px;font-weight:600;background:rgba(148,163,184,.08);border:1px solid rgba(148,163,184,.12);color:#cbd5e1}
+.feature-dot{width:6px;height:6px;border-radius:50%;background:#3b82f6;flex-shrink:0}
+/* ── panel ── */
+.panel{background:#0f172a;border:1px solid #1e293b;border-radius:20px;box-shadow:0 10px 30px rgba(2,8,23,.35)}
+.auth-panel,.result-panel{padding:28px}
+.auth-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.auth-title{font-size:22px;font-weight:700}
+.auth-desc{color:#94a3b8;font-size:14px;line-height:1.6;margin-top:4px}
+.tabs{display:inline-flex;gap:8px;padding:6px;background:#0b1220;border:1px solid #1e293b;border-radius:14px}
+.tab-btn{border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;
+  background:transparent;color:#cbd5e1;transition:all .2s}
+.tab-btn[aria-selected="true"]{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff}
+.tab-btn:not([aria-selected]):hover{color:#e2e8f0;background:rgba(148,163,184,.08)}
+/* ── form ── */
+.form{display:grid;gap:16px}
+.field{display:grid;gap:8px}
+.field label{font-size:13px;color:#cbd5e1;font-weight:600}
+.field input{background:#020817;border:1px solid #334155;border-radius:12px;padding:13px 14px;
+  color:#f8fafc;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s}
+.field input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.18)}
+.field input[aria-invalid="true"]{border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.15)}
+.field-hint{font-size:11px;color:#64748b;min-height:16px}
+.actions{display:flex;gap:12px;flex-wrap:wrap}
+button{border:none;border-radius:12px;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.primary-btn{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;flex:1}
+.primary-btn:hover:not(:disabled){opacity:.9;transform:translateY(-1px)}
 .primary-btn:active:not(:disabled){transform:scale(.97)}
 button:disabled{opacity:.5;cursor:not-allowed}
-
-/* ── 状态消息 ── */
-.msg{display:none;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.6;margin-top:14px;animation:fadeIn .3s}
+/* password strength bar colors */
+#pwStrengthBar[data-strength="1"]{background:#ef4444}
+#pwStrengthBar[data-strength="2"]{background:#f97316}
+#pwStrengthBar[data-strength="3"]{background:#eab308}
+#pwStrengthBar[data-strength="4"]{background:#22c55e}
+#pwStrengthBar[data-strength="5"]{background:#06b6d4}
+#migPwStrengthBar[data-strength="1"]{background:#ef4444}
+#migPwStrengthBar[data-strength="2"]{background:#f97316}
+#migPwStrengthBar[data-strength="3"]{background:#eab308}
+#migPwStrengthBar[data-strength="4"]{background:#22c55e}
+#migPwStrengthBar[data-strength="5"]{background:#06b6d4}
+/* migration card */
+.migration-card{animation:fadeIn .3s}
+/* ── status messages ── */
+.msg{display:none;padding:14px 16px;border-radius:12px;font-size:13px;line-height:1.6;margin-top:16px;animation:fadeIn .3s}
 .msg.show{display:block}
-.msg-success{background:var(--success);border:1px solid rgba(60,180,130,.18);color:var(--success-text)}
-.msg-error{background:var(--error);border:1px solid rgba(184,64,74,.15);color:var(--error-text)}
-.msg-warn{background:var(--warn);border:1px solid rgba(180,140,100,.15);color:var(--warn-text)}
-.msg-info{background:var(--info);border:1px solid rgba(80,100,170,.15);color:var(--info-text)}
-
-/* ── TG验证 ── */
-.verify-step{text-align:center;padding:20px}
-.verify-step-icon{font-size:44px;margin-bottom:10px}
-.verify-code-box{background:rgba(255,210,220,.2);border:2px dashed rgba(255,154,162,.3);border-radius:14px;padding:16px;margin:14px 0}
-.verify-code-label{font-size:11px;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:2px}
-.verify-code{font-size:30px;font-weight:800;letter-spacing:6px;font-family:"SF Mono","Fira Code",monospace;background:linear-gradient(135deg,var(--pink),var(--lavender-deep));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:6px 0;user-select:all;line-height:1.2}
-.verify-expires{font-size:12px;color:var(--text-muted);margin-top:4px}
-.verify-instructions{text-align:left;background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.4);border-radius:14px;padding:14px;margin:14px 0;font-size:13px;color:var(--text);line-height:1.7}
-.verify-instructions ol{margin:0;padding-left:18px}
-.verify-instructions li{margin-bottom:5px}
-.verify-instructions code{background:rgba(195,177,225,.25);color:var(--lavender-deep);padding:1px 7px;border-radius:4px;font-size:13px;font-weight:600}
-.verify-tg-link{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#5BA87A,#4A9E6E);color:#fff;padding:11px 22px;border-radius:14px;text-decoration:none;font-weight:700;font-size:14px;margin:8px 0;transition:all .2s;box-shadow:0 4px 12px rgba(90,168,122,.18)}
-.verify-tg-link:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(90,168,122,.25)}
-.verify-polling{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text-soft);font-size:13px;margin:10px 0}
-.verify-polling .spinner-sm{width:15px;height:15px;border:2px solid rgba(180,160,210,.25);border-top-color:var(--lavender-deep);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
-.verify-back-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:13px;margin-top:14px;text-decoration:underline}
-.verify-back-btn:hover{color:var(--text)}
-.verify-success-icon{font-size:48px;margin-bottom:6px}
-/* ── TG验证结束 ── */
-
-/* ── 结果面板 ── */
+.msg-success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#bbf7d0}
+.msg-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fecaca}
+.msg-warn{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25);color:#fde68a}
+.msg-info{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);color:#93c5fd}
+/* ── subscription result ── */
 .result-panel{display:none}
 .result-panel.show{display:block}
-.result-item{padding:12px 14px;background:rgba(200,180,220,.08);border:1px solid rgba(200,180,220,.12);border-radius:12px;margin-bottom:8px}
+.result-item{padding:14px 16px;background:#111c31;border:1px solid rgba(148,163,184,.14);border-radius:14px;margin-bottom:10px}
 .result-item:last-child{margin-bottom:0}
-.result-item strong{display:block;font-size:11px;color:var(--lavender-deep);margin-bottom:6px}
-.result-item code,.result-item a{word-break:break-all;color:var(--text);font-size:12px}
+.result-item strong{display:block;font-size:12px;color:#93c5fd;margin-bottom:8px}
+.result-item code,.result-item a{word-break:break-all;color:#f8fafc;font-size:12px}
 .copy-row{display:flex;gap:8px;align-items:center}
-
-/* ── Toast ── */
-.copy-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--success-text);color:#fff;padding:10px 24px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(60,180,130,.3);animation:fadeIn .3s;pointer-events:none}
-
-/* ── 动画 ── */
+.copy-btn{background:#0b1220;border:1px solid #334155;color:#e2e8f0;border-radius:10px;
+  padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.copy-btn:hover{background:#1e293b;border-color:#475569}
+.copy-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;
+  background:#16a34a;color:#fff;padding:10px 24px;border-radius:12px;font-size:14px;font-weight:600;
+  box-shadow:0 8px 24px rgba(22,163,74,.3);animation:fadeIn .3s;pointer-events:none}
+/* ── footer ── */
+.footer{text-align:center;margin-top:24px;padding:16px 0;color:#475569;font-size:12px;line-height:1.6}
+.footer a{color:#64748b;text-decoration:none}
+.footer a:hover{color:#94a3b8}
+/* ── spinner ── */
 @keyframes spin{to{transform:rotate(360deg)}}
-.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:none;vertical-align:middle;margin-left:6px}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;
+  border-radius:50%;animation:spin .6s linear infinite;display:none}
 .spinner.show{display:inline-block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.migration-card{animation:fadeIn .3s}
-
-/* ── 使用须知弹窗 ── */
-.rules-overlay{position:fixed;inset:0;z-index:10000;background:rgba(20,10,30,.7);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .3s}
+/* ── rules modal ── */
+.rules-overlay{
+  position:fixed;inset:0;z-index:10000;background:rgba(2,8,23,.85);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  animation:fadeIn .3s;
+}
 .rules-overlay.hidden{display:none}
-.rules-modal{background:var(--glass);border:1px solid var(--glass-border);border-radius:20px;max-width:500px;width:100%;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 25px 60px rgba(0,0,0,.35);overflow:hidden;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
-.rules-modal-header{padding:20px 20px 0;display:flex;align-items:center;gap:8px}
-.rules-modal-header h2{font-size:17px;font-weight:800;color:var(--text);margin:0}
-.rules-modal-body{padding:14px 20px;overflow-y:auto;flex:1;font-size:12px;line-height:1.7;color:var(--text-soft)}
-.rules-modal-body .rules-list{margin:0;padding:0 0 0 14px;list-style:none}
-.rules-modal-body .rules-list li{position:relative;margin-bottom:5px;color:var(--text);font-size:12px}
-.rules-modal-body .rules-list li::before{content:'·';position:absolute;left:-12px;color:var(--pink);font-weight:700}
-.rules-modal-body .rules-limit{margin-top:8px;padding-top:8px;border-top:1px solid rgba(180,160,200,.15)}
-.rules-modal-body .rules-limit-title{font-weight:600;color:#C07030;display:flex;align-items:center;gap:4px;margin-bottom:5px;font-size:12px}
-.rules-modal-body .rules-limit-group{margin-bottom:8px}
+.rules-modal{
+  background:#0f172a;border:1px solid #1e293b;border-radius:20px;
+  max-width:540px;width:100%;max-height:85vh;display:flex;flex-direction:column;
+  box-shadow:0 25px 80px rgba(0,0,0,.5);overflow:hidden;
+}
+.rules-modal-header{
+  padding:24px 24px 0;display:flex;align-items:center;gap:10px;
+}
+.rules-modal-header h2{font-size:18px;font-weight:800;color:#f1f5f9;margin:0}
+.rules-modal-body{
+  padding:16px 24px;overflow-y:auto;flex:1;
+  font-size:12px;line-height:1.7;color:#94a3b8;
+}
+.rules-modal-body .rules-list{margin:0;padding:0 0 0 16px;list-style:none}
+.rules-modal-body .rules-list li{position:relative;margin-bottom:6px;color:#cbd5e1;font-size:12px}
+.rules-modal-body .rules-list li::before{content:'·';position:absolute;left:-14px;color:#3b82f6;font-weight:700}
+.rules-modal-body .rules-limit{margin-top:10px;padding-top:10px;border-top:1px solid rgba(148,163,184,.12)}
+.rules-modal-body .rules-limit-title{font-weight:600;color:#fbbf24;display:flex;align-items:center;gap:5px;margin-bottom:8px;font-size:13px}
+.rules-modal-body .rules-limit-group{margin-bottom:10px}
 .rules-modal-body .rules-limit-group:last-child{margin-bottom:0}
-.rules-modal-body .rules-limit-subtitle{font-weight:600;color:var(--text-soft);font-size:11px;margin-bottom:3px}
-.rules-modal-body .rules-limit-item{display:flex;align-items:center;gap:6px;color:var(--text-soft);font-size:11px}
-.rules-modal-body .limit-num{background:rgba(200,140,80,.12);color:#C07030;padding:1px 7px;border-radius:5px;font-weight:700;font-size:10px;white-space:nowrap}
-.rules-modal-body .limit-num.banned{background:rgba(184,64,74,.12);color:var(--error-text)}
-.rules-modal-footer{padding:14px 20px 20px;display:flex;flex-direction:column;gap:10px;border-top:1px solid rgba(180,160,200,.12)}
-.rules-check{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text)}
-.rules-check input[type=checkbox]{width:16px;height:16px;accent-color:var(--pink);cursor:pointer}
-.rules-agree-btn{width:100%;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;background:rgba(180,160,200,.2);color:var(--text-muted);cursor:not-allowed;transition:all .2s}
-.rules-agree-btn.enabled{background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;cursor:pointer;box-shadow:0 4px 14px rgba(255,154,162,.25)}
-.rules-agree-btn.enabled:hover{transform:translateY(-1px)}
-
-/* ── 响应式 ── */
-@media(max-width:720px){
-  .split-layout{flex-direction:column;max-width:440px;min-height:auto;margin:12px}
-  .split-left{flex:0 0 auto;padding:28px 24px;min-height:200px}
-  .split-right{padding:28px 24px}
-  .split-mascot{bottom:-4px;right:-8px;width:64px;height:70px}
-  .split-brand-slogan{font-size:22px}
+.rules-modal-body .rules-limit-subtitle{font-weight:600;color:#94a3b8;font-size:11px;margin-bottom:4px}
+.rules-modal-body .rules-limit-item{display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:11px}
+.rules-modal-body .limit-num{background:rgba(251,191,36,.15);color:#fbbf24;padding:2px 8px;border-radius:6px;font-weight:700;font-size:10px;white-space:nowrap}
+.rules-modal-body .limit-num.banned{background:rgba(239,68,68,.15);color:#ef4444}
+.rules-modal-footer{
+  padding:16px 24px 24px;display:flex;flex-direction:column;gap:12px;
+  border-top:1px solid #1e293b;
 }
-@media(max-width:420px){
-  .split-layout{margin:8px;border-radius:18px}
-  .split-left{padding:22px 18px;min-height:170px}
-  .split-right{padding:22px 18px}
-  .split-brand-icon{width:50px;height:50px;border-radius:14px;margin-bottom:12px}
-  .split-brand-slogan{font-size:19px}
+.rules-check{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#cbd5e1}
+.rules-check input[type=checkbox]{width:18px;height:18px;accent-color:#faab41;cursor:pointer}
+.rules-agree-btn{
+  width:100%;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;
+  background:linear-gradient(135deg,#374151,#4b5563);color:#9ca3af;cursor:not-allowed;transition:all .2s;
 }
+.rules-agree-btn.enabled{
+  background:linear-gradient(135deg,#faab41,#f6821f);color:#fff;cursor:pointer;box-shadow:0 4px 15px rgba(250,171,65,.3);
+}
+.rules-agree-btn.enabled:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(250,171,65,.4)}
+/* ── responsive ── */
+@media(max-width:520px){
+  body{padding:16px 12px}.hero{padding:20px 16px}.hero-slogan{font-size:22px}
+  .auth-head{flex-direction:column}.auth-title{font-size:20px}
+}
+/* ── TG verify step ── */
+.verify-step{text-align:center;padding:24px 20px}
+.verify-step-icon{font-size:48px;margin-bottom:12px}
+.verify-code-box{background:#020817;border:2px dashed #334155;border-radius:16px;padding:20px 16px;margin:16px 0}
+.verify-code-label{font-size:12px;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:2px}
+.verify-code{font-size:36px;font-weight:800;letter-spacing:8px;font-family:"SF Mono","Fira Code","Cascadia Code",monospace;background:linear-gradient(135deg,#3b82f6,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:8px 0;user-select:all;line-height:1.2}
+.verify-expires{font-size:12px;color:#94a3b8;margin-top:4px}
+.verify-instructions{text-align:left;background:#111c31;border:1px solid rgba(148,163,184,.14);border-radius:14px;padding:16px;margin:16px 0;font-size:13px;color:#cbd5e1;line-height:1.8}
+.verify-instructions ol{margin:0;padding-left:20px}
+.verify-instructions li{margin-bottom:6px}
+.verify-instructions code{background:rgba(99,102,241,.18);color:#a5b4fc;padding:2px 8px;border-radius:4px;font-size:13px;font-weight:600;white-space:nowrap}
+.verify-tg-link{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#2a94e1,#37aee2);color:#fff;padding:12px 24px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;margin:8px 0;transition:all .2s}
+.verify-tg-link:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(42,148,225,.35)}
+.verify-group-btn{display:inline-block;background:rgba(148,163,184,.1);border:1px solid rgba(148,163,184,.2);color:#cbd5e1;padding:10px 20px;border-radius:12px;text-decoration:none;font-weight:600;font-size:13px;margin:4px;transition:all .2s}
+.verify-group-btn:hover{background:rgba(148,163,184,.18)}
+.verify-polling{display:flex;align-items:center;justify-content:center;gap:8px;color:#94a3b8;font-size:13px;margin:12px 0}
+.verify-polling .spinner-sm{width:16px;height:16px;border:2px solid #1e293b;border-top-color:#3b82f6;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.verify-back-btn{background:none;border:none;color:#94a3b8;cursor:pointer;font-size:13px;margin-top:16px;text-decoration:underline}
+.verify-back-btn:hover{color:#cbd5e1}
+.verify-success-icon{font-size:56px;margin-bottom:8px}
 </style>
 </head>
 <body>
-
-<!-- ══════════ 左右双栏 ══════════ -->
-<div class="split-layout">
-  <!-- 左栏 — 品牌区 -->
-  <div class="split-left">
-    <div class="split-brand-icon">
-      <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-logo">
+      <div class="hero-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+      <span class="hero-name">Beacon 灯塔</span>
     </div>
-    <div class="split-brand-name">Beacon 灯塔</div>
-    <h1 class="split-brand-slogan">连接世界<br>自由无界</h1>
-    <p class="split-brand-desc">基于 Cloudflare Workers 构建<br>高性能公益网络服务</p>
-    <div class="split-tags">
-      <span class="split-tag">🌐 全球节点</span>
-      <span class="split-tag">⚡ 多协议</span>
-      <span class="split-tag">🆓 免费使用</span>
-    </div>
-    <!-- 看板娘 -->
-    <div class="split-mascot" aria-hidden="true">
-      <svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <radialGradient id="skin" cx="38%" cy="30%"><stop offset="0%" stop-color="#FFF5F0"/><stop offset="100%" stop-color="#FFE0D0"/></radialGradient>
-          <radialGradient id="hairG" cx="50%" cy="20%"><stop offset="0%" stop-color="#F5A0B0"/><stop offset="100%" stop-color="#E87890"/></radialGradient>
-        </defs>
-        <path d="M28 30 Q10 20 8 45 Q6 70 16 78 Q10 65 14 50 Q18 35 26 38Z" fill="url(#hairG)"/>
-        <path d="M72 30 Q90 20 92 45 Q94 70 84 78 Q90 65 86 50 Q82 35 74 38Z" fill="url(#hairG)"/>
-        <ellipse cx="50" cy="42" rx="34" ry="36" fill="url(#hairG)"/>
-        <ellipse cx="50" cy="45" rx="25" ry="27" fill="url(#skin)"/>
-        <path d="M26 26 Q35 16 50 18 Q65 16 74 26 Q72 20 60 18 Q50 15 40 18 Q28 20 26 26Z" fill="url(#hairG)"/>
-        <ellipse cx="38" cy="46" rx="5.5" ry="6.5" fill="#3A2F3A"/>
-        <ellipse cx="39.5" cy="43.5" rx="2.5" ry="3" fill="#fff" opacity=".9"/>
-        <circle cx="37.5" cy="42" r="1.5" fill="#fff"/>
-        <ellipse cx="62" cy="46" rx="5.5" ry="6.5" fill="#3A2F3A"/>
-        <ellipse cx="63.5" cy="43.5" rx="2.5" ry="3" fill="#fff" opacity=".9"/>
-        <circle cx="61.5" cy="42" r="1.5" fill="#fff"/>
-        <path d="M31 36 Q38 34 42 36" fill="none" stroke="#C09090" stroke-width="1" stroke-linecap="round"/>
-        <path d="M58 36 Q62 34 69 36" fill="none" stroke="#C09090" stroke-width="1" stroke-linecap="round"/>
-        <ellipse cx="31" cy="54" rx="5" ry="3" fill="#FFB7B2" opacity=".35"/>
-        <ellipse cx="69" cy="54" rx="5" ry="3" fill="#FFB7B2" opacity=".35"/>
-        <path d="M46 56 Q50 53 54 56" fill="none" stroke="#D4908A" stroke-width="1.2" stroke-linecap="round"/>
-        <path d="M28 72 L72 72 L78 85 Q50 95 22 85Z" fill="#fff" stroke="#D0C8D8" stroke-width="1"/>
-        <path d="M50 72 L40 68 L40 76Z" fill="#E87890"/>
-        <path d="M50 72 L60 68 L60 76Z" fill="#E87890"/>
-        <circle cx="50" cy="72" r="3" fill="#D06078"/>
-        <path d="M25 85 L75 85 L82 105 Q50 110 18 105Z" fill="#3A4A6A"/>
-        <rect x="32" y="102" width="12" height="8" rx="4" fill="url(#skin)"/>
-        <rect x="56" y="102" width="12" height="8" rx="4" fill="url(#skin)"/>
-      </svg>
+    <h1 class="hero-slogan">连接世界，自由无界</h1>
+    <p class="hero-desc">基于 Cloudflare Workers 构建的高性能公益网络服务，稳定、快速、免费。</p>
+    <div class="features">
+      <span class="feature-tag"><i class="feature-dot"></i>全球节点覆盖</span>
+      <span class="feature-tag"><i class="feature-dot"></i>多协议支持</span>
+      <span class="feature-tag"><i class="feature-dot"></i>免费使用</span>
     </div>
   </div>
-
-  <!-- 右栏 — 表单区 -->
-  <div class="split-right">
 
   <!-- 使用须知弹窗 -->
   <div class="rules-overlay" id="rulesOverlay">
     <div class="rules-modal">
       <div class="rules-modal-header">
-        <span style="font-size:22px">📋</span><h2>使用须知</h2>
+        <span style="font-size:24px">📋</span>
+        <h2>使用须知</h2>
       </div>
       <div class="rules-modal-body">
         <ul class="rules-list">
@@ -317,32 +210,55 @@ button:disabled{opacity:.5;cursor:not-allowed}
         </ul>
         <div class="rules-limit">
           <div class="rules-limit-title">⚠️ 使用限制与安全策略</div>
-          <div class="rules-limit-group"><div class="rules-limit-subtitle">📊 订阅频率限制</div><div class="rules-limit-item"><span class="limit-num">6次/小时</span>每小时订阅拉取上限</div></div>
-          <div class="rules-limit-group"><div class="rules-limit-subtitle">🌐 IP使用限制</div><div class="rules-limit-item"><span class="limit-num">6个/小时</span>每小时最多6个不同IP访问</div><div class="rules-limit-item"><span class="limit-num banned">自动封禁</span>超出6个不同IP后立即封禁账号</div></div>
-          <div class="rules-limit-group"><div class="rules-limit-subtitle">🔑 无效令牌检测</div><div class="rules-limit-item"><span class="limit-num">4次</span>无效令牌触发告警次数</div><div class="rules-limit-item"><span class="limit-num banned">直接封禁</span>达到阈值后立即封禁账号</div></div>
-          <div class="rules-limit-group"><div class="rules-limit-subtitle">🛡️ 路径访问安全</div><div class="rules-limit-item"><span class="limit-num">12条</span>每30秒内最大独立路径数</div><div class="rules-limit-item"><span class="limit-num">6次</span>敏感路径（/admin、/login）访问上限</div></div>
-          <div class="rules-limit-group"><div class="rules-limit-subtitle">🤖 用户代理检测</div><div class="rules-limit-item"><span class="limit-num banned">自动拦截</span>扫描工具（sqlmap/nmap/curl等）将被拒绝</div></div>
+          <div class="rules-limit-group">
+            <div class="rules-limit-subtitle">📊 订阅频率限制</div>
+            <div class="rules-limit-item"><span class="limit-num">6次/小时</span>每小时订阅拉取上限</div>
+          </div>
+          <div class="rules-limit-group">
+            <div class="rules-limit-subtitle">🌐 IP使用限制</div>
+            <div class="rules-limit-item"><span class="limit-num">6个/小时</span>每小时最多6个不同IP访问</div>
+            <div class="rules-limit-item"><span class="limit-num banned">自动封禁</span>超出6个不同IP后立即封禁账号</div>
+          </div>
+          <div class="rules-limit-group">
+            <div class="rules-limit-subtitle">🔑 无效令牌检测</div>
+            <div class="rules-limit-item"><span class="limit-num">4次</span>无效令牌触发告警次数</div>
+            <div class="rules-limit-item"><span class="limit-num banned">直接封禁</span>达到阈值后立即封禁账号</div>
+          </div>
+          <div class="rules-limit-group">
+            <div class="rules-limit-subtitle">🛡️ 路径访问安全</div>
+            <div class="rules-limit-item"><span class="limit-num">12条</span>每30秒内最大独立路径数</div>
+            <div class="rules-limit-item"><span class="limit-num">6次</span>敏感路径（/admin、/login）访问上限</div>
+          </div>
+          <div class="rules-limit-group">
+            <div class="rules-limit-subtitle">🤖 用户代理检测</div>
+            <div class="rules-limit-item"><span class="limit-num banned">自动拦截</span>扫描工具（sqlmap/nmap/curl等）将被拒绝</div>
+          </div>
         </div>
       </div>
       <div class="rules-modal-footer">
-        <span style="font-size:12px;color:#C07030;text-align:center;display:block;margin-bottom:2px" id="rulesCountdown">请仔细阅读使用须知（15秒后可勾选同意）</span>
-        <label class="rules-check" style="opacity:.4;pointer-events:none" id="rulesCheckLabel">
-          <input type="checkbox" id="rulesCheckbox" disabled onchange="var b=document.getElementById('rulesAgreeBtn');b.classList.toggle('enabled',this.checked);b.disabled=!this.checked">
-          我已阅读并同意以上使用须知
-        </label>
-        <button class="rules-agree-btn" id="rulesAgreeBtn" disabled onclick="agreeRules()">同意并继续</button>
+        <label class="rules-check">
+          <span style="font-size:12px;color:#fbbf24;text-align:center;display:block;margin-bottom:4px" id="rulesCountdown">请仔细阅读使用须知（15秒后可勾选同意）</span>
+          <label class="rules-check" style="opacity:.4;pointer-events:none" id="rulesCheckLabel">
+            <input type="checkbox" id="rulesCheckbox" disabled onchange="var b=document.getElementById('rulesAgreeBtn');b.classList.toggle('enabled',this.checked);b.disabled=!this.checked">
+            我已阅读并同意以上使用须知
+          </label>
+          <button class="rules-agree-btn" id="rulesAgreeBtn" disabled onclick="agreeRules()">同意并继续</button>
       </div>
     </div>
   </div>
 
   <!-- auth panel -->
   <section class="panel auth-panel" id="authPanel">
-    <div class="tabs" role="tablist">
-      <button class="tab-btn" role="tab" aria-selected="true" data-mode="signup">注册</button>
-      <button class="tab-btn" role="tab" aria-selected="false" data-mode="signin">登录</button>
+    <div class="auth-head">
+      <div>
+        <div class="auth-title" id="authTitle">创建用户账户</div>
+        <div class="auth-desc" id="authDesc">先完成注册，成功后会自动切换到登录模式。</div>
+      </div>
+      <div class="tabs" role="tablist">
+        <button class="tab-btn" role="tab" aria-selected="true" data-mode="signup">注册</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-mode="signin">登录</button>
+      </div>
     </div>
-    <div class="auth-title" id="authTitle">创建用户账户</div>
-    <div class="auth-desc" id="authDesc">先完成注册，成功后会自动切换到登录模式。</div>
 
     <div class="form" id="authForm">
       <div class="field">
@@ -351,32 +267,30 @@ button:disabled{opacity:.5;cursor:not-allowed}
         <div class="field-hint" id="accountHint"></div>
       </div>
       <div class="field" id="emailField">
-        <label for="email">邮箱 <span style="font-weight:400;color:var(--warn-text);font-size:11px">(必填，用于找回密码和身份识别)</span></label>
+        <label for="email">邮箱 <span style="font-weight:400;color:#f59e0b;font-size:11px">(必填，用于找回密码和身份识别)</span></label>
         <input type="email" id="email" placeholder="your@email.com" autocomplete="email" maxlength="128">
         <div class="field-hint" id="emailHint"></div>
       </div>
       <div class="field" id="passwordField">
         <label for="password">密码</label>
         <div style="position:relative">
-          <input type="password" id="password" placeholder="至少8位，含大小写字母+数字+特殊符号" autocomplete="new-password" maxlength="128" style="width:100%;box-sizing:border-box;padding-right:42px">
-          <button type="button" id="pwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px;line-height:1;z-index:1" title="显示/隐藏密码">👁</button>
+          <input type="password" id="password" placeholder="至少8位，含大小写字母+数字+特殊符号" autocomplete="new-password" maxlength="128" style="width:100%;box-sizing:border-box;padding-right:44px">
+          <button type="button" id="pwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px;padding:4px;line-height:1;z-index:1" title="显示/隐藏密码" aria-label="切换密码可见性">👁</button>
         </div>
         <div class="field-hint" id="passwordHint"></div>
-        <div id="pwStrength" style="display:none;margin-top:4px">
-          <div style="height:4px;background:rgba(180,160,200,.15);border-radius:2px;overflow:hidden"><div id="pwStrengthBar" style="height:100%;width:0%;transition:width .3s;border-radius:2px"></div></div>
-          <span id="pwStrengthLabel" style="font-size:11px;margin-top:2px;display:inline-block"></span>
+        <div id="pwStrength" style="display:none;margin-top:6px">
+          <div style="height:4px;background:#1e293b;border-radius:2px;overflow:hidden">
+            <div id="pwStrengthBar" style="height:100%;width:0%;transition:width .3s;border-radius:2px"></div>
+          </div>
+          <span id="pwStrengthLabel" style="font-size:11px;margin-top:3px;display:inline-block"></span>
         </div>
       </div>
       <div class="field" id="oldLoginToggle" style="display:none;text-align:center;padding-top:0">
-        <button type="button" id="oldLoginBtn" style="background:none;border:none;color:var(--warn-text);cursor:pointer;font-size:12px;text-decoration:underline">使用邮箱登录（存量用户）</button>
+        <button type="button" id="oldLoginBtn" style="background:none;border:none;color:#f59e0b;cursor:pointer;font-size:12px;text-decoration:underline">使用邮箱登录（仅限旧版无密码存量用户）</button>
       </div>
-      <div class="remember-row">
-        <label class="remember-check" for="rememberMe">
-          <input type="checkbox" id="rememberMe">
-          <span class="check-box"></span>
-          <span class="check-label">记住用户名和密码</span>
-        </label>
-        <a href="#" class="forgot-link" id="forgotPwLink">忘记密码？</a>
+      <div class="field" style="display:flex;flex-direction:row;align-items:center;gap:8px;padding-top:2px">
+        <input type="checkbox" id="rememberMe" style="width:18px;height:18px;accent-color:#3b82f6;cursor:pointer;flex-shrink:0;margin:0">
+        <label for="rememberMe" style="margin:0;cursor:pointer;user-select:none;font-weight:500;font-size:13px;color:#cbd5e1">记住用户名和密码</label> <a href="#" id="forgotPwLink" style="margin-left:auto;font-size:12px;color:#f59e0b;text-decoration:underline">忘记密码？</a>
       </div>
       <div class="actions">
         <button class="primary-btn" id="submitBtn">
@@ -390,48 +304,61 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
   <!-- forgot password panel -->
   <section class="panel auth-panel" id="forgotPanel" style="display:none">
-    <div class="auth-title" style="margin-bottom:12px">忘记密码</div>
+    <div class="auth-head"><div class="auth-title">忘记密码</div></div>
     <div id="forgotStep1">
-      <p style="font-size:13px;color:var(--text-soft);margin:0 0 10px">请输入您注册时使用的邮箱地址或 UUID 来找回密码。</p>
-      <div class="field"><label for="forgotId">邮箱或 UUID</label><input type="text" id="forgotId" placeholder="user@email.com 或 f8f48c96-095a-49a7-..."></div>
-      <div class="actions" style="margin-top:10px">
+      <p style="font-size:13px;color:#94a3b8;margin:0 0 12px">请输入您注册时使用的邮箱地址或 UUID 来找回密码。</p>
+      <div class="field">
+        <label for="forgotId">邮箱或 UUID</label>
+        <input type="text" id="forgotId" placeholder="user@email.com 或 f8f48c96-095a-49a7-...">
+      </div>
+      <div class="actions" style="margin-top:12px">
         <button class="primary-btn" id="forgotSubmitBtn"><span id="forgotSubmitText">验证身份</span><span class="spinner" id="forgotSpin"></span></button>
-        <button class="copy-btn" onclick="location.reload()" style="background:rgba(180,160,200,.1);border:1px solid rgba(180,160,200,.15);border-radius:12px;padding:12px 16px;color:var(--text);font-size:14px;font-weight:600;cursor:pointer">返回登录</button>
+        <button class="copy-btn" onclick="location.reload()">返回登录</button>
       </div>
     </div>
     <div id="forgotStep2" style="display:none">
-      <div class="msg msg-success show" style="margin-bottom:10px" id="forgotStep2Msg"></div>
+      <div class="msg msg-success show" style="margin-bottom:12px" id="forgotStep2Msg"></div>
       <div class="field"><label id="forgotTokenLabel">重置令牌（1小时有效）</label><input type="text" id="forgotToken" readonly></div>
-      <div class="actions" style="margin-top:10px">
+      <div class="actions" style="margin-top:12px">
         <button class="primary-btn" id="forgotToResetBtn">设置新密码</button>
-        <button class="copy-btn" onclick="document.getElementById('forgotToken').select();document.execCommand('copy');showToast('令牌已复制')" style="background:rgba(180,160,200,.1);border:1px solid rgba(180,160,200,.15);border-radius:12px;padding:12px 16px;color:var(--text);font-size:14px;font-weight:600;cursor:pointer">复制令牌</button>
+        <button class="copy-btn" onclick="document.getElementById('forgotToken').select();document.execCommand('copy');showToast('令牌已复制')">复制令牌</button>
       </div>
     </div>
     <div id="forgotStep3" style="display:none">
-      <p style="font-size:13px;color:var(--text-soft);margin:0 0 10px">为 <strong id="forgotAccountName">-</strong> 设置新密码。</p>
-      <div class="field"><label for="forgotNewPw">新密码</label><div style="position:relative"><input type="password" id="forgotNewPw" placeholder="至少8位，含字母+数字+特殊字符" style="width:100%;box-sizing:border-box;padding-right:42px"><button type="button" id="forgotPwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px">👁</button></div></div>
+      <p style="font-size:13px;color:#94a3b8;margin:0 0 12px">为 <strong id="forgotAccountName">-</strong> 设置新密码。</p>
+      <div class="field"><label for="forgotNewPw">新密码</label>
+        <div style="position:relative">
+          <input type="password" id="forgotNewPw" placeholder="至少8位，含字母+数字+特殊字符" style="width:100%;box-sizing:border-box;padding-right:44px">
+          <button type="button" id="forgotPwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px">👁</button>
+        </div>
+      </div>
       <div class="field"><label for="forgotConfirmPw">确认密码</label><input type="password" id="forgotConfirmPw" placeholder="再次输入新密码"></div>
       <div class="msg" id="forgotMsg"></div>
-      <div class="actions" style="margin-top:10px"><button class="primary-btn" id="forgotResetBtn"><span id="forgotResetText">重置密码</span><span class="spinner" id="forgotResetSpin"></span></button></div>
+      <div class="actions" style="margin-top:12px">
+        <button class="primary-btn" id="forgotResetBtn"><span id="forgotResetText">重置密码</span><span class="spinner" id="forgotResetSpin"></span></button>
+      </div>
     </div>
   </section>
 
-  <!-- result panel -->
+  <!-- result panel (shown after successful signin) -->
   <section class="panel result-panel" id="resultPanel">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-      <span style="font-size:26px">🎉</span>
-      <div><div style="font-size:17px;font-weight:700" id="resultTitle">登录成功</div><div style="font-size:12px;color:var(--text-soft)" id="resultSub"></div></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+      <span style="font-size:28px">🎉</span>
+      <div>
+        <div style="font-size:18px;font-weight:700" id="resultTitle">登录成功</div>
+        <div style="font-size:13px;color:#94a3b8" id="resultSub"></div>
+      </div>
     </div>
     <div id="resultItems"></div>
-    <div style="margin-top:14px"><button class="primary-btn" onclick="location.reload()" style="width:100%">返回认证面板</button></div>
+    <div style="margin-top:16px">
+      <button class="primary-btn" onclick="location.reload()" style="width:100%">返回认证面板</button>
+    </div>
   </section>
 
-  <div style="text-align:center;margin-top:18px;color:var(--text-muted);font-size:11px">
-    Powered by Cloudflare Workers · <a href="https://github.com/cmliu/edgetunnel" target="_blank" rel="noopener" style="color:var(--lavender-deep);text-decoration:none">EdgeTunnel</a>
+  <div class="footer">
+    Powered by Cloudflare Workers · <a href="https://github.com/cmliu/edgetunnel" target="_blank" rel="noopener">EdgeTunnel</a>
   </div>
-
-  </div><!-- /split-right -->
-</div><!-- /split-layout -->
+</div>
 
 <script>
 (function(){
@@ -445,6 +372,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
   (async function initRules() {
     localStorage.removeItem('beacon_user');
+    // 恢复已保存的凭据
     try {
       var remembered = JSON.parse(localStorage.getItem('beacon_remembered') || 'null');
       if (remembered && remembered.account) {
@@ -457,6 +385,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
           if (emailEl) emailEl.value = remembered.email || '';
         }
         document.getElementById('rememberMe').checked = true;
+        // 延迟自动切换到登录模式
         var _origAgree = window.agreeRules;
         window.agreeRules = function() {
           document.getElementById('rulesOverlay').classList.add('hidden');
@@ -474,8 +403,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
         document.getElementById('rulesOverlay').classList.add('hidden');
         return;
       }
-    } catch(e) {}
+    } catch(e) { /* show modal on error */ }
 
+    // 15-second countdown before checkbox is enabled
     let sec = 15;
     const countdownEl = document.getElementById('rulesCountdown');
     const checkLabel = document.getElementById('rulesCheckLabel');
@@ -485,7 +415,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
       if (sec <= 0) {
         clearInterval(timer);
         countdownEl.textContent = '请勾选同意后继续';
-        countdownEl.style.color = 'var(--text-soft)';
+        countdownEl.style.color = '#94a3b8';
         checkLabel.style.opacity = '1';
         checkLabel.style.pointerEvents = 'auto';
         checkbox.disabled = false;
@@ -496,9 +426,15 @@ button:disabled{opacity:.5;cursor:not-allowed}
   })();
 
   // ── state ──
-  const API_BASE = '';
-  const state = { mode: 'signup', loading: false };
+  const API_BASE = '';  // e.g. 'https://your-worker-domain.workers.dev' — leave empty when served by the Worker
+  const state = {
+    mode: 'signup',   // 'signup' | 'signin' | 'result'
+    loading: false,
+  };
 
+
+
+  // ── API response code handlers ──
   const CODE_MESSAGES = {
     AUTH_SIGNUP_SUCCESS:    { cls:'msg-success', title:'注册成功' },
     AUTH_SIGNUP_EXISTS:     { cls:'msg-warn',   title:'用户已存在' },
@@ -521,6 +457,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
     AUTH_PASSWORD_NOT_SET:  { cls:'msg-warn',   title:'尚未设置密码' },
     AUTH_EMAIL_LOGIN_EXPIRED:{ cls:'msg-error', title:'邮箱登录已关闭' },
     AUTH_PASSWORD_TOO_WEAK: { cls:'msg-error',  title:'密码强度不足' },
+    // TG verification codes
     AUTH_TG_VERIFY_REQUIRED: { cls:'msg-info',   title:'需要TG验证' },
     AUTH_TG_PENDING:        { cls:'msg-info',   title:'等待验证' },
     AUTH_TG_CODE_INVALID:   { cls:'msg-error',  title:'验证码无效' },
@@ -535,51 +472,98 @@ button:disabled{opacity:.5;cursor:not-allowed}
     AUTH_TG_VERIFY_FAILED:  { cls:'msg-error',  title:'验证发起失败' },
   };
 
+  // ── DOM refs ──
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => document.querySelectorAll(sel);
-  const authPanel = $('#authPanel'), resultPanel = $('#resultPanel'), authTitle = $('#authTitle'), authDesc = $('#authDesc');
-  const accountInp = $('#account'), emailInp = $('#email'), accountHint = $('#accountHint'), emailHint = $('#emailHint');
-  const submitBtn = $('#submitBtn'), submitText = $('#submitText'), passwordInp = $('#password');
-  const passwordHint = $('#passwordHint'), pwToggle = $('#pwToggle'), pwStrength = $('#pwStrength');
-  const pwStrengthBar = $('#pwStrengthBar'), pwStrengthLabel = $('#pwStrengthLabel');
-  const oldLoginToggle = $('#oldLoginToggle'), oldLoginBtn = $('#oldLoginBtn');
-  const submitSpin = $('#submitSpinner'), authMsg = $('#authMsg'), resultItems = $('#resultItems');
-  const resultTitle = $('#resultTitle'), resultSub = $('#resultSub');
 
-  $$('.tab-btn').forEach(btn => { btn.addEventListener('click', () => switchMode(btn.dataset.mode)); });
+  const authPanel   = $('#authPanel');
+  const resultPanel = $('#resultPanel');
+  const authTitle   = $('#authTitle');
+  const authDesc    = $('#authDesc');
+  const accountInp  = $('#account');
+  const emailInp    = $('#email');
+  const accountHint = $('#accountHint');
+  const emailHint   = $('#emailHint');
+  const submitBtn   = $('#submitBtn');
+  const submitText  = $('#submitText');
+  const passwordInp = $('#password');
+  const passwordHint = $('#passwordHint');
+  const pwToggle = $('#pwToggle');
+  const pwStrength = $('#pwStrength');
+  const pwStrengthBar = $('#pwStrengthBar');
+  const pwStrengthLabel = $('#pwStrengthLabel');
+  const oldLoginToggle = $('#oldLoginToggle');
+  const oldLoginBtn = $('#oldLoginBtn');
+  const submitSpin  = $('#submitSpinner');
+  const authMsg     = $('#authMsg');
+  const resultItems = $('#resultItems');
+  const resultTitle = $('#resultTitle');
+  const resultSub   = $('#resultSub');
+
+  // ── tab switching ──
+  $$('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchMode(btn.dataset.mode));
+  });
 
   function switchMode(mode) {
     if (state.loading) return;
     state.mode = mode;
     $$('.tab-btn').forEach(b => b.setAttribute('aria-selected', b.dataset.mode === mode ? 'true' : 'false'));
     if (mode === 'signup') {
-      authTitle.textContent = '创建用户账户'; authDesc.textContent = '设置用户名和密码，邮箱选填用于找回。';
+      authTitle.textContent = '创建用户账户';
+      authDesc.textContent  = '设置用户名和密码，邮箱选填用于找回。';
       submitText.textContent = '创建账户';
     } else {
-      authTitle.textContent = '登录账户'; authDesc.textContent = '输入用户名和密码完成登录。';
+      authTitle.textContent = '登录账户';
+      authDesc.textContent  = '输入用户名和密码完成登录。';
       submitText.textContent = '登录';
     }
-    clearMsg(); clearHints();
-    var emailField = document.getElementById('emailField'), oldToggle = document.getElementById('oldLoginToggle'), pwField = document.getElementById('passwordField');
+    clearMsg();
+    // toggle email field and old login button for signup vs signin
+    var emailField = document.getElementById('emailField');
+    var oldToggle = document.getElementById('oldLoginToggle');
+    var pwField = document.getElementById('passwordField');
     if (mode === 'signup') {
-      if (emailField) emailField.style.display = ''; if (oldToggle) oldToggle.style.display = 'none'; if (pwField) pwField.style.display = '';
+      if (emailField) emailField.style.display = '';
+      if (oldToggle) oldToggle.style.display = 'none';
+      if (pwField) pwField.style.display = '';
+      submitText.textContent = '创建账户';
     } else {
-      if (emailField) emailField.style.display = 'none'; if (oldToggle) oldToggle.style.display = ''; if (pwField) pwField.style.display = '';
+      if (emailField) emailField.style.display = 'none';
+      if (oldToggle) oldToggle.style.display = '';
+      if (pwField) pwField.style.display = '';
+      submitText.textContent = '登录';
     }
-    resultPanel.classList.remove('show'); authPanel.style.display = '';
+    clearHints();
+    // hide result
+    resultPanel.classList.remove('show');
+    authPanel.style.display = '';
   }
 
+  // ── form submission ──
   submitBtn.addEventListener('click', handleSubmit);
   document.addEventListener('keydown', e => { if (e.key === 'Enter') handleSubmit(); });
 
   async function handleSubmit() {
     if (state.loading) return;
-    clearMsg(); clearHints();
-    const account = accountInp.value.trim(), email = emailInp.value.trim(), password = passwordInp ? passwordInp.value : '';
-    var isOldEmailLogin = !!state._oldLogin; state._oldLogin = false;
+    clearMsg();
+    clearHints();
+
+    const account = accountInp.value.trim();
+    const email   = emailInp.value.trim();
+    const password = passwordInp ? passwordInp.value : '';
+
+    // client-side validation
+    var isOldEmailLogin = !!state._oldLogin;
+
+    // reset old login flag
+    state._oldLogin = false;
+
     var valid = true;
+
+    // account always required
     if (!account) { accountHint.textContent = '请输入用户名'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
-    else if (/@/.test(account)) { accountHint.textContent = '用户名不应包含 @ 符号'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
+    else if (/@/.test(account)) { accountHint.textContent = '用户名不应包含 @ 符号，请填写纯文本用户名'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
     else {
       if (state.mode === 'signup') {
         if (account.length < 4 || account.length > 16) { accountHint.textContent = '用户名需为4-16位'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
@@ -587,248 +571,714 @@ button:disabled{opacity:.5;cursor:not-allowed}
         else if (/^[0-9]+$/.test(account)) { accountHint.textContent = '用户名不能为纯数字'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
         else if (/^(.)\1+$/.test(account)) { accountHint.textContent = '用户名不能为重复字符'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
         else { accountInp.removeAttribute('aria-invalid'); }
-      } else { accountInp.removeAttribute('aria-invalid'); }
+      } else {
+        accountInp.removeAttribute('aria-invalid');
+      }
     }
+
     if (isOldEmailLogin) {
+      // old email login: email required, no password
       if (!email) { emailHint.textContent = '请输入邮箱'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { emailHint.textContent = '邮箱格式不正确'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
       else { emailInp.removeAttribute('aria-invalid'); }
     } else {
+      // new password login / signup
       if (state.mode === 'signup') {
+        // email required for signup
         if (!email) { emailHint.textContent = '请输入邮箱地址'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
-        else if (!/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(email)) { emailHint.textContent = '邮箱格式不正确'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
+        else if (!/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(email)) { emailHint.textContent = '邮箱格式不正确，请输入合法的邮箱地址'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
         else { emailInp.removeAttribute('aria-invalid'); }
+        // password required for signup
         if (!password) { passwordHint.textContent = '请设置密码'; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
         else {
-          var hasLetter = /[a-zA-Z]/.test(password), hasNumber = /[0-9]/.test(password);
+          var hasLetter = /[a-zA-Z]/.test(password);
+          var hasNumber = /[0-9]/.test(password);
           if (password.length < 8) { passwordHint.textContent = '密码至少需要8个字符'; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
           else if (!hasLetter || !hasNumber) { passwordHint.textContent = '密码必须包含字母和数字'; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
           else { passwordInp.removeAttribute('aria-invalid'); }
         }
       } else {
+        // signin with password: password required
         if (!password) { passwordHint.textContent = '请输入密码'; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
         else { passwordInp.removeAttribute('aria-invalid'); }
       }
     }
+
     if (!valid) return;
+
     setLoading(true);
     try {
       var endpoint, body;
-      if (state.mode === 'signup') { endpoint = API_BASE + '/register/api'; body = { account: account, password: password, email: email }; }
-      else {
+      if (state.mode === 'signup') {
+        endpoint = API_BASE + '/register/api';
+        body = { account: account, password: password, email: email };
+      } else {
         endpoint = API_BASE + '/register/login';
-        body = isOldEmailLogin ? { account: account, email: email } : { account: account, password: password };
+        if (isOldEmailLogin) {
+          body = { account: account, email: email };
+        } else {
+          body = { account: account, password: password };
+        }
       }
-      const resp = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+
+      const resp = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
       const data = await resp.json();
-      const code = data.code || '', meta = CODE_MESSAGES[code] || { cls:'msg-error', title:'未知响应' }, message = data.message || '服务器没有返回具体信息';
-      if (code === 'AUTH_SIGNUP_SUCCESS') { showMsg('msg-success', '✅ ' + meta.title, message + ' 请切换到登录页面完成登录。'); setTimeout(function() { switchMode('signin'); }, 1200); }
-      else if (code === 'AUTH_SIGNUP_EXISTS') { showMsg('msg-warn', 'ℹ️ ' + meta.title, message); setTimeout(function() { switchMode('signin'); }, 1200); }
-      else if (code === 'AUTH_SIGNUP_DUPLICATE_USERNAME' || code === 'AUTH_SIGNUP_DUPLICATE_EMAIL' || code === 'AUTH_SIGNUP_DUPLICATE') { showMsg('msg-error', '❌ ' + meta.title, message); }
-      else if (code === 'AUTH_TG_VERIFY_REQUIRED') { showTGVerifyStep(data.data); }
-      else if (code === 'AUTH_SIGNIN_SUCCESS') {
-        var user = data.data || {}, node = user.node || {}, u = user.user || {};
+
+      const code = data.code || '';
+      const meta = CODE_MESSAGES[code] || { cls:'msg-error', title:'未知响应' };
+      const message = data.message || '服务器没有返回具体信息';
+
+      if (code === 'AUTH_SIGNUP_SUCCESS') {
+        showMsg('msg-success', '✅ ' + meta.title, message + ' 请切换到登录页面完成登录。');
+        setTimeout(function() { switchMode('signin'); }, 1200);
+      } else if (code === 'AUTH_SIGNUP_EXISTS') {
+        showMsg('msg-warn', 'ℹ️ ' + meta.title, message);
+        setTimeout(function() { switchMode('signin'); }, 1200);
+      } else if (code === 'AUTH_SIGNUP_DUPLICATE_USERNAME' || code === 'AUTH_SIGNUP_DUPLICATE_EMAIL' || code === 'AUTH_SIGNUP_DUPLICATE') {
+        showMsg('msg-error', '❌ ' + meta.title, message);
+      } else if (code === 'AUTH_TG_VERIFY_REQUIRED') {
+        showTGVerifyStep(data.data);
+      } else if (code === 'AUTH_SIGNIN_SUCCESS') {
+        var user = data.data || {};
+        var node = user.node || {};
+        var u = user.user || {};
         if (document.getElementById('rememberMe').checked) {
-          var pwField = document.getElementById('password');
-          localStorage.setItem('beacon_remembered', JSON.stringify({ account: user.account || '', password: pwField ? pwField.value : '' }));
-        } else { localStorage.removeItem('beacon_remembered'); }
-        localStorage.setItem('beacon_user', JSON.stringify({ account: user.account || '', email: user.email || '', passwordSet: user.passwordSet || false, uuid: node.uuid || '', token: node.token || '', subUrl: node.subscriptionUrl || '', verUrl: node.versionUrl || '', traffic: u.traffic || 0, used_traffic: u.used_traffic || 0 }));
-        if (data.migrationToken) { showMigrationWizard(data.migrationToken, user.account || ''); setLoading(false); return; }
-        location.href = '/user'; return;
-      } else if (code === 'AUTH_PASSWORD_SET') { showMsg('msg-success', '✅ ' + meta.title, message + ' 请使用新密码登录。'); switchMode('signin'); if (passwordInp) passwordInp.value = ''; }
-      else if (code === 'AUTH_PASSWORD_NOT_SET') { showMsg('msg-warn', '⚠️ ' + meta.title, message + ' 请使用邮箱登录或联系管理员。'); }
-      else if (code === 'AUTH_EMAIL_LOGIN_EXPIRED') { showMsg('msg-error', '⏰ ' + meta.title, message + ' 请联系管理员重置密码。'); }
-      else if (code === 'AUTH_RATE_LIMITED') { showMsg('msg-error', '❌ ' + meta.title, message + ' 请等待15分钟再试。'); }
-      else if (code === 'AUTH_INVALID_CREDENTIALS') { showMsg('msg-error', '❌ ' + meta.title, message + ' 请检查用户名和密码。'); if (passwordInp) passwordInp.value = ''; }
-      else if (code === 'AUTH_PASSWORD_TOO_WEAK') { showMsg('msg-error', '⚠️ ' + meta.title, message); }
-      else if (code === 'AUTH_VALIDATION_ERROR') { var errors = (data.data && data.data.errors) || {}; if (errors.account) accountHint.textContent = errors.account; if (errors.email) emailHint.textContent = errors.email; if (errors.password) passwordHint.textContent = errors.password; showMsg(meta.cls, '⚠️ ' + meta.title, message); }
-      else if (code === 'AUTH_USER_NOT_FOUND') { showMsg('msg-warn', '🔍 ' + meta.title, message + ' 请切换到注册模式完成注册。'); if (data.data && data.data.nextMode === 'signup') { setTimeout(function() { switchMode('signup'); }, 1200); } }
-      else if (code === 'AUTH_SIGNUP_DISABLED') { showMsg('msg-warn', '🚫 ' + meta.title, message); }
-      else if (code === 'AUTH_USER_BANNED') { showMsg('msg-error', '⛔ ' + meta.title, message + ' 请联系管理员解封。'); }
-      else { showMsg(meta.cls, '⚠️ ' + meta.title, message); }
-    } catch (err) { showMsg('msg-error', '🌐 网络错误', '请求发送失败，请检查网络连接后重试。'); }
-    finally { setLoading(false); }
+          localStorage.setItem('beacon_remembered', JSON.stringify({
+            account: user.account || '',
+            password: password || ''
+          }));
+        } else {
+          localStorage.removeItem('beacon_remembered');
+        }
+        localStorage.setItem('beacon_user', JSON.stringify({
+          account: user.account || '',
+          email: user.email || '',
+          passwordSet: user.passwordSet || false,
+          uuid: node.uuid || '',
+          token: node.token || '',
+          subUrl: node.subscriptionUrl || '',
+          verUrl: node.versionUrl || '',
+          traffic: u.traffic || 0,
+          used_traffic: u.used_traffic || 0,
+        }));
+
+        // Check if migration token present → show migration wizard
+        if (data.migrationToken) {
+          showMigrationWizard(data.migrationToken, user.account || '');
+          setLoading(false);
+          return;
+        }
+
+        location.href = '/user';
+        return;
+      } else if (code === 'AUTH_PASSWORD_SET') {
+        showMsg('msg-success', '✅ ' + meta.title, message + ' 请使用新密码登录。');
+        switchMode('signin');
+        if (passwordInp) passwordInp.value = '';
+      } else if (code === 'AUTH_PASSWORD_NOT_SET') {
+        showMsg('msg-warn', '⚠️ ' + meta.title, message + ' 请使用邮箱登录或联系管理员。');
+      } else if (code === 'AUTH_EMAIL_LOGIN_EXPIRED') {
+        showMsg('msg-error', '⏰ ' + meta.title, message + ' 请联系管理员重置密码。');
+      } else if (code === 'AUTH_RATE_LIMITED') {
+        showMsg('msg-error', '❌ ' + meta.title, message + ' 请等待15分钟再试。');
+      } else if (code === 'AUTH_INVALID_CREDENTIALS') {
+        showMsg('msg-error', '❌ ' + meta.title, message + ' 请检查用户名和密码。');
+        if (passwordInp) passwordInp.value = '';
+      } else if (code === 'AUTH_PASSWORD_TOO_WEAK') {
+        showMsg('msg-error', '⚠️ ' + meta.title, message);
+      } else if (code === 'AUTH_VALIDATION_ERROR') {
+        var errors = (data.data && data.data.errors) || {};
+        if (errors.account) accountHint.textContent = errors.account;
+        if (errors.email)   emailHint.textContent   = errors.email;
+        if (errors.password) passwordHint.textContent = errors.password;
+        showMsg(meta.cls, '⚠️ ' + meta.title, message);
+      } else if (code === 'AUTH_USER_NOT_FOUND') {
+        showMsg('msg-warn', '🔍 ' + meta.title, message + ' 请切换到注册模式完成注册。');
+        if (data.data && data.data.nextMode === 'signup') {
+          setTimeout(function() { switchMode('signup'); }, 1200);
+        }
+      } else if (code === 'AUTH_SIGNUP_DISABLED') {
+        showMsg('msg-warn', '🚫 ' + meta.title, message);
+      } else if (code === 'AUTH_USER_BANNED') {
+        showMsg('msg-error', '⛔ ' + meta.title, message + ' 请联系管理员解封。');
+      } else {
+        showMsg(meta.cls, '⚠️ ' + meta.title, message);
+      }
+    } catch (err) {
+      showMsg('msg-error', '🌐 网络错误', '请求发送失败，请检查网络连接后重试。' + (err.message ? ' (' + err.message + ')' : ''));
+    } finally {
+      setLoading(false);
+    }
   }
 
+  // migration wizard for existing users without password
   function showMigrationWizard(token, account) {
-    authPanel.style.display = 'none'; resultPanel.classList.add('show'); resultTitle.textContent = '设置登录密码'; resultSub.textContent = account + ' · 存量用户迁移';
-    resultItems.innerHTML = '<div class="migration-card" style="background:rgba(200,180,220,.08);border:1px solid rgba(200,180,220,.15);border-radius:12px;padding:18px;text-align:center">'
-      + '<p style="font-size:14px;color:#B07040;margin:0 0 6px">⚠️ 您的账户尚未设置密码，请在下方设置密码以完成迁移。</p>'
-      + '<p style="font-size:12px;color:var(--text-soft);margin:0 0 14px">邮箱登录功能将在30天后关闭，请尽快设置密码。</p>'
-      + '<div style="display:grid;gap:10px;text-align:left">'
-      + '<div><label style="font-size:12px;color:var(--text-soft);font-weight:600;display:block;margin-bottom:5px">新密码</label>'
-      + '<div style="position:relative"><input type="password" id="migPw" placeholder="至少8位，包含字母和数字" style="width:100%;background:var(--input-bg);border:1.5px solid var(--input-border);border-radius:12px;padding:11px 42px 11px 13px;color:var(--text);font-size:14px;outline:none" maxlength="128">'
-      + '<button type="button" id="migPwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px;line-height:1">👁</button></div>'
-      + '<div id="migPwStrength" style="display:none;margin-top:4px"><div style="height:4px;background:rgba(180,160,200,.15);border-radius:2px;overflow:hidden"><div id="migPwStrengthBar" style="height:100%;width:0%;transition:width .3s;border-radius:2px"></div></div><span id="migPwStrengthLabel" style="font-size:11px;margin-top:2px;display:inline-block"></span></div></div></div>'
+    // Hide the auth panel, show a dedicated migration UI
+    authPanel.style.display = 'none';
+    resultPanel.classList.add('show');
+    resultTitle.textContent = '设置登录密码';
+    resultSub.textContent = account + ' · 存量用户迁移';
+
+    resultItems.innerHTML = ''
+      + '<div class="migration-card" style="background:#111c31;border:1px solid rgba(148,163,184,.14);border-radius:14px;padding:20px;text-align:center">'
+      + '<p style="font-size:14px;color:#fde68a;margin:0 0 8px">\u26a0\ufe0f 您的账户尚未设置密码，请在下方设置密码以完成迁移。</p>'
+      + '<p style="font-size:12px;color:#94a3b8;margin:0 0 16px">邮箱登录功能将在30天后关闭，请尽快设置密码。</p>'
+      + '<div style="display:grid;gap:12px;text-align:left">'
+      + '<div>'
+      + '<label style="font-size:13px;color:#cbd5e1;font-weight:600;display:block;margin-bottom:6px">新密码</label>'
+      + '<div style="position:relative">'
+      + '<input type="password" id="migPw" placeholder="至少8位，包含字母和数字" style="width:100%;background:#020817;border:1px solid #334155;border-radius:12px;padding:13px 44px 13px 14px;color:#f8fafc;font-size:14px;outline:none" maxlength="128">'
+      + '<button type="button" id="migPwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px;padding:4px;line-height:1">👁</button>'
+      + '</div>'
+      + '<div id="migPwStrength" style="display:none;margin-top:6px">'
+      + '<div style="height:4px;background:#1e293b;border-radius:2px;overflow:hidden">'
+      + '<div id="migPwStrengthBar" style="height:100%;width:0%;transition:width .3s;border-radius:2px"></div>'
+      + '</div>'
+      + '<span id="migPwStrengthLabel" style="font-size:11px;margin-top:3px;display:inline-block"></span>'
+      + '</div>'
+      + '</div>'
+      + '</div>'
       + '<div class="msg" id="migMsg"></div>'
-      + '<button id="migSubmitBtn" class="primary-btn" style="width:100%;margin-top:10px"><span id="migSubmitText">设置密码并完成迁移</span><span class="spinner" id="migSubmitSpin"></span></button>'
-      + '<button id="migSkipBtn" style="width:100%;background:none;border:none;color:var(--text-soft);cursor:pointer;font-size:13px;margin-top:6px;text-decoration:underline">暂时跳过，进入面板</button></div></div>';
-    var migPw = document.getElementById('migPw'), migPwToggle = document.getElementById('migPwToggle');
-    var migPwStrength = document.getElementById('migPwStrength'), migPwStrengthBar = document.getElementById('migPwStrengthBar');
-    var migPwStrengthLabel = document.getElementById('migPwStrengthLabel'), migMsg = document.getElementById('migMsg');
-    var migSubmitBtn = document.getElementById('migSubmitBtn'), migSubmitText = document.getElementById('migSubmitText');
-    var migSubmitSpin = document.getElementById('migSubmitSpin'), migSkipBtn = document.getElementById('migSkipBtn');
+      + '<button id="migSubmitBtn" class="primary-btn" style="width:100%;margin-top:12px">'
+      + '<span id="migSubmitText">设置密码并完成迁移</span>'
+      + '<span class="spinner" id="migSubmitSpin"></span>'
+      + '</button>'
+      + '<button id="migSkipBtn" style="width:100%;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:13px;margin-top:8px;text-decoration:underline">暂时跳过，进入面板</button>'
+      + '</div>'
+      + '</div>';
+
+    // wire up migration form
+    var migPw = document.getElementById('migPw');
+    var migPwToggle = document.getElementById('migPwToggle');
+    var migPwStrength = document.getElementById('migPwStrength');
+    var migPwStrengthBar = document.getElementById('migPwStrengthBar');
+    var migPwStrengthLabel = document.getElementById('migPwStrengthLabel');
+    var migMsg = document.getElementById('migMsg');
+    var migSubmitBtn = document.getElementById('migSubmitBtn');
+    var migSubmitText = document.getElementById('migSubmitText');
+    var migSubmitSpin = document.getElementById('migSubmitSpin');
+    var migSkipBtn = document.getElementById('migSkipBtn');
+
     var migVisible = false;
-    migPwToggle.addEventListener('click', function() { migVisible = !migVisible; migPw.type = migVisible ? 'text' : 'password'; migPwToggle.textContent = migVisible ? '🙈' : '👁'; });
+    migPwToggle.addEventListener('click', function() {
+      migVisible = !migVisible;
+      migPw.type = migVisible ? 'text' : 'password';
+      migPwToggle.textContent = migVisible ? '🙈' : '👁';
+    });
+
     migPw.addEventListener('input', function() {
       var result = checkPwStrength(migPw.value);
-      if (result.score > 0) { migPwStrength.style.display = ''; migPwStrengthBar.style.width = (result.score * 20) + '%'; migPwStrengthBar.setAttribute('data-strength', String(result.score)); migPwStrengthLabel.textContent = '密码强度：' + result.label; }
-      else { migPwStrength.style.display = 'none'; }
+      if (result.score > 0) {
+        migPwStrength.style.display = '';
+        migPwStrengthBar.style.width = (result.score * 20) + '%';
+        migPwStrengthBar.setAttribute('data-strength', String(result.score));
+        migPwStrengthLabel.textContent = '密码强度：' + result.label;
+      } else {
+        migPwStrength.style.display = 'none';
+      }
     });
-    migSkipBtn.addEventListener('click', function() { location.href = '/user'; });
-    function setMigLoading(v) { migSubmitBtn.disabled = v; if (v) { migSubmitSpin.classList.add('show'); migSubmitText.style.opacity = '0.5'; } else { migSubmitSpin.classList.remove('show'); migSubmitText.style.opacity = '1'; } }
+
+    migSkipBtn.addEventListener('click', function() {
+      location.href = '/user';
+    });
+
+    function setMigLoading(v) {
+      migSubmitBtn.disabled = v;
+      if (v) { migSubmitSpin.classList.add('show'); migSubmitText.style.opacity = '0.5'; }
+      else   { migSubmitSpin.classList.remove('show'); migSubmitText.style.opacity = '1'; }
+    }
+
     migSubmitBtn.addEventListener('click', async function() {
       var pw = migPw.value;
-      if (!pw) { migMsg.className = 'msg msg-error show'; migMsg.innerHTML = '<strong>⚠️ 请输入密码</strong><br>密码不能为空'; return; }
-      var hasLower = /[a-z]/.test(pw), hasUpper = /[A-Z]/.test(pw), hasNumber = /[0-9]/.test(pw), hasSpecial = /[^a-zA-Z0-9]/.test(pw);
-      if (pw.length < 8 || !hasLower || !hasUpper || !hasNumber || !hasSpecial) { migMsg.className = 'msg msg-error show'; migMsg.innerHTML = '<strong>⚠️ 密码强度不足</strong><br>密码需至少8位，包含大小写字母、数字和特殊符号'; return; }
-      migMsg.className = 'msg'; migMsg.innerHTML = ''; setMigLoading(true);
+      if (!pw) {
+        migMsg.className = 'msg msg-error show';
+        migMsg.innerHTML = '<strong>\u26a0\ufe0f 请输入密码</strong><br>密码不能为空';
+        return;
+      }
+      var hasLower = /[a-z]/.test(pw);
+      var hasUpper = /[A-Z]/.test(pw);
+      var hasNumber = /[0-9]/.test(pw);
+      var hasSpecial = /[^a-zA-Z0-9]/.test(pw);
+      if (pw.length < 8 || !hasLower || !hasUpper || !hasNumber || !hasSpecial) {
+        migMsg.className = 'msg msg-error show';
+        migMsg.innerHTML = '<strong>\u26a0\ufe0f 密码强度不足</strong><br>密码需至少8位，包含大小写字母、数字和特殊符号';
+        return;
+      }
+      migMsg.className = 'msg';
+      migMsg.innerHTML = '';
+      setMigLoading(true);
       try {
-        var resp = await fetch(API_BASE + '/register/password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ migrationToken: token, password: pw }) });
+        var resp = await fetch(API_BASE + '/register/password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ migrationToken: token, password: pw }),
+        });
         var d = await resp.json();
-        if (d.code === 'AUTH_PASSWORD_SET') { migMsg.className = 'msg msg-success show'; migMsg.innerHTML = '<strong>✅ 密码设置成功</strong><br>即将跳转到用户面板...'; setTimeout(function() { location.href = '/user'; }, 1500); }
-        else { migMsg.className = 'msg msg-error show'; migMsg.innerHTML = '<strong>❌ 设置失败</strong><br>' + (d.message || '未知错误，请重试'); }
-      } catch (err) { migMsg.className = 'msg msg-error show'; migMsg.innerHTML = '<strong>🌐 网络错误</strong><br>请求发送失败，请检查网络连接'; }
-      finally { setMigLoading(false); }
+        if (d.code === 'AUTH_PASSWORD_SET') {
+          migMsg.className = 'msg msg-success show';
+          migMsg.innerHTML = '<strong>\u2705 密码设置成功</strong><br>即将跳转到用户面板...';
+          setTimeout(function() { location.href = '/user'; }, 1500);
+        } else {
+          migMsg.className = 'msg msg-error show';
+          migMsg.innerHTML = '<strong>\u274c 设置失败</strong><br>' + (d.message || '未知错误，请重试');
+        }
+      } catch (err) {
+        migMsg.className = 'msg msg-error show';
+        migMsg.innerHTML = '<strong>\U0001f310 网络错误</strong><br>请求发送失败，请检查网络连接';
+      } finally {
+        setMigLoading(false);
+      }
     });
   }
-
-  // ── TG verification ──
-  var tgVerifyPollTimer = null;
-  function showTGVerifyStep(data) {
-    authPanel.style.display = 'none'; resultPanel.classList.add('show');
-    resultTitle.textContent = '📱 Telegram 验证'; resultSub.textContent = data.account || '';
-    var code = data.code || '', groupInviteLink = data.groupInviteLink || '';
-    var remaining = Math.max(0, Math.ceil(((data.expiresAt || 0) - Date.now()) / 1000));
-    var m = Math.floor(remaining / 60), s = remaining % 60;
-    var html = '<div class="verify-step"><div class="verify-step-icon">🔐</div>';
-    html += '<p style="font-size:15px;color:var(--text);font-weight:600;margin:0 0 4px">请通过 Telegram 官方群组完成验证</p>';
-    html += '<p style="font-size:13px;color:var(--text-soft);margin:0">在官方群组内发送验证码，Bot 将自动验证您的身份</p>';
-    html += '<div class="verify-code-box"><div class="verify-code-label">验证码</div>';
-    html += '<div class="verify-code">' + escHtml(code) + '</div>';
-    html += '<div style="margin-top:6px"><button class="copy-btn" data-copy="' + escAttr('/start ' + code) + '" style="background:rgba(180,160,200,.12);color:var(--text);border:1px solid rgba(180,160,200,.2);padding:6px 14px;border-radius:10px;cursor:pointer;font-size:13px">📋 复制 /start ' + escHtml(code) + '</button></div>';
-    html += '<div class="verify-expires">⏰ 有效期 ' + m + '分' + s + '秒</div></div>';
-    html += '<div class="verify-instructions"><ol>';
-    if (groupInviteLink) { html += '<li>点击下方按钮<b>加入官方群组</b></li><li>在<b>群组内</b>发送 <code>/start ' + escHtml(code) + '</code></li>'; }
-    else { html += '<li>打开 Telegram 并<b>进入官方群组</b></li><li>在<b>群组内</b>发送 <code>/start ' + escHtml(code) + '</code></li>'; }
-    html += '<li>Bot 将在群组内<b>公开回复</b>验证结果</li><li>验证通过后本页面将<b>自动完成注册</b></li></ol></div>';
-    if (groupInviteLink) { html += '<a class="verify-tg-link" href="' + escHtml(groupInviteLink) + '" target="_blank" rel="noopener"><span>📋</span> 加入官方群组并发送验证码</a>'; }
-    else { html += '<div class="verify-tg-link" style="opacity:0.6;cursor:not-allowed"><span>⚠️</span> 群组邀请链接不可用</div>'; }
-    html += '<br><button class="verify-copy-cmd-btn" data-copy="' + escAttr('/start ' + code) + '" style="display:inline-flex;align-items:center;gap:6px;background:rgba(180,160,200,.1);color:var(--text-soft);border:1px solid rgba(180,160,200,.15);padding:9px 16px;border-radius:12px;cursor:pointer;font-size:13px;margin-top:8px">📋 复制命令 /start ' + escHtml(code) + '</button>';
-    html += '<div class="verify-polling" id="verifyPolling"><span class="spinner-sm"></span><span id="verifyPollText">等待 Telegram 验证中...</span></div>';
-    html += '<div id="verifyFailMsg" style="display:none;margin-top:10px"></div>';
-    html += '<button class="verify-back-btn" onclick="stopTGVerifyPolling();switchMode(\'signup\')">← 返回修改注册信息</button></div>';
-    resultItems.innerHTML = html;
-    resultItems.querySelectorAll('.copy-btn,.verify-copy-cmd-btn').forEach(function(btn) { btn.addEventListener('click', function() { copyText(btn.dataset.copy, btn); }); });
-    startTGVerifyPolling(data.account || '', code);
-  }
-  function startTGVerifyPolling(account, code) {
-    stopTGVerifyPolling(); var attempts = 0;
-    tgVerifyPollTimer = setInterval(async function() {
-      attempts++;
-      if (attempts > 200) { stopTGVerifyPolling(); var pe = document.getElementById('verifyPolling'); if (pe) pe.innerHTML = '<span style="color:var(--error-text)">⏰ 验证超时，请返回重新注册。</span>'; return; }
-      try {
-        var resp = await fetch(API_BASE + '/register/verify-tg/check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ account: account, code: code }) });
-        var data = await resp.json(), vcode = data.code || '';
-        if (vcode === 'AUTH_SIGNUP_SUCCESS') {
-          stopTGVerifyPolling(); resultTitle.textContent = '✅ 注册成功'; resultSub.textContent = data.data?.account || account;
-          var h2 = '<div class="verify-step"><div class="verify-success-icon">🎉</div><p style="font-size:18px;color:var(--text);font-weight:700;margin:0 0 6px">注册成功！</p><p style="font-size:14px;color:var(--text-soft);margin:0 0 4px">TG账号 ' + (data.data?.tgUsername || '') + ' 已绑定</p><p style="font-size:13px;color:var(--text-muted);margin:0 0 16px">即将跳转到登录页面...</p></div>';
-          resultItems.innerHTML = h2; setTimeout(function() { switchMode('signin'); }, 2000);
-        } else if (vcode === 'AUTH_TG_PENDING') {
-          var rem = data.data?.remainingSeconds || 0, pt = document.getElementById('verifyPollText');
-          if (pt && rem > 0) { var mm = Math.floor(rem / 60), ss = rem % 60; pt.textContent = '等待验证中... 剩余 ' + mm + '分' + ss + '秒 (' + attempts + ')'; }
-          else if (pt) pt.textContent = '等待 Telegram 验证中... (' + attempts + ')';
-        } else if (vcode === 'AUTH_TG_CODE_EXPIRED') { stopTGVerifyPolling(); var p2 = document.getElementById('verifyPolling'); if (p2) p2.innerHTML = '<span style="color:var(--error-text)">⏰ 验证码已过期，请返回重新注册。</span>'; }
-        else if (vcode === 'AUTH_TG_DUPLICATE') { stopTGVerifyPolling(); var p3 = document.getElementById('verifyPolling'); if (p3) p3.innerHTML = '<span style="color:var(--error-text)">⚠️ 该TG账号已被其他用户绑定。</span>'; }
-        else if (vcode === 'AUTH_SIGNUP_DUPLICATE_USERNAME' || vcode === 'AUTH_SIGNUP_DUPLICATE_EMAIL') { stopTGVerifyPolling(); var p4 = document.getElementById('verifyPolling'); if (p4) p4.innerHTML = '<span style="color:var(--error-text)">❌ ' + (data.message || '注册信息冲突') + '</span>'; }
-      } catch (err) { console.warn('[TG poll]', err.message); }
-    }, 3000);
-  }
-  function stopTGVerifyPolling() { if (tgVerifyPollTimer) { clearInterval(tgVerifyPollTimer); tgVerifyPollTimer = null; } }
 
   function showResult(data) {
-    authPanel.style.display = 'none'; resultPanel.classList.add('show');
-    const user = data.data || {}, node = user.node || {}, account = user.account || '';
-    resultTitle.textContent = '登录成功'; resultSub.textContent = account;
+    authPanel.style.display = 'none';
+    resultPanel.classList.add('show');
+
+    const user = data.data || {};
+    const node = user.node || {};
+    const account = user.account || '';
+    const email   = user.email || '';
+
+    resultTitle.textContent = '登录成功';
+    resultSub.textContent   = account;
+
     const items = [];
-    if (node.subscriptionUrl) items.push({ label:'订阅链接', value: node.subscriptionUrl, copy: true });
-    if (node.versionUrl) items.push({ label:'版本查询', value: node.versionUrl, copy: true });
-    if (node.registerPanelUrl) items.push({ label:'认证面板', value: node.registerPanelUrl, copy: true });
-    if (node.uuid) items.push({ label:'用户 UUID', value: node.uuid, copy: true });
-    if (node.token) items.push({ label:'订阅 Token', value: node.token, copy: true });
-    resultItems.innerHTML = items.map(item => '<div class="result-item"><strong>'+item.label+'</strong><div class="copy-row"><code>'+escHtml(item.value)+'</code>'+(item.copy?'<button class="copy-btn" data-copy="'+escAttr(item.value)+'" style="background:rgba(180,160,200,.1);border:1px solid rgba(180,160,200,.15);border-radius:10px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text)">📋 复制</button>':'')+'</div></div>').join('');
-    resultItems.querySelectorAll('.copy-btn').forEach(btn => { btn.addEventListener('click', () => copyText(btn.dataset.copy, btn)); });
+    if (node.subscriptionUrl) {
+      items.push({ label:'订阅链接', value: node.subscriptionUrl, copy: true });
+    }
+    if (node.versionUrl) {
+      items.push({ label:'版本查询', value: node.versionUrl, copy: true });
+    }
+    if (node.registerPanelUrl) {
+      items.push({ label:'认证面板', value: node.registerPanelUrl, copy: true });
+    }
+    if (node.uuid) {
+      items.push({ label:'用户 UUID', value: node.uuid, copy: true });
+    }
+    if (node.token) {
+      items.push({ label:'订阅 Token', value: node.token, copy: true });
+    }
+
+    resultItems.innerHTML = items.map(item => `
+      <div class="result-item">
+        <strong>${item.label}</strong>
+        <div class="copy-row">
+          <code>${escHtml(item.value)}</code>
+          ${item.copy ? `<button class="copy-btn" data-copy="${escAttr(item.value)}">📋 复制</button>` : ''}
+        </div>
+      </div>
+    `).join('');
+
+    // attach copy handlers
+    resultItems.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => copyText(btn.dataset.copy, btn));
+    });
   }
 
-  function setLoading(v) { state.loading = v; submitBtn.disabled = v; if (v) { submitSpin.classList.add('show'); submitText.style.opacity = '0.5'; } else { submitSpin.classList.remove('show'); submitText.style.opacity = '1'; } $$('.tab-btn').forEach(b => b.disabled = v); }
-  function showMsg(cls, title, desc) { authMsg.className = 'msg ' + cls + ' show'; authMsg.innerHTML = '<strong>' + escHtml(title) + '</strong><br>' + escHtml(desc); }
-  function clearMsg() { authMsg.className = 'msg'; authMsg.innerHTML = ''; }
-  function clearHints() { accountHint.textContent = ''; emailHint.textContent = ''; accountInp.removeAttribute('aria-invalid'); emailInp.removeAttribute('aria-invalid'); passwordInp.removeAttribute('aria-invalid'); passwordHint.textContent = ''; }
+  // ── TG verification step ──
+  var tgVerifyPollTimer = null;
+  var tgVerifyData = null;
 
+  function showTGVerifyStep(data) {
+    tgVerifyData = data;
+    authPanel.style.display = 'none';
+    resultPanel.classList.add('show');
+    resultTitle.textContent = '📱 Telegram 验证';
+    resultSub.textContent = data.account || '';
+
+    var code = data.code || '';
+    var botUsername = data.botUsername || 'unknown_bot';
+    var groupInviteLink = data.groupInviteLink || '';
+    var expiresAt = data.expiresAt || 0;
+    var remaining = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
+    var minutes = Math.floor(remaining / 60);
+    var seconds = remaining % 60;
+
+    var tgDeepLink = '';
+    var html = '';
+    html += '<div class="verify-step">';
+    html += '<div class="verify-step-icon">🔐</div>';
+    html += '<p style="font-size:15px;color:#e2e8f0;margin:0 0 4px;font-weight:600">请通过 Telegram 官方群组完成验证</p>';
+    html += '<p style="font-size:13px;color:#94a3b8;margin:0">在官方群组内发送验证码，Bot 将自动验证您的身份</p>';
+
+    // verification code box
+    html += '<div class="verify-code-box">';
+    html += '<div class="verify-code-label">验证码</div>';
+    html += '<div class="verify-code">' + escHtml(code) + '</div>';
+    html += '<div style="margin-top:6px"><button class="copy-btn" data-copy="' + escAttr('/start ' + code) + '" style="background:#334155;color:#e2e8f0;border:1px solid #475569;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:13px">📋 复制 /start ' + escHtml(code) + '</button></div>';
+    html += '<div class="verify-expires">⏰ 有效期 ' + minutes + '分' + seconds + '秒</div>';
+    html += '</div>';
+
+    // instructions
+    html += '<div class="verify-instructions">';
+    html += '<ol>';
+    if (groupInviteLink) {
+      html += '<li>点击下方按钮<b>加入官方群组</b></li>';
+      html += '<li>在<b>群组内</b>发送 <code>/start ' + escHtml(code) + '</code></li>';
+    } else {
+      html += '<li>打开 Telegram 并<b>进入官方群组</b></li>';
+      html += '<li>在<b>群组内</b>发送 <code>/start ' + escHtml(code) + '</code></li>';
+    }
+    html += '<li>Bot 将在群组内<b>公开回复</b>验证结果</li>';
+    html += '<li>验证通过后本页面将<b>自动完成注册</b></li>';
+    html += '</ol>';
+    html += '</div>';
+
+    // action button: join official group + copy verify command
+    if (groupInviteLink) {
+      html += '<a class="verify-tg-link" href="' + escHtml(groupInviteLink) + '" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#25a55a,#2ecc71)">';
+      html += '<span>📋</span> 加入官方群组并发送验证码</a>';
+      html += '<br><button class="verify-copy-cmd-btn" data-copy="' + escAttr('/start ' + code) + '" style="display:inline-flex;align-items:center;gap:6px;background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:10px 18px;border-radius:10px;cursor:pointer;font-size:13px;margin-top:8px;transition:all .2s" onmouseover="this.style.borderColor=\'#475569\';this.style.color=\'#e2e8f0\'" onmouseout="this.style.borderColor=\'#334155\';this.style.color=\'#94a3b8\'">📋 复制命令 /start ' + escHtml(code) + '</button>';
+    } else {
+      html += '<div class="verify-tg-link" style="background:#334155;cursor:not-allowed;opacity:0.7">';
+      html += '<span>⚠️</span> 群组邀请链接不可用，请联系管理员</div>';
+      html += '<br><button class="verify-copy-cmd-btn" data-copy="' + escAttr('/start ' + code) + '" style="display:inline-flex;align-items:center;gap:6px;background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:10px 18px;border-radius:10px;cursor:pointer;font-size:13px;margin-top:8px;transition:all .2s" onmouseover="this.style.borderColor=\'#475569\';this.style.color=\'#e2e8f0\'" onmouseout="this.style.borderColor=\'#334155\';this.style.color=\'#94a3b8\'">📋 复制命令 /start ' + escHtml(code) + '</button>';
+    }
+
+    // polling indicator with status display
+    html += '<div class="verify-polling" id="verifyPolling">';
+    html += '<span class="spinner-sm"></span>';
+    html += '<span id="verifyPollText">等待 Telegram 验证中...</span>';
+    html += '</div>';
+
+    // failure display area
+    html += '<div id="verifyFailMsg" style="display:none;margin-top:12px"></div>';
+
+    // back button
+    html += '<button class="verify-back-btn" onclick="stopTGVerifyPolling(); switchMode(\'signup\');">← 返回修改注册信息</button>';
+    html += '</div>';
+
+    resultItems.innerHTML = html;
+
+    // attach copy handlers
+    resultItems.querySelectorAll('.copy-btn, .verify-copy-cmd-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() { copyText(btn.dataset.copy, btn); });
+    });
+
+    // start polling
+    startTGVerifyPolling(data.account || '', code);
+  }
+
+  function startTGVerifyPolling(account, code) {
+    stopTGVerifyPolling();
+    var attempts = 0;
+    var maxAttempts = 200; // ~10 minutes at 3s intervals
+
+    tgVerifyPollTimer = setInterval(async function() {
+      attempts++;
+      if (attempts > maxAttempts) {
+        stopTGVerifyPolling();
+        var pollEl = document.getElementById('verifyPolling');
+        if (pollEl) pollEl.innerHTML = '<span style="color:#ef4444">⏰ 验证超时，请返回重新注册。</span>';
+        showVerifyFail('验证已超时（10分钟），请返回注册页面重新发起注册。');
+        return;
+      }
+
+      try {
+        var resp = await fetch(API_BASE + '/register/verify-tg/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ account: account, code: code }),
+        });
+        var data = await resp.json();
+        var vcode = data.code || '';
+
+        if (vcode === 'AUTH_SIGNUP_SUCCESS') {
+          // Verified and user created!
+          stopTGVerifyPolling();
+          resultTitle.textContent = '✅ 注册成功';
+          resultSub.textContent = data.data?.account || account;
+          var html2 = '';
+          html2 += '<div class="verify-step">';
+          html2 += '<div class="verify-success-icon">🎉</div>';
+          html2 += '<p style="font-size:18px;color:#e2e8f0;font-weight:700;margin:0 0 8px">注册成功！</p>';
+          html2 += '<p style="font-size:14px;color:#94a3b8;margin:0 0 4px">TG账号 ' + (data.data?.tgUsername || '') + ' 已绑定</p>';
+          html2 += '<p style="font-size:13px;color:#64748b;margin:0 0 20px">即将跳转到登录页面...</p>';
+          html2 += '</div>';
+          resultItems.innerHTML = html2;
+          setTimeout(function() { switchMode('signin'); }, 2000);
+        } else if (vcode === 'AUTH_TG_PENDING') {
+          // Still waiting - update remaining time
+          var remaining = data.data?.remainingSeconds || 0;
+          var pollText = document.getElementById('verifyPollText');
+          if (pollText && remaining > 0) {
+            var m = Math.floor(remaining / 60);
+            var s = remaining % 60;
+            pollText.textContent = '等待验证中... 剩余 ' + m + '分' + s + '秒 (' + attempts + ')';
+          } else if (pollText) {
+            pollText.textContent = '等待 Telegram 验证中... (' + attempts + ')';
+          }
+        } else if (vcode === 'AUTH_TG_CODE_EXPIRED') {
+          stopTGVerifyPolling();
+          var pollEl = document.getElementById('verifyPolling');
+          if (pollEl) pollEl.innerHTML = '<span style="color:#ef4444">⏰ 验证码已过期，请返回重新注册。</span>';
+        } else if (vcode === 'AUTH_TG_DUPLICATE') {
+          stopTGVerifyPolling();
+          var pollEl2 = document.getElementById('verifyPolling');
+          if (pollEl2) pollEl2.innerHTML = '<span style="color:#ef4444">⚠️ 该TG账号已被其他用户绑定。</span>';
+        } else if (vcode === 'AUTH_SIGNUP_DUPLICATE_USERNAME' || vcode === 'AUTH_SIGNUP_DUPLICATE_EMAIL') {
+          stopTGVerifyPolling();
+          var pollEl3 = document.getElementById('verifyPolling');
+          if (pollEl3) pollEl3.innerHTML = '<span style="color:#ef4444">❌ ' + (data.message || '注册信息冲突，请返回重新注册。') + '</span>';
+        } else if (resp.status >= 500) {
+          // Server error - keep polling but log
+          console.warn('[TG Verify] Server error:', vcode, data.message);
+        }
+        // other errors: keep polling silently
+      } catch (err) {
+        // Network error - keep polling
+        console.warn('[TG Verify] Poll error:', err.message);
+      }
+    }, 3000);
+  }
+
+  function showVerifyFail(message) {
+    var failEl = document.getElementById('verifyFailMsg');
+    if (failEl) {
+      failEl.style.display = 'block';
+      failEl.innerHTML = '<div style="background:#450a0a;border:1px solid #dc2626;border-radius:10px;padding:12px 16px;color:#fca5a5;font-size:13px">' + escHtml(message) + '</div>';
+    }
+  }
+
+  function stopTGVerifyPolling() {
+    if (tgVerifyPollTimer) {
+      clearInterval(tgVerifyPollTimer);
+      tgVerifyPollTimer = null;
+    }
+  }
+
+  // ── helpers ──
+  function setLoading(v) {
+    state.loading = v;
+    submitBtn.disabled = v;
+    if (v) { submitSpin.classList.add('show'); submitText.style.opacity = '0.5'; }
+    else   { submitSpin.classList.remove('show'); submitText.style.opacity = '1'; }
+    $$('.tab-btn').forEach(b => b.disabled = v);
+  }
+
+  function showMsg(cls, title, desc) {
+    authMsg.className = 'msg ' + cls + ' show';
+    authMsg.innerHTML = '<strong>' + escHtml(title) + '</strong><br>' + escHtml(desc);
+  }
+
+  function clearMsg() {
+    authMsg.className = 'msg';
+    authMsg.innerHTML = '';
+  }
+
+  function clearHints() {
+    accountHint.textContent = '';
+    emailHint.textContent = '';
+    accountInp.removeAttribute('aria-invalid');
+    emailInp.removeAttribute('aria-invalid');
+    passwordInp.removeAttribute('aria-invalid');
+    passwordHint.textContent = '';
+  }
+
+  // password visibility toggle
   var _pwVisible = false;
-  pwToggle.addEventListener('click', function() { _pwVisible = !_pwVisible; passwordInp.type = _pwVisible ? 'text' : 'password'; pwToggle.textContent = _pwVisible ? '🙈' : '👁'; });
+  pwToggle.addEventListener('click', function() {
+    _pwVisible = !_pwVisible;
+    passwordInp.type = _pwVisible ? 'text' : 'password';
+    pwToggle.textContent = _pwVisible ? '🙈' : '👁';
+  });
 
+  // password strength checker
   function checkPwStrength(pw) {
     if (!pw) return { score: 0, label: '' };
-    var score = 0; if (pw.length >= 8) score++; if (pw.length >= 12) score++;
-    if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++; if (/[0-9]/.test(pw)) score++; if (/[^a-zA-Z0-9]/.test(pw)) score++;
-    var labels = ['', '弱', '较弱', '中等', '强', '很强']; return { score: Math.min(score, 5), label: labels[Math.min(score, 5)] };
+    var score = 0;
+    if (pw.length >= 8) score++;
+    if (pw.length >= 12) score++;
+    if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^a-zA-Z0-9]/.test(pw)) score++;
+    var labels = ['', '弱', '较弱', '中等', '强', '很强'];
+    return { score: Math.min(score, 5), label: labels[Math.min(score, 5)] };
   }
+
   passwordInp.addEventListener('input', function() {
     var result = checkPwStrength(passwordInp.value);
-    if (result.score > 0) { pwStrength.style.display = ''; pwStrengthBar.style.width = (result.score * 20) + '%'; pwStrengthBar.setAttribute('data-strength', String(result.score)); pwStrengthLabel.textContent = '密码强度：' + result.label; }
-    else { pwStrength.style.display = 'none'; }
+    if (result.score > 0) {
+      pwStrength.style.display = '';
+      pwStrengthBar.style.width = (result.score * 20) + '%';
+      pwStrengthBar.setAttribute('data-strength', String(result.score));
+      pwStrengthLabel.textContent = '密码强度：' + result.label;
+    } else {
+      pwStrength.style.display = 'none';
+    }
   });
-  oldLoginBtn.addEventListener('click', function() { var ef = document.getElementById('emailField'), pf = document.getElementById('passwordField'); if (ef) ef.style.display = ''; if (pf) pf.style.display = 'none'; if (oldLoginToggle) oldLoginToggle.style.display = 'none'; submitText.textContent = '邮箱登录'; state._oldLogin = true; });
+
+  // old email login for migrated users
+  oldLoginBtn.addEventListener('click', function() {
+    var ef = document.getElementById('emailField');
+    var pf = document.getElementById('passwordField');
+    var accountInp = document.getElementById('account');
+    if (ef) ef.style.display = '';
+    if (pf) pf.style.display = 'none';
+    if (oldLoginToggle) oldLoginToggle.style.display = 'none';
+    submitText.textContent = '邮箱登录';
+    state._oldLogin = true;
+    // 提示：旧登录模式下用户名框填入邮箱即可
+    if (accountInp) accountInp.placeholder = '在此输入您的注册邮箱';
+  });
+
 
   function copyText(text, btn) {
-    if (navigator.clipboard) { navigator.clipboard.writeText(text).then(() => showToast('已复制到剪贴板')); }
-    else { const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('已复制到剪贴板'); }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => showToast('已复制到剪贴板'));
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      showToast('已复制到剪贴板');
+    }
   }
-  function showToast(msg) { const t = document.createElement('div'); t.className = 'copy-toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(function() { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; }, 1500); setTimeout(function() { document.body.removeChild(t); }, 2000); }
 
+  function showToast(msg) {
+    var t = document.createElement('div');
+    t.className = 'copy-toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function() { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; }, 1500);
+    setTimeout(function() { document.body.removeChild(t); }, 2000);
+  }
+
+  // ── forgot password flow ──
   var forgotState = { token: '', uuid: '', account: '' };
-  function showForgotPassword() { document.getElementById('forgotPanel').style.display = ''; document.getElementById('authPanel').style.display = 'none'; document.getElementById('resultPanel').classList.remove('show'); document.getElementById('forgotStep1').style.display = ''; document.getElementById('forgotStep2').style.display = 'none'; document.getElementById('forgotStep3').style.display = 'none'; document.getElementById('forgotId').value = ''; document.getElementById('forgotId').focus(); forgotState = { token: '', uuid: '', account: '' }; }
-  function hideForgotPassword() { document.getElementById('forgotPanel').style.display = 'none'; document.getElementById('authPanel').style.display = ''; }
+
+  function showForgotPassword() {
+    document.getElementById('forgotPanel').style.display = '';
+    document.getElementById('authPanel').style.display = 'none';
+    document.getElementById('resultPanel').classList.remove('show');
+    document.getElementById('forgotStep1').style.display = '';
+    document.getElementById('forgotStep2').style.display = 'none';
+    document.getElementById('forgotStep3').style.display = 'none';
+    document.getElementById('forgotId').value = '';
+    document.getElementById('forgotId').focus();
+    forgotState = { token: '', uuid: '', account: '' };
+  }
+
+  function hideForgotPassword() {
+    document.getElementById('forgotPanel').style.display = 'none';
+    document.getElementById('authPanel').style.display = '';
+  }
 
   (function setupForgotPassword() {
-    var forgotId = document.getElementById('forgotId'), forgotSubmitBtn = document.getElementById('forgotSubmitBtn'), forgotSubmitText = document.getElementById('forgotSubmitText'), forgotSpin = document.getElementById('forgotSpin');
-    var forgotToResetBtn = document.getElementById('forgotToResetBtn'), forgotResetBtn = document.getElementById('forgotResetBtn'), forgotResetText = document.getElementById('forgotResetText'), forgotResetSpin = document.getElementById('forgotResetSpin');
-    var forgotPwToggle = document.getElementById('forgotPwToggle'), forgotPwVisible = false;
+    var forgotId = document.getElementById('forgotId');
+    var forgotSubmitBtn = document.getElementById('forgotSubmitBtn');
+    var forgotSubmitText = document.getElementById('forgotSubmitText');
+    var forgotSpin = document.getElementById('forgotSpin');
+    var forgotToResetBtn = document.getElementById('forgotToResetBtn');
+    var forgotResetBtn = document.getElementById('forgotResetBtn');
+    var forgotResetText = document.getElementById('forgotResetText');
+    var forgotResetSpin = document.getElementById('forgotResetSpin');
+    var forgotPwToggle = document.getElementById('forgotPwToggle');
+    var forgotPwVisible = false;
+
     document.getElementById('forgotPwLink').addEventListener('click', function(e) { e.preventDefault(); showForgotPassword(); });
-    forgotPwToggle.addEventListener('click', function() { forgotPwVisible = !forgotPwVisible; document.getElementById('forgotNewPw').type = forgotPwVisible ? 'text' : 'password'; forgotPwToggle.textContent = forgotPwVisible ? '🙈' : '👁'; });
-    forgotSubmitBtn.addEventListener('click', async function() {
-      var id = forgotId.value.trim(); if (!id) { alert('请输入邮箱或 UUID'); return; }
-      forgotSubmitText.textContent = '验证中...'; forgotSpin.classList.add('show'); forgotSubmitBtn.disabled = true;
-      try {
-        var resp = await fetch('/register/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ identifier: id }) });
-        var d = await resp.json();
-        if (d.code === 'FORGOT_PASSWORD_SUCCESS') { forgotState.token = d.data.token; forgotState.uuid = d.data.uuid; forgotState.account = d.data.account; document.getElementById('forgotStep1').style.display = 'none'; document.getElementById('forgotStep2').style.display = ''; document.getElementById('forgotStep2Msg').innerHTML = '<strong>✅ 验证通过</strong><br>账户：' + escHtml(d.data.account) + ' · 邮箱：' + escHtml(d.data.emailHint); document.getElementById('forgotToken').value = d.data.token; }
-        else { alert(d.message || '验证失败'); }
-      } catch(e) { alert('网络错误: ' + (e.message || '请求失败')); }
-      forgotSubmitText.textContent = '验证身份'; forgotSpin.classList.remove('show'); forgotSubmitBtn.disabled = false;
+
+    forgotPwToggle.addEventListener('click', function() {
+      forgotPwVisible = !forgotPwVisible;
+      document.getElementById('forgotNewPw').type = forgotPwVisible ? 'text' : 'password';
+      forgotPwToggle.textContent = forgotPwVisible ? '🙈' : '👁';
     });
+
+    // Step 1: verify identity
+    forgotSubmitBtn.addEventListener('click', async function() {
+      var id = forgotId.value.trim();
+      if (!id) { alert('请输入邮箱或 UUID'); return; }
+      forgotSubmitText.textContent = '验证中...';
+      forgotSpin.classList.add('show');
+      forgotSubmitBtn.disabled = true;
+      try {
+        var resp = await fetch('/register/forgot-password', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier: id }),
+        });
+        var d = await resp.json();
+        if (d.code === 'FORGOT_PASSWORD_SUCCESS') {
+          forgotState.token = d.data.token;
+          forgotState.uuid = d.data.uuid;
+          forgotState.account = d.data.account;
+          document.getElementById('forgotStep1').style.display = 'none';
+          document.getElementById('forgotStep2').style.display = '';
+          document.getElementById('forgotStep2Msg').innerHTML = '<strong>✅ 验证通过</strong><br>账户：' + escHtml(d.data.account) + ' · 邮箱：' + escHtml(d.data.emailHint);
+          document.getElementById('forgotToken').value = d.data.token;
+        } else {
+          alert(d.message || '验证失败');
+        }
+      } catch(e) { alert('网络错误: ' + (e.message || '请求失败')); }
+      forgotSubmitText.textContent = '验证身份';
+      forgotSpin.classList.remove('show');
+      forgotSubmitBtn.disabled = false;
+    });
+
+    // Enter key on forgotId triggers submit
     forgotId.addEventListener('keydown', function(e) { if (e.key === 'Enter') forgotSubmitBtn.click(); });
-    forgotToResetBtn.addEventListener('click', function() { document.getElementById('forgotStep2').style.display = 'none'; document.getElementById('forgotStep3').style.display = ''; document.getElementById('forgotAccountName').textContent = forgotState.account || forgotState.uuid; document.getElementById('forgotNewPw').value = ''; document.getElementById('forgotConfirmPw').value = ''; });
+
+    // Step 2 → Step 3
+    forgotToResetBtn.addEventListener('click', function() {
+      document.getElementById('forgotStep2').style.display = 'none';
+      document.getElementById('forgotStep3').style.display = '';
+      document.getElementById('forgotAccountName').textContent = forgotState.account || forgotState.uuid;
+      document.getElementById('forgotNewPw').value = '';
+      document.getElementById('forgotConfirmPw').value = '';
+    });
+
+    // Step 3: reset password
     forgotResetBtn.addEventListener('click', async function() {
-      var pw = document.getElementById('forgotNewPw').value, cpw = document.getElementById('forgotConfirmPw').value, msgEl = document.getElementById('forgotMsg');
+      var pw = document.getElementById('forgotNewPw').value;
+      var cpw = document.getElementById('forgotConfirmPw').value;
+      var msgEl = document.getElementById('forgotMsg');
       if (!pw) { msgEl.className = 'msg msg-error show'; msgEl.innerHTML = '请输入新密码'; return; }
       if (pw.length < 8 || pw.length > 20) { msgEl.className = 'msg msg-error show'; msgEl.innerHTML = '密码长度需为8-20位'; return; }
-      if (!/[a-zA-Z]/.test(pw) || !/[0-9]/.test(pw) || !/[^a-zA-Z0-9]/.test(pw)) { msgEl.className = 'msg msg-error show'; msgEl.innerHTML = '密码需含字母、数字及特殊字符'; return; }
+      if (!/[a-zA-Z]/.test(pw) || !/[0-9]/.test(pw) || !/[^a-zA-Z0-9]/.test(pw)) {
+        msgEl.className = 'msg msg-error show'; msgEl.innerHTML = '密码需含字母、数字及特殊字符'; return;
+      }
       if (pw !== cpw) { msgEl.className = 'msg msg-error show'; msgEl.innerHTML = '两次输入密码不一致'; return; }
-      msgEl.className = 'msg'; msgEl.innerHTML = ''; forgotResetText.textContent = '重置中...'; forgotResetSpin.classList.add('show'); forgotResetBtn.disabled = true;
+      msgEl.className = 'msg'; msgEl.innerHTML = '';
+      forgotResetText.textContent = '重置中...';
+      forgotResetSpin.classList.add('show');
+      forgotResetBtn.disabled = true;
       try {
-        var resp = await fetch('/register/reset-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: forgotState.token, newPassword: pw, confirmPassword: cpw }) });
+        var resp = await fetch('/register/reset-password', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: forgotState.token, newPassword: pw, confirmPassword: cpw }),
+        });
         var d = await resp.json();
-        if (d.code === 'PASSWORD_RESET_SUCCESS') { msgEl.className = 'msg msg-success show'; msgEl.innerHTML = '<strong>✅ 密码重置成功</strong><br>即将跳转到登录页面...'; document.getElementById('account').value = forgotState.account || ''; setTimeout(function() { hideForgotPassword(); switchMode('signin'); }, 1500); }
-        else { msgEl.className = 'msg msg-error show'; msgEl.innerHTML = '<strong>❌ 重置失败</strong><br>' + (d.message || '未知错误'); }
-      } catch(e) { msgEl.className = 'msg msg-error show'; msgEl.innerHTML = '<strong>🌐 网络错误</strong><br>' + (e.message || '请求发送失败'); }
-      forgotResetText.textContent = '重置密码'; forgotResetSpin.classList.remove('show'); forgotResetBtn.disabled = false;
+        if (d.code === 'PASSWORD_RESET_SUCCESS') {
+          msgEl.className = 'msg msg-success show';
+          msgEl.innerHTML = '<strong>✅ 密码重置成功</strong><br>即将跳转到登录页面...';
+          document.getElementById('account').value = forgotState.account || '';
+          setTimeout(function() { hideForgotPassword(); switchMode('signin'); }, 1500);
+        } else {
+          msgEl.className = 'msg msg-error show';
+          msgEl.innerHTML = '<strong>❌ 重置失败</strong><br>' + (d.message || '未知错误');
+        }
+      } catch(e) {
+        msgEl.className = 'msg msg-error show';
+        msgEl.innerHTML = '<strong>🌐 网络错误</strong><br>' + (e.message || '请求发送失败');
+      }
+      forgotResetText.textContent = '重置密码';
+      forgotResetSpin.classList.remove('show');
+      forgotResetBtn.disabled = false;
     });
   })();
 
-  function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-  function escAttr(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function escAttr(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
 })();
 </script>
 </body>
