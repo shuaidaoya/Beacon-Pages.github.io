@@ -4,181 +4,364 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>Beacon 灯塔 · 认证面板</title>
+<title>Beacon 灯塔 · 认证面板 · 注册</title>
 <style>
+/* ══════════════════════════════════════════════════════
+   二次元樱风 · 认证面板  — 马卡龙色系 + 错落布局
+   ══════════════════════════════════════════════════════ */
 *{box-sizing:border-box}
-body{
-  margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  background:#020817;color:#e2e8f0;min-height:100vh;
-  display:flex;align-items:center;justify-content:center;padding:24px 16px;
+
+/* ── CSS 变量 ── */
+:root{
+  --pink:#FF9AA2; --pink-deep:#FF808D; --pink-light:#FFD4D8; --pink-glow:rgba(255,154,162,.25);
+  --lavender:#C3B1E1; --lavender-deep:#B5A0D8; --lavender-light:#EDE4F5;
+  --sky:#B5D8F7; --sky-light:#E0F0FF;
+  --card-bg:rgba(255,255,255,.86); --card-border:rgba(210,180,220,.30);
+  --text:#5D4E6D; --text-soft:#8B7D9B; --text-muted:#B5A8C0;
+  --input-bg:rgba(255,255,255,.92); --input-border:#E2D8EE; --input-focus:rgba(255,154,162,.22);
+  --success:#B5EAD7; --success-text:#3B7A5E;
+  --error:#FFD4D8; --error-text:#C44D5A;
+  --warn:#FFE5D4; --warn-text:#B57A4A;
+  --info:#D4E5FF; --info-text:#5A7AB5;
 }
-.wrap{max-width:480px;width:100%}
-/* ── hero ── */
-.hero{text-align:center;margin-bottom:24px;padding:28px 20px 24px;
-  background:linear-gradient(135deg,rgba(37,99,235,.08),rgba(124,58,237,.06));
-  border:1px solid rgba(99,102,241,.15);border-radius:20px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
-  background:radial-gradient(circle at 30% 40%,rgba(99,102,241,.12) 0%,transparent 50%),
-             radial-gradient(circle at 70% 60%,rgba(139,92,246,.08) 0%,transparent 50%);pointer-events:none}
-.hero-logo{display:inline-flex;align-items:center;gap:10px;margin-bottom:16px;position:relative}
-.hero-icon{width:40px;height:40px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:12px;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* ── 背景层 ── */
+body{
+  margin:0;font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+  background:linear-gradient(160deg,#FFF5F7 0%,#F8F0FF 35%,#F0F5FF 70%,#FFF5F7 100%);
+  color:var(--text);min-height:100vh;overflow-x:hidden;
+  display:flex;align-items:center;justify-content:center;padding:24px 16px;
+  position:relative;
+}
+/* 柔焦光斑 */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 420px 380px at 15% 20%,rgba(255,180,200,.18) 0%,transparent 70%),
+    radial-gradient(ellipse 360px 340px at 85% 75%,rgba(180,160,220,.16) 0%,transparent 70%),
+    radial-gradient(ellipse 280px 300px at 50% 50%,rgba(170,200,240,.12) 0%,transparent 70%),
+    radial-gradient(ellipse 200px 200px at 75% 15%,rgba(255,210,180,.10) 0%,transparent 70%);
+}
+/* 星光点容器 */
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+.star{
+  position:absolute;border-radius:50%;background:#fff;
+  box-shadow:0 0 3px rgba(255,200,220,.6),0 0 8px rgba(255,180,200,.3);
+  animation:twinkle var(--d,3s) ease-in-out infinite;
+  animation-delay:var(--delay,0s);
+}
+@keyframes twinkle{0%,100%{opacity:.25;transform:scale(1)}50%{opacity:.8;transform:scale(1.5)}}
+/* 樱花飘落 */
+.sakura-container{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.sakura-petal{
+  position:absolute;top:-30px;
+  width:var(--sz,12px);height:var(--sz,12px);
+  background:radial-gradient(circle at 30% 30%,#FFD4D8,#FFB7C5);
+  border-radius:50% 0 50% 50%;
+  opacity:.65;
+  animation:sakura-fall var(--fall-dur,10s) linear infinite;
+  animation-delay:var(--fall-delay,0s);
+  left:var(--start-x,10%);
+}
+@keyframes sakura-fall{
+  0%{transform:translateY(0) rotate(0deg) translateX(0);opacity:.7}
+  25%{transform:translateY(25vh) rotate(90deg) translateX(30px);opacity:.6}
+  50%{transform:translateY(50vh) rotate(180deg) translateX(-20px);opacity:.55}
+  75%{transform:translateY(75vh) rotate(270deg) translateX(25px);opacity:.45}
+  100%{transform:translateY(105vh) rotate(360deg) translateX(-10px);opacity:.2}
+}
+
+/* ── 主容器 ── */
+.wrap{max-width:500px;width:100%;position:relative;z-index:1}
+
+/* ── Hero 区域 ── */
+.hero{
+  text-align:center;margin-bottom:20px;padding:24px 20px 20px;
+  background:var(--card-bg);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  border:1px solid var(--card-border);border-radius:22px;
+  position:relative;overflow:visible;
+  box-shadow:0 4px 24px rgba(180,150,210,.14);
+}
+.hero::before{
+  content:'';position:absolute;top:0;left:30px;right:30px;height:3px;
+  background:linear-gradient(90deg,var(--pink),var(--lavender),var(--sky));
+  border-radius:0 0 3px 3px;
+}
+.hero-deco{position:absolute;font-size:22px;opacity:.5;pointer-events:none}
+.hero-deco--tl{top:-6px;left:16px;animation:float-deco 4s ease-in-out infinite}
+.hero-deco--br{bottom:-6px;right:16px;animation:float-deco 4s ease-in-out infinite;animation-delay:-2s}
+@keyframes float-deco{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.hero-logo{display:inline-flex;align-items:center;gap:10px;margin-bottom:12px;position:relative}
+.hero-icon{
+  width:42px;height:42px;
+  background:linear-gradient(135deg,var(--pink),var(--lavender-deep));
+  border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  box-shadow:0 4px 14px var(--pink-glow);
+}
 .hero-icon svg{width:22px;height:22px;fill:#fff}
-.hero-name{font-size:20px;font-weight:800;
-  background:linear-gradient(135deg,#60a5fa,#c084fc);-webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;background-clip:text}
-.hero-slogan{font-size:26px;font-weight:800;line-height:1.3;margin:0 0 8px;letter-spacing:.5px;position:relative;color:#f1f5f9}
-.hero-desc{font-size:14px;color:#94a3b8;line-height:1.6;margin:0;position:relative}
-.features{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px;position:relative}
-.feature-tag{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:999px;
-  font-size:12px;font-weight:600;background:rgba(148,163,184,.08);border:1px solid rgba(148,163,184,.12);color:#cbd5e1}
-.feature-dot{width:6px;height:6px;border-radius:50%;background:#3b82f6;flex-shrink:0}
-/* ── panel ── */
-.panel{background:#0f172a;border:1px solid #1e293b;border-radius:20px;box-shadow:0 10px 30px rgba(2,8,23,.35)}
+.hero-name{
+  font-size:20px;font-weight:800;
+  background:linear-gradient(135deg,var(--pink-deep),var(--lavender-deep));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-slogan{font-size:24px;font-weight:800;line-height:1.3;margin:0 0 6px;color:var(--text)}
+.hero-desc{font-size:13px;color:var(--text-soft);line-height:1.6;margin:0}
+.features{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+.feature-tag{
+  display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:99px;
+  font-size:12px;font-weight:600;
+  background:var(--lavender-light);color:var(--text-soft);
+  border:1px solid rgba(195,177,225,.25);
+}
+.feature-dot{width:6px;height:6px;border-radius:50%;background:var(--pink);flex-shrink:0}
+
+/* ── 面板 ── */
+.panel{
+  background:var(--card-bg);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  border:1px solid var(--card-border);border-radius:22px;
+  box-shadow:0 6px 28px rgba(180,150,210,.14);
+}
 .auth-panel,.result-panel{padding:28px}
-.auth-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
-.auth-title{font-size:22px;font-weight:700}
-.auth-desc{color:#94a3b8;font-size:14px;line-height:1.6;margin-top:4px}
-.tabs{display:inline-flex;gap:8px;padding:6px;background:#0b1220;border:1px solid #1e293b;border-radius:14px}
-.tab-btn{border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;
-  background:transparent;color:#cbd5e1;transition:all .2s}
-.tab-btn[aria-selected="true"]{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff}
-.tab-btn:not([aria-selected]):hover{color:#e2e8f0;background:rgba(148,163,184,.08)}
-/* ── form ── */
+.auth-head{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;margin-bottom:20px;
+}
+.auth-title{font-size:22px;font-weight:700;color:var(--text)}
+.auth-desc{color:var(--text-soft);font-size:14px;line-height:1.6;margin-top:4px}
+
+/* ── 标签切换 ── */
+.tabs{
+  display:inline-flex;gap:4px;padding:4px;
+  background:rgba(200,180,220,.12);border:1px solid rgba(200,180,220,.18);
+  border-radius:14px;
+}
+.tab-btn{
+  border:none;border-radius:11px;padding:9px 18px;font-size:13px;font-weight:700;
+  cursor:pointer;background:transparent;color:var(--text-soft);
+  transition:all .25s;
+}
+.tab-btn[aria-selected="true"]{
+  background:linear-gradient(135deg,var(--lavender),var(--pink-light));
+  color:#fff;box-shadow:0 2px 8px var(--pink-glow);
+}
+.tab-btn:not([aria-selected]):hover{color:var(--text);background:rgba(200,180,220,.15)}
+
+/* ── 表单 ── */
 .form{display:grid;gap:16px}
-.field{display:grid;gap:8px}
-.field label{font-size:13px;color:#cbd5e1;font-weight:600}
-.field input{background:#020817;border:1px solid #334155;border-radius:12px;padding:13px 14px;
-  color:#f8fafc;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s}
-.field input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.18)}
-.field input[aria-invalid="true"]{border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.15)}
-.field-hint{font-size:11px;color:#64748b;min-height:16px}
+.field{display:grid;gap:7px}
+.field label{font-size:13px;color:var(--text-soft);font-weight:600}
+.field input{
+  background:var(--input-bg);border:1.5px solid var(--input-border);
+  border-radius:14px;padding:13px 14px;color:var(--text);font-size:14px;
+  outline:none;transition:border-color .25s,box-shadow .25s;
+  -webkit-appearance:none;appearance:none;
+}
+.field input::placeholder{color:var(--text-muted)}
+.field input:focus{border-color:var(--pink);box-shadow:0 0 0 3px var(--input-focus)}
+.field input[aria-invalid="true"]{border-color:var(--error-text);box-shadow:0 0 0 3px rgba(196,77,90,.15)}
+.field-hint{font-size:11px;color:var(--text-muted);min-height:16px}
+
+/* ── 密码强度条 ── */
+#pwStrengthBar[data-strength="1"]{background:var(--error-text)}
+#pwStrengthBar[data-strength="2"]{background:#E8905A}
+#pwStrengthBar[data-strength="3"]{background:#E0B050}
+#pwStrengthBar[data-strength="4"]{background:#60B87A}
+#pwStrengthBar[data-strength="5"]{background:#4A9EC0}
+#migPwStrengthBar[data-strength="1"]{background:var(--error-text)}
+#migPwStrengthBar[data-strength="2"]{background:#E8905A}
+#migPwStrengthBar[data-strength="3"]{background:#E0B050}
+#migPwStrengthBar[data-strength="4"]{background:#60B87A}
+#migPwStrengthBar[data-strength="5"]{background:#4A9EC0}
+#pwStrength{margin-top:4px}
+#pwStrength > div:first-child{height:4px;background:rgba(200,180,220,.2);border-radius:2px;overflow:hidden}
+
+/* ── 按钮 ── */
 .actions{display:flex;gap:12px;flex-wrap:wrap}
-button{border:none;border-radius:12px;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
-.primary-btn{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;flex:1}
-.primary-btn:hover:not(:disabled){opacity:.9;transform:translateY(-1px)}
+button{border:none;border-radius:14px;padding:13px 20px;font-size:14px;font-weight:700;cursor:pointer;transition:all .25s;font-family:inherit}
+.primary-btn{
+  background:linear-gradient(135deg,var(--pink),var(--pink-deep));
+  color:#fff;flex:1;box-shadow:0 4px 16px var(--pink-glow);
+}
+.primary-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 22px rgba(255,154,162,.35)}
 .primary-btn:active:not(:disabled){transform:scale(.97)}
 button:disabled{opacity:.5;cursor:not-allowed}
-/* password strength bar colors */
-#pwStrengthBar[data-strength="1"]{background:#ef4444}
-#pwStrengthBar[data-strength="2"]{background:#f97316}
-#pwStrengthBar[data-strength="3"]{background:#eab308}
-#pwStrengthBar[data-strength="4"]{background:#22c55e}
-#pwStrengthBar[data-strength="5"]{background:#06b6d4}
-#migPwStrengthBar[data-strength="1"]{background:#ef4444}
-#migPwStrengthBar[data-strength="2"]{background:#f97316}
-#migPwStrengthBar[data-strength="3"]{background:#eab308}
-#migPwStrengthBar[data-strength="4"]{background:#22c55e}
-#migPwStrengthBar[data-strength="5"]{background:#06b6d4}
-/* migration card */
-.migration-card{animation:fadeIn .3s}
-/* ── status messages ── */
-.msg{display:none;padding:14px 16px;border-radius:12px;font-size:13px;line-height:1.6;margin-top:16px;animation:fadeIn .3s}
+.copy-btn{
+  background:rgba(200,180,220,.12);border:1px solid rgba(200,180,220,.2);
+  color:var(--text-soft);border-radius:12px;padding:9px 14px;font-size:12px;font-weight:600;
+  cursor:pointer;white-space:nowrap;
+}
+.copy-btn:hover{background:rgba(200,180,220,.22);color:var(--text)}
+
+/* ── 状态消息 ── */
+.msg{display:none;padding:14px 16px;border-radius:14px;font-size:13px;line-height:1.6;margin-top:16px;animation:fadeIn .3s}
 .msg.show{display:block}
-.msg-success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#bbf7d0}
-.msg-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fecaca}
-.msg-warn{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25);color:#fde68a}
-.msg-info{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);color:#93c5fd}
-/* ── subscription result ── */
+.msg-success{background:var(--success);border:1px solid rgba(60,180,130,.2);color:var(--success-text)}
+.msg-error{background:var(--error);border:1px solid rgba(196,77,90,.18);color:var(--error-text)}
+.msg-warn{background:var(--warn);border:1px solid rgba(200,150,100,.18);color:var(--warn-text)}
+.msg-info{background:var(--info);border:1px solid rgba(90,120,180,.18);color:var(--info-text)}
+
+/* ── 结果面板 ── */
 .result-panel{display:none}
 .result-panel.show{display:block}
-.result-item{padding:14px 16px;background:#111c31;border:1px solid rgba(148,163,184,.14);border-radius:14px;margin-bottom:10px}
+.result-item{
+  padding:14px 16px;background:rgba(200,180,220,.08);
+  border:1px solid rgba(200,180,220,.15);border-radius:14px;margin-bottom:10px;
+}
 .result-item:last-child{margin-bottom:0}
-.result-item strong{display:block;font-size:12px;color:#93c5fd;margin-bottom:8px}
-.result-item code,.result-item a{word-break:break-all;color:#f8fafc;font-size:12px}
+.result-item strong{display:block;font-size:12px;color:var(--lavender-deep);margin-bottom:8px}
+.result-item code,.result-item a{word-break:break-all;color:var(--text);font-size:12px}
 .copy-row{display:flex;gap:8px;align-items:center}
-.copy-btn{background:#0b1220;border:1px solid #334155;color:#e2e8f0;border-radius:10px;
-  padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
-.copy-btn:hover{background:#1e293b;border-color:#475569}
-.copy-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;
-  background:#16a34a;color:#fff;padding:10px 24px;border-radius:12px;font-size:14px;font-weight:600;
-  box-shadow:0 8px 24px rgba(22,163,74,.3);animation:fadeIn .3s;pointer-events:none}
-/* ── footer ── */
-.footer{text-align:center;margin-top:24px;padding:16px 0;color:#475569;font-size:12px;line-height:1.6}
-.footer a{color:#64748b;text-decoration:none}
-.footer a:hover{color:#94a3b8}
-/* ── spinner ── */
+
+/* ── Toast ── */
+.copy-toast{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;
+  background:var(--success-text);color:#fff;padding:10px 24px;border-radius:14px;
+  font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(60,180,130,.3);
+  animation:fadeIn .3s;pointer-events:none;
+}
+
+/* ── Footer ── */
+.footer{text-align:center;margin-top:20px;padding:14px 0;color:var(--text-muted);font-size:12px;line-height:1.6}
+.footer a{color:var(--lavender-deep);text-decoration:none}
+.footer a:hover{color:var(--pink-deep)}
+
+/* ── 动画 ── */
 @keyframes spin{to{transform:rotate(360deg)}}
-.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;
-  border-radius:50%;animation:spin .6s linear infinite;display:none}
+.spinner{
+  width:16px;height:16px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;
+  display:none;vertical-align:middle;margin-left:6px;
+}
 .spinner.show{display:inline-block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-/* ── rules modal ── */
+.migration-card{animation:fadeIn .3s}
+
+/* ── TG 验证步骤 ── */
+.verify-step{text-align:center;padding:24px 20px}
+.verify-step-icon{font-size:48px;margin-bottom:12px}
+.verify-code-box{background:rgba(255,210,220,.25);border:2px dashed rgba(255,154,162,.35);border-radius:16px;padding:20px 16px;margin:16px 0}
+.verify-code-label{font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:2px}
+.verify-code{font-size:36px;font-weight:800;letter-spacing:8px;font-family:"SF Mono","Fira Code","Cascadia Code",monospace;background:linear-gradient(135deg,var(--pink),var(--lavender-deep));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:8px 0;user-select:all;line-height:1.2}
+.verify-expires{font-size:12px;color:var(--text-muted);margin-top:4px}
+.verify-instructions{text-align:left;background:rgba(210,190,230,.12);border:1px solid rgba(200,180,220,.18);border-radius:14px;padding:16px;margin:16px 0;font-size:13px;color:var(--text);line-height:1.8}
+.verify-instructions ol{margin:0;padding-left:20px}
+.verify-instructions li{margin-bottom:6px}
+.verify-instructions code{background:rgba(195,177,225,.25);color:var(--lavender-deep);padding:2px 8px;border-radius:4px;font-size:13px;font-weight:600;white-space:nowrap}
+.verify-tg-link{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#5BA87A,#4A9E6E);color:#fff;padding:12px 24px;border-radius:14px;text-decoration:none;font-weight:700;font-size:15px;margin:8px 0;transition:all .2s;box-shadow:0 4px 15px rgba(90,168,122,.2)}
+.verify-tg-link:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(90,168,122,.3)}
+.verify-group-btn{display:inline-block;background:rgba(200,180,220,.1);border:1px solid rgba(200,180,220,.2);color:var(--text);padding:10px 20px;border-radius:14px;text-decoration:none;font-weight:600;font-size:13px;margin:4px;transition:all .2s}
+.verify-group-btn:hover{background:rgba(200,180,220,.18)}
+.verify-polling{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text-soft);font-size:13px;margin:12px 0}
+.verify-polling .spinner-sm{width:16px;height:16px;border:2px solid rgba(200,180,220,.25);border-top-color:var(--lavender-deep);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+.verify-back-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:13px;margin-top:16px;text-decoration:underline}
+.verify-back-btn:hover{color:var(--text)}
+.verify-success-icon{font-size:56px;margin-bottom:8px}
+
+/* ── 使用须知弹窗 ── */
 .rules-overlay{
-  position:fixed;inset:0;z-index:10000;background:rgba(2,8,23,.85);
+  position:fixed;inset:0;z-index:10000;
+  background:rgba(80,60,90,.65);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
   display:flex;align-items:center;justify-content:center;padding:20px;
   animation:fadeIn .3s;
 }
 .rules-overlay.hidden{display:none}
 .rules-modal{
-  background:#0f172a;border:1px solid #1e293b;border-radius:20px;
+  background:var(--card-bg);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+  border:1px solid var(--card-border);border-radius:22px;
   max-width:540px;width:100%;max-height:85vh;display:flex;flex-direction:column;
-  box-shadow:0 25px 80px rgba(0,0,0,.5);overflow:hidden;
+  box-shadow:0 20px 60px rgba(80,60,100,.25);overflow:hidden;
 }
-.rules-modal-header{
-  padding:24px 24px 0;display:flex;align-items:center;gap:10px;
-}
-.rules-modal-header h2{font-size:18px;font-weight:800;color:#f1f5f9;margin:0}
+.rules-modal-header{padding:24px 24px 0;display:flex;align-items:center;gap:10px}
+.rules-modal-header h2{font-size:18px;font-weight:800;color:var(--text);margin:0}
 .rules-modal-body{
   padding:16px 24px;overflow-y:auto;flex:1;
-  font-size:12px;line-height:1.7;color:#94a3b8;
+  font-size:12px;line-height:1.7;color:var(--text-soft);
 }
 .rules-modal-body .rules-list{margin:0;padding:0 0 0 16px;list-style:none}
-.rules-modal-body .rules-list li{position:relative;margin-bottom:6px;color:#cbd5e1;font-size:12px}
-.rules-modal-body .rules-list li::before{content:'·';position:absolute;left:-14px;color:#3b82f6;font-weight:700}
-.rules-modal-body .rules-limit{margin-top:10px;padding-top:10px;border-top:1px solid rgba(148,163,184,.12)}
-.rules-modal-body .rules-limit-title{font-weight:600;color:#fbbf24;display:flex;align-items:center;gap:5px;margin-bottom:8px;font-size:13px}
+.rules-modal-body .rules-list li{position:relative;margin-bottom:6px;color:var(--text-soft);font-size:12px}
+.rules-modal-body .rules-list li::before{content:'·';position:absolute;left:-14px;color:var(--pink);font-weight:700}
+.rules-modal-body .rules-limit{margin-top:10px;padding-top:10px;border-top:1px solid rgba(200,180,220,.2)}
+.rules-modal-body .rules-limit-title{
+  font-weight:600;color:var(--warn-text);display:flex;align-items:center;gap:5px;
+  margin-bottom:8px;font-size:13px;
+}
 .rules-modal-body .rules-limit-group{margin-bottom:10px}
 .rules-modal-body .rules-limit-group:last-child{margin-bottom:0}
-.rules-modal-body .rules-limit-subtitle{font-weight:600;color:#94a3b8;font-size:11px;margin-bottom:4px}
-.rules-modal-body .rules-limit-item{display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:11px}
-.rules-modal-body .limit-num{background:rgba(251,191,36,.15);color:#fbbf24;padding:2px 8px;border-radius:6px;font-weight:700;font-size:10px;white-space:nowrap}
-.rules-modal-body .limit-num.banned{background:rgba(239,68,68,.15);color:#ef4444}
+.rules-modal-body .rules-limit-subtitle{font-weight:600;color:var(--text-soft);font-size:11px;margin-bottom:4px}
+.rules-modal-body .rules-limit-item{display:flex;align-items:center;gap:8px;color:var(--text-soft);font-size:11px}
+.rules-modal-body .limit-num{
+  background:rgba(200,150,100,.15);color:var(--warn-text);
+  padding:2px 8px;border-radius:6px;font-weight:700;font-size:10px;white-space:nowrap;
+}
+.rules-modal-body .limit-num.banned{background:rgba(220,80,90,.12);color:var(--error-text)}
 .rules-modal-footer{
   padding:16px 24px 24px;display:flex;flex-direction:column;gap:12px;
-  border-top:1px solid #1e293b;
+  border-top:1px solid rgba(200,180,220,.2);
 }
-.rules-check{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#cbd5e1}
-.rules-check input[type=checkbox]{width:18px;height:18px;accent-color:#faab41;cursor:pointer}
+.rules-check{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:var(--text-soft)}
+.rules-check input[type=checkbox]{width:18px;height:18px;accent-color:var(--pink);cursor:pointer}
 .rules-agree-btn{
-  width:100%;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;
-  background:linear-gradient(135deg,#374151,#4b5563);color:#9ca3af;cursor:not-allowed;transition:all .2s;
+  width:100%;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:700;
+  background:rgba(200,180,220,.2);color:var(--text-muted);
+  cursor:not-allowed;transition:all .25s;
 }
 .rules-agree-btn.enabled{
-  background:linear-gradient(135deg,#faab41,#f6821f);color:#fff;cursor:pointer;box-shadow:0 4px 15px rgba(250,171,65,.3);
+  background:linear-gradient(135deg,var(--pink),var(--pink-deep));
+  color:#fff;cursor:pointer;box-shadow:0 4px 15px var(--pink-glow);
 }
-.rules-agree-btn.enabled:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(250,171,65,.4)}
-/* ── responsive ── */
+.rules-agree-btn.enabled:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(255,154,162,.35)}
+
+/* ── 响应式 ── */
 @media(max-width:520px){
-  body{padding:16px 12px}.hero{padding:20px 16px}.hero-slogan{font-size:22px}
-  .auth-head{flex-direction:column}.auth-title{font-size:20px}
+  body{padding:16px 12px}
+  .hero{padding:20px 16px;border-radius:18px}
+  .hero-slogan{font-size:20px}
+  .auth-head{flex-direction:column}
+  .auth-title{font-size:19px}
+  .panel{border-radius:18px}
+  .auth-panel,.result-panel{padding:22px}
 }
-/* ── TG verify step ── */
-.verify-step{text-align:center;padding:24px 20px}
-.verify-step-icon{font-size:48px;margin-bottom:12px}
-.verify-code-box{background:#020817;border:2px dashed #334155;border-radius:16px;padding:20px 16px;margin:16px 0}
-.verify-code-label{font-size:12px;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:2px}
-.verify-code{font-size:36px;font-weight:800;letter-spacing:8px;font-family:"SF Mono","Fira Code","Cascadia Code",monospace;background:linear-gradient(135deg,#3b82f6,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:8px 0;user-select:all;line-height:1.2}
-.verify-expires{font-size:12px;color:#94a3b8;margin-top:4px}
-.verify-instructions{text-align:left;background:#111c31;border:1px solid rgba(148,163,184,.14);border-radius:14px;padding:16px;margin:16px 0;font-size:13px;color:#cbd5e1;line-height:1.8}
-.verify-instructions ol{margin:0;padding-left:20px}
-.verify-instructions li{margin-bottom:6px}
-.verify-instructions code{background:rgba(99,102,241,.18);color:#a5b4fc;padding:2px 8px;border-radius:4px;font-size:13px;font-weight:600;white-space:nowrap}
-.verify-tg-link{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#2a94e1,#37aee2);color:#fff;padding:12px 24px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;margin:8px 0;transition:all .2s}
-.verify-tg-link:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(42,148,225,.35)}
-.verify-group-btn{display:inline-block;background:rgba(148,163,184,.1);border:1px solid rgba(148,163,184,.2);color:#cbd5e1;padding:10px 20px;border-radius:12px;text-decoration:none;font-weight:600;font-size:13px;margin:4px;transition:all .2s}
-.verify-group-btn:hover{background:rgba(148,163,184,.18)}
-.verify-polling{display:flex;align-items:center;justify-content:center;gap:8px;color:#94a3b8;font-size:13px;margin:12px 0}
-.verify-polling .spinner-sm{width:16px;height:16px;border:2px solid #1e293b;border-top-color:#3b82f6;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
-.verify-back-btn{background:none;border:none;color:#94a3b8;cursor:pointer;font-size:13px;margin-top:16px;text-decoration:underline}
-.verify-back-btn:hover{color:#cbd5e1}
-.verify-success-icon{font-size:56px;margin-bottom:8px}
+@media(max-width:380px){
+  body{padding:10px 8px}
+  .hero{padding:16px 12px}
+  .hero-slogan{font-size:18px}
+  .auth-panel,.result-panel{padding:18px}
+}
 </style>
 </head>
 <body>
+<!-- 星光点 -->
+<div class="stars" aria-hidden="true">
+  <span class="star" style="top:8%;left:12%;--d:3.2s;--delay:0s;width:3px;height:3px"></span>
+  <span class="star" style="top:15%;left:78%;--d:2.8s;--delay:.7s;width:2px;height:2px"></span>
+  <span class="star" style="top:25%;left:45%;--d:4s;--delay:1.4s;width:4px;height:4px"></span>
+  <span class="star" style="top:55%;left:88%;--d:3.5s;--delay:.3s;width:2px;height:2px"></span>
+  <span class="star" style="top:70%;left:15%;--d:2.6s;--delay:1.8s;width:3px;height:3px"></span>
+  <span class="star" style="top:82%;left:65%;--d:3.8s;--delay:1s;width:2px;height:2px"></span>
+  <span class="star" style="top:35%;left:8%;--d:3s;--delay:.5s;width:2px;height:2px"></span>
+  <span class="star" style="top:90%;left:35%;--d:4.2s;--delay:2.1s;width:3px;height:3px"></span>
+</div>
+<!-- 樱花飘落 -->
+<div class="sakura-container" aria-hidden="true">
+  <span class="sakura-petal" style="--sz:10px;--fall-dur:11s;--fall-delay:0s;--start-x:8%"></span>
+  <span class="sakura-petal" style="--sz:14px;--fall-dur:13s;--fall-delay:2s;--start-x:22%"></span>
+  <span class="sakura-petal" style="--sz:8px;--fall-dur:10s;--fall-delay:4s;--start-x:38%"></span>
+  <span class="sakura-petal" style="--sz:16px;--fall-dur:14s;--fall-delay:1s;--start-x:55%"></span>
+  <span class="sakura-petal" style="--sz:11px;--fall-dur:12s;--fall-delay:3s;--start-x:68%"></span>
+  <span class="sakura-petal" style="--sz:9px;--fall-dur:9s;--fall-delay:5s;--start-x:80%"></span>
+  <span class="sakura-petal" style="--sz:13px;--fall-dur:11.5s;--fall-delay:6s;--start-x:15%"></span>
+  <span class="sakura-petal" style="--sz:7px;--fall-dur:10.5s;--fall-delay:2.5s;--start-x:48%"></span>
+  <span class="sakura-petal" style="--sz:12px;--fall-dur:13.5s;--fall-delay:7s;--start-x:72%"></span>
+  <span class="sakura-petal" style="--sz:10px;--fall-dur:8.5s;--fall-delay:3.5s;--start-x:32%"></span>
+  <span class="sakura-petal" style="--sz:15px;--fall-dur:12.5s;--fall-delay:5.5s;--start-x:60%"></span>
+  <span class="sakura-petal" style="--sz:8px;--fall-dur:9.5s;--fall-delay:7.5s;--start-x:90%"></span>
+</div>
+
 <div class="wrap">
+  <!-- Hero 区域 -->
   <div class="hero">
+    <span class="hero-deco hero-deco--tl">🌸</span>
+    <span class="hero-deco hero-deco--br">✨</span>
     <div class="hero-logo">
       <div class="hero-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
       <span class="hero-name">Beacon 灯塔</span>
@@ -236,13 +419,12 @@ button:disabled{opacity:.5;cursor:not-allowed}
         </div>
       </div>
       <div class="rules-modal-footer">
-        <label class="rules-check">
-          <span style="font-size:12px;color:#fbbf24;text-align:center;display:block;margin-bottom:4px" id="rulesCountdown">请仔细阅读使用须知（15秒后可勾选同意）</span>
-          <label class="rules-check" style="opacity:.4;pointer-events:none" id="rulesCheckLabel">
-            <input type="checkbox" id="rulesCheckbox" disabled onchange="var b=document.getElementById('rulesAgreeBtn');b.classList.toggle('enabled',this.checked);b.disabled=!this.checked">
-            我已阅读并同意以上使用须知
-          </label>
-          <button class="rules-agree-btn" id="rulesAgreeBtn" disabled onclick="agreeRules()">同意并继续</button>
+        <span style="font-size:12px;color:var(--warn-text);text-align:center;display:block;margin-bottom:4px" id="rulesCountdown">请仔细阅读使用须知（15秒后可勾选同意）</span>
+        <label class="rules-check" style="opacity:.4;pointer-events:none" id="rulesCheckLabel">
+          <input type="checkbox" id="rulesCheckbox" disabled onchange="var b=document.getElementById('rulesAgreeBtn');b.classList.toggle('enabled',this.checked);b.disabled=!this.checked">
+          我已阅读并同意以上使用须知
+        </label>
+        <button class="rules-agree-btn" id="rulesAgreeBtn" disabled onclick="agreeRules()">同意并继续</button>
       </div>
     </div>
   </div>
@@ -267,7 +449,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
         <div class="field-hint" id="accountHint"></div>
       </div>
       <div class="field" id="emailField">
-        <label for="email">邮箱 <span style="font-weight:400;color:#f59e0b;font-size:11px">(必填，用于找回密码和身份识别)</span></label>
+        <label for="email">邮箱 <span style="font-weight:400;color:var(--warn-text);font-size:11px">(必填，用于找回密码和身份识别)</span></label>
         <input type="email" id="email" placeholder="your@email.com" autocomplete="email" maxlength="128">
         <div class="field-hint" id="emailHint"></div>
       </div>
@@ -275,22 +457,22 @@ button:disabled{opacity:.5;cursor:not-allowed}
         <label for="password">密码</label>
         <div style="position:relative">
           <input type="password" id="password" placeholder="至少8位，含大小写字母+数字+特殊符号" autocomplete="new-password" maxlength="128" style="width:100%;box-sizing:border-box;padding-right:44px">
-          <button type="button" id="pwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px;padding:4px;line-height:1;z-index:1" title="显示/隐藏密码" aria-label="切换密码可见性">👁</button>
+          <button type="button" id="pwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px;line-height:1;z-index:1" title="显示/隐藏密码" aria-label="切换密码可见性">👁</button>
         </div>
         <div class="field-hint" id="passwordHint"></div>
         <div id="pwStrength" style="display:none;margin-top:6px">
-          <div style="height:4px;background:#1e293b;border-radius:2px;overflow:hidden">
+          <div style="height:4px;background:rgba(200,180,220,.2);border-radius:2px;overflow:hidden">
             <div id="pwStrengthBar" style="height:100%;width:0%;transition:width .3s;border-radius:2px"></div>
           </div>
           <span id="pwStrengthLabel" style="font-size:11px;margin-top:3px;display:inline-block"></span>
         </div>
       </div>
       <div class="field" id="oldLoginToggle" style="display:none;text-align:center;padding-top:0">
-        <button type="button" id="oldLoginBtn" style="background:none;border:none;color:#f59e0b;cursor:pointer;font-size:12px;text-decoration:underline">使用邮箱登录（仅限旧版无密码存量用户）</button>
+        <button type="button" id="oldLoginBtn" style="background:none;border:none;color:var(--warn-text);cursor:pointer;font-size:12px;text-decoration:underline">使用邮箱登录（存量用户）</button>
       </div>
       <div class="field" style="display:flex;flex-direction:row;align-items:center;gap:8px;padding-top:2px">
-        <input type="checkbox" id="rememberMe" style="width:18px;height:18px;accent-color:#3b82f6;cursor:pointer;flex-shrink:0;margin:0">
-        <label for="rememberMe" style="margin:0;cursor:pointer;user-select:none;font-weight:500;font-size:13px;color:#cbd5e1">记住用户名和密码</label> <a href="#" id="forgotPwLink" style="margin-left:auto;font-size:12px;color:#f59e0b;text-decoration:underline">忘记密码？</a>
+        <input type="checkbox" id="rememberMe" style="width:18px;height:18px;accent-color:var(--pink);cursor:pointer;flex-shrink:0;margin:0">
+        <label for="rememberMe" style="margin:0;cursor:pointer;user-select:none;font-weight:500;font-size:13px;color:var(--text-soft)">记住用户名和密码</label> <a href="#" id="forgotPwLink" style="margin-left:auto;font-size:12px;color:var(--warn-text);text-decoration:underline">忘记密码？</a>
       </div>
       <div class="actions">
         <button class="primary-btn" id="submitBtn">
@@ -306,7 +488,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   <section class="panel auth-panel" id="forgotPanel" style="display:none">
     <div class="auth-head"><div class="auth-title">忘记密码</div></div>
     <div id="forgotStep1">
-      <p style="font-size:13px;color:#94a3b8;margin:0 0 12px">请输入您注册时使用的邮箱地址或 UUID 来找回密码。</p>
+      <p style="font-size:13px;color:var(--text-soft);margin:0 0 12px">请输入您注册时使用的邮箱地址或 UUID 来找回密码。</p>
       <div class="field">
         <label for="forgotId">邮箱或 UUID</label>
         <input type="text" id="forgotId" placeholder="user@email.com 或 f8f48c96-095a-49a7-...">
@@ -325,11 +507,11 @@ button:disabled{opacity:.5;cursor:not-allowed}
       </div>
     </div>
     <div id="forgotStep3" style="display:none">
-      <p style="font-size:13px;color:#94a3b8;margin:0 0 12px">为 <strong id="forgotAccountName">-</strong> 设置新密码。</p>
+      <p style="font-size:13px;color:var(--text-soft);margin:0 0 12px">为 <strong id="forgotAccountName">-</strong> 设置新密码。</p>
       <div class="field"><label for="forgotNewPw">新密码</label>
         <div style="position:relative">
           <input type="password" id="forgotNewPw" placeholder="至少8位，含字母+数字+特殊字符" style="width:100%;box-sizing:border-box;padding-right:44px">
-          <button type="button" id="forgotPwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px">👁</button>
+          <button type="button" id="forgotPwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px">👁</button>
         </div>
       </div>
       <div class="field"><label for="forgotConfirmPw">确认密码</label><input type="password" id="forgotConfirmPw" placeholder="再次输入新密码"></div>
@@ -340,13 +522,13 @@ button:disabled{opacity:.5;cursor:not-allowed}
     </div>
   </section>
 
-  <!-- result panel (shown after successful signin) -->
+  <!-- result panel -->
   <section class="panel result-panel" id="resultPanel">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
       <span style="font-size:28px">🎉</span>
       <div>
         <div style="font-size:18px;font-weight:700" id="resultTitle">登录成功</div>
-        <div style="font-size:13px;color:#94a3b8" id="resultSub"></div>
+        <div style="font-size:13px;color:var(--text-soft)" id="resultSub"></div>
       </div>
     </div>
     <div id="resultItems"></div>
@@ -415,7 +597,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
       if (sec <= 0) {
         clearInterval(timer);
         countdownEl.textContent = '请勾选同意后继续';
-        countdownEl.style.color = '#94a3b8';
+        countdownEl.style.color = 'var(--text-soft)';
         checkLabel.style.opacity = '1';
         checkLabel.style.pointerEvents = 'auto';
         checkbox.disabled = false;
@@ -426,13 +608,11 @@ button:disabled{opacity:.5;cursor:not-allowed}
   })();
 
   // ── state ──
-  const API_BASE = '';  // e.g. 'https://your-worker-domain.workers.dev' — leave empty when served by the Worker
+  const API_BASE = '';
   const state = {
-    mode: 'signup',   // 'signup' | 'signin' | 'result'
+    mode: 'signup',
     loading: false,
   };
-
-
 
   // ── API response code handlers ──
   const CODE_MESSAGES = {
@@ -457,7 +637,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
     AUTH_PASSWORD_NOT_SET:  { cls:'msg-warn',   title:'尚未设置密码' },
     AUTH_EMAIL_LOGIN_EXPIRED:{ cls:'msg-error', title:'邮箱登录已关闭' },
     AUTH_PASSWORD_TOO_WEAK: { cls:'msg-error',  title:'密码强度不足' },
-    // TG verification codes
     AUTH_TG_VERIFY_REQUIRED: { cls:'msg-info',   title:'需要TG验证' },
     AUTH_TG_PENDING:        { cls:'msg-info',   title:'等待验证' },
     AUTH_TG_CODE_INVALID:   { cls:'msg-error',  title:'验证码无效' },
@@ -519,7 +698,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
       submitText.textContent = '登录';
     }
     clearMsg();
-    // toggle email field and old login button for signup vs signin
     var emailField = document.getElementById('emailField');
     var oldToggle = document.getElementById('oldLoginToggle');
     var pwField = document.getElementById('passwordField');
@@ -535,7 +713,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
       submitText.textContent = '登录';
     }
     clearHints();
-    // hide result
     resultPanel.classList.remove('show');
     authPanel.style.display = '';
   }
@@ -553,15 +730,11 @@ button:disabled{opacity:.5;cursor:not-allowed}
     const email   = emailInp.value.trim();
     const password = passwordInp ? passwordInp.value : '';
 
-    // client-side validation
     var isOldEmailLogin = !!state._oldLogin;
-
-    // reset old login flag
     state._oldLogin = false;
 
     var valid = true;
 
-    // account always required
     if (!account) { accountHint.textContent = '请输入用户名'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
     else if (/@/.test(account)) { accountHint.textContent = '用户名不应包含 @ 符号，请填写纯文本用户名'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
     else {
@@ -577,18 +750,14 @@ button:disabled{opacity:.5;cursor:not-allowed}
     }
 
     if (isOldEmailLogin) {
-      // old email login: email required, no password
       if (!email) { emailHint.textContent = '请输入邮箱'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { emailHint.textContent = '邮箱格式不正确'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
       else { emailInp.removeAttribute('aria-invalid'); }
     } else {
-      // new password login / signup
       if (state.mode === 'signup') {
-        // email required for signup
         if (!email) { emailHint.textContent = '请输入邮箱地址'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
         else if (!/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(email)) { emailHint.textContent = '邮箱格式不正确，请输入合法的邮箱地址'; emailInp.setAttribute('aria-invalid','true'); valid = false; }
         else { emailInp.removeAttribute('aria-invalid'); }
-        // password required for signup
         if (!password) { passwordHint.textContent = '请设置密码'; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
         else {
           var hasLetter = /[a-zA-Z]/.test(password);
@@ -598,7 +767,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
           else { passwordInp.removeAttribute('aria-invalid'); }
         }
       } else {
-        // signin with password: password required
         if (!password) { passwordHint.textContent = '请输入密码'; passwordInp.setAttribute('aria-invalid','true'); valid = false; }
         else { passwordInp.removeAttribute('aria-invalid'); }
       }
@@ -647,9 +815,10 @@ button:disabled{opacity:.5;cursor:not-allowed}
         var node = user.node || {};
         var u = user.user || {};
         if (document.getElementById('rememberMe').checked) {
+          var pwField = document.getElementById('password');
           localStorage.setItem('beacon_remembered', JSON.stringify({
             account: user.account || '',
-            password: password || ''
+            password: pwField ? pwField.value : ''
           }));
         } else {
           localStorage.removeItem('beacon_remembered');
@@ -666,7 +835,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
           used_traffic: u.used_traffic || 0,
         }));
 
-        // Check if migration token present → show migration wizard
         if (data.migrationToken) {
           showMigrationWizard(data.migrationToken, user.account || '');
           setLoading(false);
@@ -717,25 +885,24 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
   // migration wizard for existing users without password
   function showMigrationWizard(token, account) {
-    // Hide the auth panel, show a dedicated migration UI
     authPanel.style.display = 'none';
     resultPanel.classList.add('show');
     resultTitle.textContent = '设置登录密码';
     resultSub.textContent = account + ' · 存量用户迁移';
 
     resultItems.innerHTML = ''
-      + '<div class="migration-card" style="background:#111c31;border:1px solid rgba(148,163,184,.14);border-radius:14px;padding:20px;text-align:center">'
-      + '<p style="font-size:14px;color:#fde68a;margin:0 0 8px">\u26a0\ufe0f 您的账户尚未设置密码，请在下方设置密码以完成迁移。</p>'
-      + '<p style="font-size:12px;color:#94a3b8;margin:0 0 16px">邮箱登录功能将在30天后关闭，请尽快设置密码。</p>'
+      + '<div class="migration-card" style="background:rgba(200,180,220,.08);border:1px solid rgba(200,180,220,.15);border-radius:14px;padding:20px;text-align:center">'
+      + '<p style="font-size:14px;color:var(--warn-text);margin:0 0 8px">\u26a0\ufe0f 您的账户尚未设置密码，请在下方设置密码以完成迁移。</p>'
+      + '<p style="font-size:12px;color:var(--text-soft);margin:0 0 16px">邮箱登录功能将在30天后关闭，请尽快设置密码。</p>'
       + '<div style="display:grid;gap:12px;text-align:left">'
       + '<div>'
-      + '<label style="font-size:13px;color:#cbd5e1;font-weight:600;display:block;margin-bottom:6px">新密码</label>'
+      + '<label style="font-size:13px;color:var(--text-soft);font-weight:600;display:block;margin-bottom:6px">新密码</label>'
       + '<div style="position:relative">'
-      + '<input type="password" id="migPw" placeholder="至少8位，包含字母和数字" style="width:100%;background:#020817;border:1px solid #334155;border-radius:12px;padding:13px 44px 13px 14px;color:#f8fafc;font-size:14px;outline:none" maxlength="128">'
-      + '<button type="button" id="migPwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px;padding:4px;line-height:1">👁</button>'
+      + '<input type="password" id="migPw" placeholder="至少8位，包含字母和数字" style="width:100%;background:var(--input-bg);border:1.5px solid var(--input-border);border-radius:14px;padding:13px 44px 13px 14px;color:var(--text);font-size:14px;outline:none" maxlength="128">'
+      + '<button type="button" id="migPwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px;line-height:1">👁</button>'
       + '</div>'
       + '<div id="migPwStrength" style="display:none;margin-top:6px">'
-      + '<div style="height:4px;background:#1e293b;border-radius:2px;overflow:hidden">'
+      + '<div style="height:4px;background:rgba(200,180,220,.2);border-radius:2px;overflow:hidden">'
       + '<div id="migPwStrengthBar" style="height:100%;width:0%;transition:width .3s;border-radius:2px"></div>'
       + '</div>'
       + '<span id="migPwStrengthLabel" style="font-size:11px;margin-top:3px;display:inline-block"></span>'
@@ -747,7 +914,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
       + '<span id="migSubmitText">设置密码并完成迁移</span>'
       + '<span class="spinner" id="migSubmitSpin"></span>'
       + '</button>'
-      + '<button id="migSkipBtn" style="width:100%;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:13px;margin-top:8px;text-decoration:underline">暂时跳过，进入面板</button>'
+      + '<button id="migSkipBtn" style="width:100%;background:none;border:none;color:var(--text-soft);cursor:pointer;font-size:13px;margin-top:8px;text-decoration:underline">暂时跳过，进入面板</button>'
       + '</div>'
       + '</div>';
 
@@ -835,6 +1002,164 @@ button:disabled{opacity:.5;cursor:not-allowed}
     });
   }
 
+  // ── TG verification step ──
+  var tgVerifyPollTimer = null;
+  var tgVerifyData = null;
+
+  function showTGVerifyStep(data) {
+    tgVerifyData = data;
+    authPanel.style.display = 'none';
+    resultPanel.classList.add('show');
+    resultTitle.textContent = '📱 Telegram 验证';
+    resultSub.textContent = data.account || '';
+
+    var code = data.code || '';
+    var botUsername = data.botUsername || 'unknown_bot';
+    var groupInviteLink = data.groupInviteLink || '';
+    var expiresAt = data.expiresAt || 0;
+    var remaining = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
+    var minutes = Math.floor(remaining / 60);
+    var seconds = remaining % 60;
+
+    var html = '';
+    html += '<div class="verify-step">';
+    html += '<div class="verify-step-icon">🔐</div>';
+    html += '<p style="font-size:15px;color:var(--text);margin:0 0 4px;font-weight:600">请通过 Telegram 官方群组完成验证</p>';
+    html += '<p style="font-size:13px;color:var(--text-soft);margin:0">在官方群组内发送验证码，Bot 将自动验证您的身份</p>';
+
+    html += '<div class="verify-code-box">';
+    html += '<div class="verify-code-label">验证码</div>';
+    html += '<div class="verify-code">' + escHtml(code) + '</div>';
+    html += '<div style="margin-top:6px"><button class="copy-btn" data-copy="' + escAttr('/start ' + code) + '" style="background:rgba(195,177,225,.2);color:var(--text);border:1px solid rgba(195,177,225,.3);padding:6px 14px;border-radius:10px;cursor:pointer;font-size:13px">📋 复制 /start ' + escHtml(code) + '</button></div>';
+    html += '<div class="verify-expires">⏰ 有效期 ' + minutes + '分' + seconds + '秒</div>';
+    html += '</div>';
+
+    html += '<div class="verify-instructions">';
+    html += '<ol>';
+    if (groupInviteLink) {
+      html += '<li>点击下方按钮<b>加入官方群组</b></li>';
+      html += '<li>在<b>群组内</b>发送 <code>/start ' + escHtml(code) + '</code></li>';
+    } else {
+      html += '<li>打开 Telegram 并<b>进入官方群组</b></li>';
+      html += '<li>在<b>群组内</b>发送 <code>/start ' + escHtml(code) + '</code></li>';
+    }
+    html += '<li>Bot 将在群组内<b>公开回复</b>验证结果</li>';
+    html += '<li>验证通过后本页面将<b>自动完成注册</b></li>';
+    html += '</ol>';
+    html += '</div>';
+
+    if (groupInviteLink) {
+      html += '<a class="verify-tg-link" href="' + escHtml(groupInviteLink) + '" target="_blank" rel="noopener">';
+      html += '<span>📋</span> 加入官方群组并发送验证码</a>';
+      html += '<br><button class="verify-copy-cmd-btn" data-copy="' + escAttr('/start ' + code) + '" style="display:inline-flex;align-items:center;gap:6px;background:rgba(195,177,225,.12);color:var(--text-soft);border:1px solid rgba(195,177,225,.2);padding:10px 18px;border-radius:12px;cursor:pointer;font-size:13px;margin-top:8px;transition:all .2s" onmouseover="this.style.borderColor=\'rgba(195,177,225,.4)\';this.style.color=\'var(--text)\'" onmouseout="this.style.borderColor=\'rgba(195,177,225,.2)\';this.style.color=\'var(--text-soft)\'">📋 复制命令 /start ' + escHtml(code) + '</button>';
+    } else {
+      html += '<div class="verify-tg-link" style="background:rgba(180,160,200,.2);cursor:not-allowed;opacity:0.7">';
+      html += '<span>⚠️</span> 群组邀请链接不可用，请联系管理员</div>';
+      html += '<br><button class="verify-copy-cmd-btn" data-copy="' + escAttr('/start ' + code) + '" style="display:inline-flex;align-items:center;gap:6px;background:rgba(195,177,225,.12);color:var(--text-soft);border:1px solid rgba(195,177,225,.2);padding:10px 18px;border-radius:12px;cursor:pointer;font-size:13px;margin-top:8px;transition:all .2s" onmouseover="this.style.borderColor=\'rgba(195,177,225,.4)\';this.style.color=\'var(--text)\'" onmouseout="this.style.borderColor=\'rgba(195,177,225,.2)\';this.style.color=\'var(--text-soft)\'">📋 复制命令 /start ' + escHtml(code) + '</button>';
+    }
+
+    html += '<div class="verify-polling" id="verifyPolling">';
+    html += '<span class="spinner-sm"></span>';
+    html += '<span id="verifyPollText">等待 Telegram 验证中...</span>';
+    html += '</div>';
+
+    html += '<div id="verifyFailMsg" style="display:none;margin-top:12px"></div>';
+
+    html += '<button class="verify-back-btn" onclick="stopTGVerifyPolling(); switchMode(\'signup\');">← 返回修改注册信息</button>';
+    html += '</div>';
+
+    resultItems.innerHTML = html;
+
+    resultItems.querySelectorAll('.copy-btn, .verify-copy-cmd-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() { copyText(btn.dataset.copy, btn); });
+    });
+
+    startTGVerifyPolling(data.account || '', code);
+  }
+
+  function startTGVerifyPolling(account, code) {
+    stopTGVerifyPolling();
+    var attempts = 0;
+    var maxAttempts = 200;
+
+    tgVerifyPollTimer = setInterval(async function() {
+      attempts++;
+      if (attempts > maxAttempts) {
+        stopTGVerifyPolling();
+        var pollEl = document.getElementById('verifyPolling');
+        if (pollEl) pollEl.innerHTML = '<span style="color:var(--error-text)">⏰ 验证超时，请返回重新注册。</span>';
+        showVerifyFail('验证已超时（10分钟），请返回注册页面重新发起注册。');
+        return;
+      }
+
+      try {
+        var resp = await fetch(API_BASE + '/register/verify-tg/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ account: account, code: code }),
+        });
+        var data = await resp.json();
+        var vcode = data.code || '';
+
+        if (vcode === 'AUTH_SIGNUP_SUCCESS') {
+          stopTGVerifyPolling();
+          resultTitle.textContent = '✅ 注册成功';
+          resultSub.textContent = data.data?.account || account;
+          var html2 = '';
+          html2 += '<div class="verify-step">';
+          html2 += '<div class="verify-success-icon">🎉</div>';
+          html2 += '<p style="font-size:18px;color:var(--text);font-weight:700;margin:0 0 8px">注册成功！</p>';
+          html2 += '<p style="font-size:14px;color:var(--text-soft);margin:0 0 4px">TG账号 ' + (data.data?.tgUsername || '') + ' 已绑定</p>';
+          html2 += '<p style="font-size:13px;color:var(--text-muted);margin:0 0 20px">即将跳转到登录页面...</p>';
+          html2 += '</div>';
+          resultItems.innerHTML = html2;
+          setTimeout(function() { switchMode('signin'); }, 2000);
+        } else if (vcode === 'AUTH_TG_PENDING') {
+          var remaining2 = data.data?.remainingSeconds || 0;
+          var pollText = document.getElementById('verifyPollText');
+          if (pollText && remaining2 > 0) {
+            var m = Math.floor(remaining2 / 60);
+            var s = remaining2 % 60;
+            pollText.textContent = '等待验证中... 剩余 ' + m + '分' + s + '秒 (' + attempts + ')';
+          } else if (pollText) {
+            pollText.textContent = '等待 Telegram 验证中... (' + attempts + ')';
+          }
+        } else if (vcode === 'AUTH_TG_CODE_EXPIRED') {
+          stopTGVerifyPolling();
+          var pollEl2 = document.getElementById('verifyPolling');
+          if (pollEl2) pollEl2.innerHTML = '<span style="color:var(--error-text)">⏰ 验证码已过期，请返回重新注册。</span>';
+        } else if (vcode === 'AUTH_TG_DUPLICATE') {
+          stopTGVerifyPolling();
+          var pollEl3 = document.getElementById('verifyPolling');
+          if (pollEl3) pollEl3.innerHTML = '<span style="color:var(--error-text)">⚠️ 该TG账号已被其他用户绑定。</span>';
+        } else if (vcode === 'AUTH_SIGNUP_DUPLICATE_USERNAME' || vcode === 'AUTH_SIGNUP_DUPLICATE_EMAIL') {
+          stopTGVerifyPolling();
+          var pollEl4 = document.getElementById('verifyPolling');
+          if (pollEl4) pollEl4.innerHTML = '<span style="color:var(--error-text)">❌ ' + (data.message || '注册信息冲突，请返回重新注册。') + '</span>';
+        } else if (resp.status >= 500) {
+          console.warn('[TG Verify] Server error:', vcode, data.message);
+        }
+      } catch (err) {
+        console.warn('[TG Verify] Poll error:', err.message);
+      }
+    }, 3000);
+  }
+
+  function showVerifyFail(message) {
+    var failEl = document.getElementById('verifyFailMsg');
+    if (failEl) {
+      failEl.style.display = 'block';
+      failEl.innerHTML = '<div style="background:var(--error);border:1px solid rgba(196,77,90,.3);border-radius:12px;padding:12px 16px;color:var(--error-text);font-size:13px">' + escHtml(message) + '</div>';
+    }
+  }
+
+  function stopTGVerifyPolling() {
+    if (tgVerifyPollTimer) {
+      clearInterval(tgVerifyPollTimer);
+      tgVerifyPollTimer = null;
+    }
+  }
+
   function showResult(data) {
     authPanel.style.display = 'none';
     resultPanel.classList.add('show');
@@ -874,182 +1199,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
       </div>
     `).join('');
 
-    // attach copy handlers
     resultItems.querySelectorAll('.copy-btn').forEach(btn => {
       btn.addEventListener('click', () => copyText(btn.dataset.copy, btn));
     });
-  }
-
-  // ── TG verification step ──
-  var tgVerifyPollTimer = null;
-  var tgVerifyData = null;
-
-  function showTGVerifyStep(data) {
-    tgVerifyData = data;
-    authPanel.style.display = 'none';
-    resultPanel.classList.add('show');
-    resultTitle.textContent = '📱 Telegram 验证';
-    resultSub.textContent = data.account || '';
-
-    var code = data.code || '';
-    var botUsername = data.botUsername || 'unknown_bot';
-    var groupInviteLink = data.groupInviteLink || '';
-    var expiresAt = data.expiresAt || 0;
-    var remaining = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
-    var minutes = Math.floor(remaining / 60);
-    var seconds = remaining % 60;
-
-    var tgDeepLink = '';
-    var html = '';
-    html += '<div class="verify-step">';
-    html += '<div class="verify-step-icon">🔐</div>';
-    html += '<p style="font-size:15px;color:#e2e8f0;margin:0 0 4px;font-weight:600">请通过 Telegram 官方群组完成验证</p>';
-    html += '<p style="font-size:13px;color:#94a3b8;margin:0">在官方群组内发送验证码，Bot 将自动验证您的身份</p>';
-
-    // verification code box
-    html += '<div class="verify-code-box">';
-    html += '<div class="verify-code-label">验证码</div>';
-    html += '<div class="verify-code">' + escHtml(code) + '</div>';
-    html += '<div style="margin-top:6px"><button class="copy-btn" data-copy="' + escAttr('/start ' + code) + '" style="background:#334155;color:#e2e8f0;border:1px solid #475569;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:13px">📋 复制 /start ' + escHtml(code) + '</button></div>';
-    html += '<div class="verify-expires">⏰ 有效期 ' + minutes + '分' + seconds + '秒</div>';
-    html += '</div>';
-
-    // instructions
-    html += '<div class="verify-instructions">';
-    html += '<ol>';
-    if (groupInviteLink) {
-      html += '<li>点击下方按钮<b>加入官方群组</b></li>';
-      html += '<li>在<b>群组内</b>发送 <code>/start ' + escHtml(code) + '</code></li>';
-    } else {
-      html += '<li>打开 Telegram 并<b>进入官方群组</b></li>';
-      html += '<li>在<b>群组内</b>发送 <code>/start ' + escHtml(code) + '</code></li>';
-    }
-    html += '<li>Bot 将在群组内<b>公开回复</b>验证结果</li>';
-    html += '<li>验证通过后本页面将<b>自动完成注册</b></li>';
-    html += '</ol>';
-    html += '</div>';
-
-    // action button: join official group + copy verify command
-    if (groupInviteLink) {
-      html += '<a class="verify-tg-link" href="' + escHtml(groupInviteLink) + '" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#25a55a,#2ecc71)">';
-      html += '<span>📋</span> 加入官方群组并发送验证码</a>';
-      html += '<br><button class="verify-copy-cmd-btn" data-copy="' + escAttr('/start ' + code) + '" style="display:inline-flex;align-items:center;gap:6px;background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:10px 18px;border-radius:10px;cursor:pointer;font-size:13px;margin-top:8px;transition:all .2s" onmouseover="this.style.borderColor=\'#475569\';this.style.color=\'#e2e8f0\'" onmouseout="this.style.borderColor=\'#334155\';this.style.color=\'#94a3b8\'">📋 复制命令 /start ' + escHtml(code) + '</button>';
-    } else {
-      html += '<div class="verify-tg-link" style="background:#334155;cursor:not-allowed;opacity:0.7">';
-      html += '<span>⚠️</span> 群组邀请链接不可用，请联系管理员</div>';
-      html += '<br><button class="verify-copy-cmd-btn" data-copy="' + escAttr('/start ' + code) + '" style="display:inline-flex;align-items:center;gap:6px;background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:10px 18px;border-radius:10px;cursor:pointer;font-size:13px;margin-top:8px;transition:all .2s" onmouseover="this.style.borderColor=\'#475569\';this.style.color=\'#e2e8f0\'" onmouseout="this.style.borderColor=\'#334155\';this.style.color=\'#94a3b8\'">📋 复制命令 /start ' + escHtml(code) + '</button>';
-    }
-
-    // polling indicator with status display
-    html += '<div class="verify-polling" id="verifyPolling">';
-    html += '<span class="spinner-sm"></span>';
-    html += '<span id="verifyPollText">等待 Telegram 验证中...</span>';
-    html += '</div>';
-
-    // failure display area
-    html += '<div id="verifyFailMsg" style="display:none;margin-top:12px"></div>';
-
-    // back button
-    html += '<button class="verify-back-btn" onclick="stopTGVerifyPolling(); switchMode(\'signup\');">← 返回修改注册信息</button>';
-    html += '</div>';
-
-    resultItems.innerHTML = html;
-
-    // attach copy handlers
-    resultItems.querySelectorAll('.copy-btn, .verify-copy-cmd-btn').forEach(function(btn) {
-      btn.addEventListener('click', function() { copyText(btn.dataset.copy, btn); });
-    });
-
-    // start polling
-    startTGVerifyPolling(data.account || '', code);
-  }
-
-  function startTGVerifyPolling(account, code) {
-    stopTGVerifyPolling();
-    var attempts = 0;
-    var maxAttempts = 200; // ~10 minutes at 3s intervals
-
-    tgVerifyPollTimer = setInterval(async function() {
-      attempts++;
-      if (attempts > maxAttempts) {
-        stopTGVerifyPolling();
-        var pollEl = document.getElementById('verifyPolling');
-        if (pollEl) pollEl.innerHTML = '<span style="color:#ef4444">⏰ 验证超时，请返回重新注册。</span>';
-        showVerifyFail('验证已超时（10分钟），请返回注册页面重新发起注册。');
-        return;
-      }
-
-      try {
-        var resp = await fetch(API_BASE + '/register/verify-tg/check', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ account: account, code: code }),
-        });
-        var data = await resp.json();
-        var vcode = data.code || '';
-
-        if (vcode === 'AUTH_SIGNUP_SUCCESS') {
-          // Verified and user created!
-          stopTGVerifyPolling();
-          resultTitle.textContent = '✅ 注册成功';
-          resultSub.textContent = data.data?.account || account;
-          var html2 = '';
-          html2 += '<div class="verify-step">';
-          html2 += '<div class="verify-success-icon">🎉</div>';
-          html2 += '<p style="font-size:18px;color:#e2e8f0;font-weight:700;margin:0 0 8px">注册成功！</p>';
-          html2 += '<p style="font-size:14px;color:#94a3b8;margin:0 0 4px">TG账号 ' + (data.data?.tgUsername || '') + ' 已绑定</p>';
-          html2 += '<p style="font-size:13px;color:#64748b;margin:0 0 20px">即将跳转到登录页面...</p>';
-          html2 += '</div>';
-          resultItems.innerHTML = html2;
-          setTimeout(function() { switchMode('signin'); }, 2000);
-        } else if (vcode === 'AUTH_TG_PENDING') {
-          // Still waiting - update remaining time
-          var remaining = data.data?.remainingSeconds || 0;
-          var pollText = document.getElementById('verifyPollText');
-          if (pollText && remaining > 0) {
-            var m = Math.floor(remaining / 60);
-            var s = remaining % 60;
-            pollText.textContent = '等待验证中... 剩余 ' + m + '分' + s + '秒 (' + attempts + ')';
-          } else if (pollText) {
-            pollText.textContent = '等待 Telegram 验证中... (' + attempts + ')';
-          }
-        } else if (vcode === 'AUTH_TG_CODE_EXPIRED') {
-          stopTGVerifyPolling();
-          var pollEl = document.getElementById('verifyPolling');
-          if (pollEl) pollEl.innerHTML = '<span style="color:#ef4444">⏰ 验证码已过期，请返回重新注册。</span>';
-        } else if (vcode === 'AUTH_TG_DUPLICATE') {
-          stopTGVerifyPolling();
-          var pollEl2 = document.getElementById('verifyPolling');
-          if (pollEl2) pollEl2.innerHTML = '<span style="color:#ef4444">⚠️ 该TG账号已被其他用户绑定。</span>';
-        } else if (vcode === 'AUTH_SIGNUP_DUPLICATE_USERNAME' || vcode === 'AUTH_SIGNUP_DUPLICATE_EMAIL') {
-          stopTGVerifyPolling();
-          var pollEl3 = document.getElementById('verifyPolling');
-          if (pollEl3) pollEl3.innerHTML = '<span style="color:#ef4444">❌ ' + (data.message || '注册信息冲突，请返回重新注册。') + '</span>';
-        } else if (resp.status >= 500) {
-          // Server error - keep polling but log
-          console.warn('[TG Verify] Server error:', vcode, data.message);
-        }
-        // other errors: keep polling silently
-      } catch (err) {
-        // Network error - keep polling
-        console.warn('[TG Verify] Poll error:', err.message);
-      }
-    }, 3000);
-  }
-
-  function showVerifyFail(message) {
-    var failEl = document.getElementById('verifyFailMsg');
-    if (failEl) {
-      failEl.style.display = 'block';
-      failEl.innerHTML = '<div style="background:#450a0a;border:1px solid #dc2626;border-radius:10px;padding:12px 16px;color:#fca5a5;font-size:13px">' + escHtml(message) + '</div>';
-    }
-  }
-
-  function stopTGVerifyPolling() {
-    if (tgVerifyPollTimer) {
-      clearInterval(tgVerifyPollTimer);
-      tgVerifyPollTimer = null;
-    }
   }
 
   // ── helpers ──
@@ -1117,14 +1269,11 @@ button:disabled{opacity:.5;cursor:not-allowed}
   oldLoginBtn.addEventListener('click', function() {
     var ef = document.getElementById('emailField');
     var pf = document.getElementById('passwordField');
-    var accountInp = document.getElementById('account');
     if (ef) ef.style.display = '';
     if (pf) pf.style.display = 'none';
     if (oldLoginToggle) oldLoginToggle.style.display = 'none';
     submitText.textContent = '邮箱登录';
     state._oldLogin = true;
-    // 提示：旧登录模式下用户名框填入邮箱即可
-    if (accountInp) accountInp.placeholder = '在此输入您的注册邮箱';
   });
 
 
@@ -1141,7 +1290,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   }
 
   function showToast(msg) {
-    var t = document.createElement('div');
+    const t = document.createElement('div');
     t.className = 'copy-toast';
     t.textContent = msg;
     document.body.appendChild(t);
@@ -1219,7 +1368,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
       forgotSubmitBtn.disabled = false;
     });
 
-    // Enter key on forgotId triggers submit
     forgotId.addEventListener('keydown', function(e) { if (e.key === 'Enter') forgotSubmitBtn.click(); });
 
     // Step 2 → Step 3
