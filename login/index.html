@@ -6,577 +6,95 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Beacon 灯塔 · 管理登录</title>
 <style>
-/* ══════════════════════════════════════════════════════
-   二次元樱风 · 管理登录  — 马卡龙色系 + 错落布局
-   ══════════════════════════════════════════════════════ */
 *{margin:0;padding:0;box-sizing:border-box}
-
-:root{
-  --pink:#FF9AA2; --pink-deep:#FF808D; --pink-light:#FFD4D8; --pink-glow:rgba(255,154,162,.25);
-  --lavender:#C3B1E1; --lavender-deep:#B5A0D8; --lavender-light:#EDE4F5;
-  --sky:#B5D8F7; --sky-light:#E0F0FF;
-  --card-bg:rgba(255,255,255,.86); --card-border:rgba(210,180,220,.30);
-  --text:#5D4E6D; --text-soft:#8B7D9B; --text-muted:#B5A8C0;
-  --input-bg:rgba(255,255,255,.85); --input-border:#E4D8EF; --input-focus:rgba(255,154,162,.22);
-  --success:#E0F5EC; --success-text:#2E7D5A;
-  --error:#FDE8EC; --error-text:#B5445A;
-  --warn:#FEF3E4; --warn-text:#A07040;
-}
-
-/* ── 背景层 ── */
-.bg-layer{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
-.bg-gradient{
-  position:absolute;inset:0;
-  background:linear-gradient(160deg, #FFF5F5 0%, #F8F0FF 35%, #F0F5FF 65%, #FFF5F5 100%);
-}
-.bg-blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.35}
-.bg-blob--pink{width:420px;height:420px;background:#FFD4D8;top:-80px;right:-60px;animation:blobFloat 12s ease-in-out infinite}
-.bg-blob--purple{width:340px;height:340px;background:#D4C5E8;bottom:-100px;left:-40px;animation:blobFloat 15s ease-in-out 2s infinite}
-.bg-blob--blue{width:280px;height:280px;background:#C5E0F8;top:40%;left:50%;animation:blobFloat 18s ease-in-out 5s infinite}
-@keyframes blobFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-40px) scale(1.08)}66%{transform:translate(-20px,30px) scale(.94)}}
-
-/* ── 樱花飘落 ── */
-.sakura-container{position:absolute;inset:0}
-.sakura{
-  position:absolute;top:-20px;
-  width:12px;height:12px;background:rgba(255,180,190,.55);
-  border-radius:50% 0 50% 0;
-  animation:sakuraFall linear infinite;
-}
-.sakura:nth-child(1){left:5%;animation-duration:10s;animation-delay:0s;width:10px;height:10px}
-.sakura:nth-child(2){left:15%;animation-duration:13s;animation-delay:1.5s;width:8px;height:8px}
-.sakura:nth-child(3){left:25%;animation-duration:11s;animation-delay:3s;width:14px;height:14px}
-.sakura:nth-child(4){left:35%;animation-duration:14s;animation-delay:.8s;width:9px;height:9px}
-.sakura:nth-child(5){left:45%;animation-duration:12s;animation-delay:4s;width:11px;height:11px}
-.sakura:nth-child(6){left:55%;animation-duration:15s;animation-delay:2.2s;width:13px;height:13px}
-.sakura:nth-child(7){left:65%;animation-duration:10.5s;animation-delay:5s;width:8px;height:8px}
-.sakura:nth-child(8){left:75%;animation-duration:13.5s;animation-delay:1s;width:12px;height:12px}
-.sakura:nth-child(9){left:85%;animation-duration:11.5s;animation-delay:3.5s;width:10px;height:10px}
-.sakura:nth-child(10){left:92%;animation-duration:14.5s;animation-delay:2.8s;width:9px;height:9px}
-@keyframes sakuraFall{
-  0%{transform:translateY(0) rotate(0deg) translateX(0);opacity:.7}
-  25%{transform:translateY(25vh) rotate(90deg) translateX(25px);opacity:.55}
-  50%{transform:translateY(50vh) rotate(180deg) translateX(-15px);opacity:.6}
-  75%{transform:translateY(75vh) rotate(270deg) translateX(20px);opacity:.45}
-  100%{transform:translateY(105vh) rotate(360deg) translateX(-10px);opacity:0}
-}
-
-/* ── 星光 ── */
-.sparkles{position:absolute;inset:0}
-.sparkle{
-  position:absolute;width:3px;height:3px;background:#fff;
-  border-radius:50%;box-shadow:0 0 4px 1px rgba(255,220,180,.6);
-  animation:twinkle 3s ease-in-out infinite;
-}
-.sparkle:nth-child(1){top:10%;left:10%;animation-delay:0s}
-.sparkle:nth-child(2){top:20%;left:80%;animation-delay:.7s}
-.sparkle:nth-child(3){top:60%;left:15%;animation-delay:1.4s}
-.sparkle:nth-child(4){top:75%;left:70%;animation-delay:2.1s}
-.sparkle:nth-child(5){top:40%;left:90%;animation-delay:.3s}
-.sparkle:nth-child(6){top:85%;left:35%;animation-delay:1.8s}
-.sparkle:nth-child(7){top:30%;left:55%;animation-delay:2.5s}
-.sparkle:nth-child(8){top:50%;left:25%;animation-delay:1s}
-@keyframes twinkle{0%,100%{opacity:.25;transform:scale(1)}50%{opacity:.75;transform:scale(1.6)}}
-
-/* ── 漫画网点 ── */
-body::after{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.05;
-  background-image:radial-gradient(circle,rgba(160,130,180,.9) 1.2px,transparent 1.2px);
-  background-size:14px 14px;
-}
-
-/* ── kira-kira ── */
-.kira-container{position:fixed;inset:0;pointer-events:none;z-index:0}
-.kira{
-  position:absolute;animation:kira-spin 6s linear infinite;
-  animation-delay:var(--kdelay,0s);opacity:0;
-}
-.kira::before{
-  content:'✦';font-size:var(--ksize,18px);
-  background:linear-gradient(135deg,#FFD4E0,#FFF0C0,#FFD4E0);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;filter:drop-shadow(0 0 4px rgba(255,200,180,.6));
-}
-@keyframes kira-spin{
-  0%{transform:rotate(0deg) scale(.5);opacity:0}
-  15%{opacity:.9}
-  30%{transform:rotate(180deg) scale(1.1);opacity:.7}
-  50%{transform:rotate(360deg) scale(.6);opacity:0}
-  100%{transform:rotate(720deg) scale(.5);opacity:0}
-}
-
-/* ── 页面包装 ── */
-.page-wrapper{
-  position:fixed;inset:0;display:flex;justify-content:center;align-items:center;
-  z-index:1;padding:20px;overflow-y:auto;
-}
-
-/* ── 卡片容器 ── */
-.card-container{
-  background:var(--card-bg);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
-  padding:44px 36px;border-radius:24px;
-  box-shadow:0 12px 48px rgba(170,150,200,.18),0 0 0 1px rgba(255,210,230,.15) inset;
-  width:100%;max-width:420px;
-  position:relative;overflow:hidden;
-  animation:cardAppear .7s ease-out .2s backwards;
-  border:1px solid var(--card-border);
-}
-@keyframes cardAppear{0%{opacity:0;transform:translateY(28px) scale(.94)}100%{opacity:1;transform:translateY(0) scale(1)}}
-.card-container::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:4px;
-  background:linear-gradient(90deg, var(--pink), var(--lavender), var(--pink-light), var(--lavender-deep));
-  background-size:300% 100%;animation:gradientShift 4s ease infinite;
-}
-@keyframes gradientShift{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
-
-/* ── 装饰角标 ── */
-.card-deco-tl{position:absolute;top:-6px;left:-6px;font-size:22px;opacity:.6}
-.card-deco-br{position:absolute;bottom:-4px;right:-4px;font-size:20px;opacity:.55}
-
-/* ── 登录小看板娘 ── */
-.login-mascot{
-  position:absolute;right:-20px;top:-30px;width:62px;height:74px;
-  z-index:2;animation:mascot-float 3s ease-in-out infinite;
-  filter:drop-shadow(0 3px 8px rgba(255,154,162,.25));
-}
-@keyframes mascot-float{
-  0%,100%{transform:translateY(0) rotate(-2deg)}
-  50%{transform:translateY(-6px) rotate(2deg)}
-}
-@media(max-width:520px){
-  .login-mascot{right:-12px;top:-22px;width:50px;height:60px}
-}
-
-/* ── 页面头部 ── */
-.page-header{margin-bottom:32px;text-align:center}
-.page-icon{
-  width:68px;height:68px;margin:0 auto 18px;
-  background:linear-gradient(135deg, var(--pink), var(--lavender-deep));
-  border-radius:18px;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 8px 28px var(--pink-glow);
-  animation:iconFloat 3s ease-in-out infinite;
-}
-@keyframes iconFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-.page-icon svg{width:32px;height:32px;fill:#fff}
-.page-title{
-  font-size:28px;font-weight:800;
-  background:linear-gradient(135deg, var(--pink-deep), var(--lavender-deep));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  margin:0 0 8px;line-height:1.2;letter-spacing:-.3px;
-}
-.page-subtitle{font-size:13px;color:var(--text-muted);line-height:1.5}
-
-/* ── 表单 ── */
-.page-form{display:flex;flex-direction:column;margin-top:30px}
-.form-group{margin-bottom:22px;text-align:left;position:relative}
+:root{--pink:#FF9AA2;--pink-deep:#FF808D;--lavender:#C3B1E1;--lavender-deep:#B5A0D8;--text:#fff;--text-soft:rgba(255,255,255,.75);--glass-bg:rgba(255,255,255,.12);--glass-border:rgba(255,255,255,.18)}
+body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;background:url(https://haowallpaper.com/link/common/file/previewFileImg/18834482406280576) center/cover fixed;position:relative}
+body::before{content:'';position:fixed;inset:0;background:rgba(25,15,35,.55);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:0}
+.page-wrapper{position:relative;z-index:1;width:100%;max-width:420px;padding:20px}
+.card{background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:24px;padding:36px 30px;box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center;position:relative}
+.card::before{content:'';position:absolute;top:0;left:20px;right:20px;height:3px;background:linear-gradient(90deg,var(--pink),var(--lavender));border-radius:0 0 3px 3px}
+.page-icon{width:60px;height:60px;margin:0 auto 16px;background:linear-gradient(135deg,var(--pink),var(--lavender-deep));border-radius:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(255,154,162,.3)}
+.page-icon svg{width:30px;height:30px;fill:#fff}
+.page-title{font-size:24px;font-weight:800;color:#fff;margin:0 0 6px}
+.page-subtitle{font-size:13px;color:var(--text-soft);margin:0}
+.form-group{margin:26px 0 18px;text-align:left}
 .input-wrapper{position:relative}
-.input-icon{
-  position:absolute;left:15px;top:50%;transform:translateY(-50%);
-  width:20px;height:20px;opacity:.35;pointer-events:none;transition:opacity .3s;
-}
-.form-group input{
-  width:100%;padding:15px 16px;border:2px solid var(--input-border);border-radius:14px;
-  font-size:15px;color:var(--text);background:var(--input-bg);box-sizing:border-box;
-  transition:all .3s ease;-webkit-appearance:none;appearance:none;font-family:inherit;
-}
-.form-group input.with-icon{padding-left:46px}
-.form-group input:focus{outline:0!important;border-color:var(--pink)!important;box-shadow:0 0 0 4px var(--input-focus)!important}
-.form-group input:focus+.input-icon{opacity:.7}
-.form-group input:disabled{background:rgba(240,235,245,.5)!important;color:var(--text-muted)!important;cursor:not-allowed;opacity:1}
-.form-group input[readonly]{background:#f9fafb!important;color:#6b7280!important}
-
-/* ── 按钮 ── */
-.btn{
-  padding:15px 20px;border:0;border-radius:14px;font-size:15px;font-weight:700;
-  cursor:pointer;transition:all .3s ease;box-sizing:border-box;
-  -webkit-appearance:none;appearance:none;letter-spacing:.5px;
-  position:relative;overflow:hidden;
-}
-.btn-primary{
-  background:linear-gradient(135deg, var(--pink), var(--pink-deep));
-  color:#fff;box-shadow:0 4px 18px var(--pink-glow);
-}
-.btn-primary::before{
-  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
-  background:linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
-  transition:left .6s ease;
-}
-.btn-primary:hover::before{left:100%}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(255,154,162,.4)}
-.btn-primary:active{transform:translateY(0);box-shadow:0 2px 10px rgba(255,154,162,.3)}
-.btn:disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
-.btn-full-width{width:100%}
-
-/* ── 错误消息 ── */
-.login-error{
-  margin-top:20px;padding:14px 18px;border-radius:14px;
-  background:var(--error);color:var(--error-text);
-  font-size:13px;font-weight:500;line-height:1.5;
-  box-shadow:0 4px 15px rgba(196,77,90,.12);
-  animation:errorShake .5s ease-in-out,fadeInError .3s ease-out;
-  display:flex;align-items:center;gap:10px;
-}
-.login-error::before{content:'⚠️';flex-shrink:0;font-size:15px}
-@keyframes errorShake{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-5px)}20%,40%,60%,80%{transform:translateX(5px)}}
-@keyframes fadeInError{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;opacity:.35;pointer-events:none}
+.form-group input{width:100%;padding:14px 14px 14px 44px;border:1px solid rgba(255,255,255,.15);border-radius:14px;font-size:15px;color:#fff;background:rgba(255,255,255,.08);outline:none;transition:all .25s;font-family:inherit}
+.form-group input:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,154,162,.2);background:rgba(255,255,255,.12)}
+.form-group input::placeholder{color:rgba(255,255,255,.3)}
+.btn{width:100%;padding:14px;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;box-shadow:0 4px 16px rgba(255,154,162,.3);transition:all .25s;font-family:inherit;position:relative;overflow:hidden}
+.btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 22px rgba(255,154,162,.4)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-loading{color:transparent!important}
+.btn-loading::after{content:'';position:absolute;width:14px;height:14px;top:50%;left:50%;margin:-7px 0 0 -7px;border:2px solid rgba(255,255,255,.3);border-radius:50%;border-top-color:#fff;animation:spin .8s linear infinite}
+.login-error{margin-top:16px;padding:12px 16px;border-radius:12px;background:rgba(244,160,168,.15);color:#F4A0A8;font-size:13px;line-height:1.5;display:flex;align-items:center;gap:8px;animation:fadeIn .3s}
+.login-error::before{content:'\26A0\FE0F';flex-shrink:0;font-size:14px}
 .login-error-hidden{display:none}
-
-/* ── 加载态 ── */
-.btn-loading{position:relative;color:transparent!important}
-.btn-loading::after{
-  content:'';position:absolute;width:14px;height:14px;top:50%;left:50%;
-  margin-left:-7px;margin-top:-7px;border:2px solid rgba(255,255,255,.3);
-  border-radius:50%;border-top-color:white;animation:spin .8s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* ── 页脚 ── */
-.footer-hint{
-  margin-top:28px;font-size:12px;color:var(--text-muted);
-  text-align:center;animation:fadeIn .8s ease-out 1s backwards;
-}
-.footer-hint a{color:var(--pink-deep);text-decoration:none;font-weight:500;transition:color .3s}
-.footer-hint a:hover{color:var(--lavender-deep)}
-
-/* ── 模态框 ── */
-.modal-overlay{
-  display:none;position:fixed;inset:0;
-  background:rgba(80,60,90,.55);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
-  z-index:2000000000;justify-content:center;align-items:center;
-}
+.footer-hint{margin-top:20px;font-size:12px;color:rgba(255,255,255,.45)}
+.footer-hint a{color:var(--pink);text-decoration:none}
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:20000;justify-content:center;align-items:center;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .modal-overlay.show{display:flex}
-.modal{
-  background:rgba(255,255,255,.96);border-radius:20px;padding:30px;
-  max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.15);
-  text-align:center;z-index:2000000001;position:relative;
-  border:1px solid rgba(210,180,220,.25);
-}
-.modal-close{
-  position:absolute;top:14px;right:14px;background:none;border:none;
-  font-size:22px;cursor:pointer;color:var(--text-muted);
-}
-.modal-close:hover{color:var(--text)}
-
-.modal-button-container{
-  display:flex;flex-direction:row;justify-content:center;gap:10px;margin-top:10px;width:100%;
-}
-@media (max-width:480px){.modal-button-container{flex-direction:column;align-items:center}.modal-button-container button{width:100%;margin:5px 0!important}}
-
-/* ── 科技感倒计时按钮（保留功能） ── */
-.btn-tech-upgrade{position:relative;overflow:hidden;animation:btnPulse 2s cubic-bezier(0.4,0,0.6,1) infinite}
-.btn-countdown-line{
-  position:absolute;bottom:0;left:0;height:3px;background:#fff;width:100%;
-  border-radius:0 0 14px 14px;transform-origin:left;
-  animation:countdownProgress 8s linear forwards;
-  box-shadow:0 0 8px #fff,0 0 15px var(--pink-deep);z-index:2;
-}
-.btn-tech-upgrade::after{
-  content:'';position:absolute;top:-50%;left:-60%;width:20%;height:200%;
-  background:rgba(255,255,255,.2);transform:rotate(30deg);
-  animation:techScan 3s infinite;pointer-events:none;z-index:1;
-}
-@keyframes countdownProgress{from{transform:scaleX(1)}to{transform:scaleX(0)}}
-@keyframes techScan{0%{left:-60%}30%,100%{left:150%}}
-@keyframes btnPulse{0%,100%{box-shadow:0 8px 16px rgba(255,154,162,.15)}50%{box-shadow:0 8px 25px rgba(255,154,162,.35)}}
+.modal{background:rgba(25,20,35,.95);border:1px solid rgba(255,255,255,.15);border-radius:22px;padding:28px;max-width:460px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.5);color:#fff;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes shake{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-5px)}20%,40%,60%,80%{transform:translateX(5px)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-
-/* ── 响应式 ── */
-@media(max-width:768px){
-  .page-wrapper{padding:18px 14px}
-  .card-container{padding:36px 26px;border-radius:20px}
-  .page-icon{width:60px;height:60px;border-radius:16px;margin-bottom:14px}
-  .page-icon svg{width:28px;height:28px}
-  .page-form{margin-top:24px}
-  .form-group{margin-bottom:18px}
-  .form-group input{padding:14px;font-size:15px;border-radius:12px}
-  .form-group input.with-icon{padding-left:42px}
-  .input-icon{left:13px;width:18px;height:18px}
-  .btn{padding:14px 20px;font-size:14px;border-radius:12px}
-  .footer-hint{margin-top:22px}
-  .page-title{font-size:24px}
-}
-@media(max-width:480px){
-  .page-wrapper{padding:10px}
-  .card-container{padding:30px 22px;border-radius:18px}
-  .page-icon{width:52px;height:52px;border-radius:14px}
-  .page-icon svg{width:24px;height:24px}
-  .page-title{font-size:22px}
-}
-@media(max-height:600px) and (orientation:landscape){
-  .page-wrapper{padding:16px}
-  .card-container{padding:24px 30px}
-  .page-icon{width:46px;height:46px;margin-bottom:10px}
-  .page-icon svg{width:22px;height:22px}
-  .page-title{font-size:20px;margin-bottom:6px}
-  .page-form{margin-top:16px}
-  .form-group{margin-bottom:14px}
-  .footer-hint{margin-top:14px}
-}
+@media(max-width:480px){.card{padding:30px 20px}}
 </style>
 </head>
 <body>
-<!-- 背景层 -->
-<div class="bg-layer">
-  <div class="bg-gradient"></div>
-  <div class="bg-blob bg-blob--pink"></div>
-  <div class="bg-blob bg-blob--purple"></div>
-  <div class="bg-blob bg-blob--blue"></div>
-  <div class="sakura-container" aria-hidden="true">
-    <div class="sakura"></div><div class="sakura"></div><div class="sakura"></div>
-    <div class="sakura"></div><div class="sakura"></div><div class="sakura"></div>
-    <div class="sakura"></div><div class="sakura"></div><div class="sakura"></div>
-    <div class="sakura"></div>
-  </div>
-  <div class="sparkles" aria-hidden="true">
-    <div class="sparkle"></div><div class="sparkle"></div><div class="sparkle"></div>
-    <div class="sparkle"></div><div class="sparkle"></div><div class="sparkle"></div>
-    <div class="sparkle"></div><div class="sparkle"></div>
-  </div>
-  <div class="kira-container" aria-hidden="true">
-    <span class="kira" style="top:12%;left:10%;--ksize:16px;--kdelay:0s"></span>
-    <span class="kira" style="top:22%;left:85%;--ksize:22px;--kdelay:2s"></span>
-    <span class="kira" style="top:45%;left:8%;--ksize:14px;--kdelay:4s"></span>
-    <span class="kira" style="top:65%;left:90%;--ksize:20px;--kdelay:1.5s"></span>
-    <span class="kira" style="top:78%;left:18%;--ksize:18px;--kdelay:3.5s"></span>
-    <span class="kira" style="top:88%;left:75%;--ksize:12px;--kdelay:5s"></span>
-  </div>
-</div>
-
-<!-- 登录框容器 -->
 <div class="page-wrapper">
-  <div class="card-container">
-    <div class="card-deco-tl">🌸</div>
-    <div class="card-deco-br">✨</div>
-    <div class="login-mascot" aria-hidden="true">
-      <svg viewBox="0 0 80 95" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <radialGradient id="lmSkin" cx="38%" cy="30%"><stop offset="0%" stop-color="#FFF5F0"/><stop offset="100%" stop-color="#FFE0D0"/></radialGradient>
-          <radialGradient id="lmHair" cx="50%" cy="20%"><stop offset="0%" stop-color="#F5A0B0"/><stop offset="100%" stop-color="#E87890"/></radialGradient>
-        </defs>
-        <path d="M22 26 Q8 18 6 38 Q5 56 13 62 Q8 52 11 40 Q14 30 20 32Z" fill="url(#lmHair)"/>
-        <path d="M58 26 Q72 18 74 38 Q75 56 67 62 Q72 52 69 40 Q66 30 60 32Z" fill="url(#lmHair)"/>
-        <ellipse cx="40" cy="36" rx="28" ry="30" fill="url(#lmHair)"/>
-        <ellipse cx="40" cy="38" rx="20" ry="22" fill="url(#lmSkin)"/>
-        <path d="M21 22 Q28 14 40 16 Q52 14 59 22 Q57 17 48 15 Q40 13 32 15 Q23 17 21 22Z" fill="url(#lmHair)"/>
-        <ellipse cx="31" cy="40" rx="4.5" ry="5" fill="#3A2F3A"/>
-        <ellipse cx="32" cy="38" rx="2" ry="2.5" fill="#fff" opacity=".9"/>
-        <circle cx="30.5" cy="37" r="1.2" fill="#fff"/>
-        <ellipse cx="49" cy="40" rx="4.5" ry="5" fill="#3A2F3A"/>
-        <ellipse cx="50" cy="38" rx="2" ry="2.5" fill="#fff" opacity=".9"/>
-        <circle cx="48.5" cy="37" r="1.2" fill="#fff"/>
-        <path d="M25 45 Q30 43 33 45" fill="none" stroke="#C09090" stroke-width=".8" stroke-linecap="round"/>
-        <path d="M47 45 Q50 43 55 45" fill="none" stroke="#C09090" stroke-width=".8" stroke-linecap="round"/>
-        <ellipse cx="25" cy="46" rx="4" ry="2.5" fill="#FFB7B2" opacity=".35"/>
-        <ellipse cx="55" cy="46" rx="4" ry="2.5" fill="#FFB7B2" opacity=".35"/>
-        <path d="M37 48 Q40 46 43 48" fill="none" stroke="#D4908A" stroke-width="1" stroke-linecap="round"/>
-        <path d="M22 60 L58 60 L62 70 Q40 78 18 70Z" fill="#fff" stroke="#D0C8D8" stroke-width=".8"/>
-        <path d="M40 60 L32 57 L32 63Z" fill="#E87890"/>
-        <path d="M40 60 L48 57 L48 63Z" fill="#E87890"/>
-        <circle cx="40" cy="60" r="2.5" fill="#D06078"/>
-        <path d="M20 70 L60 70 L65 84 Q40 88 15 84Z" fill="#3A4A6A"/>
-        <rect x="27" y="82" width="9" height="6" rx="3" fill="url(#lmSkin)"/>
-        <rect x="44" y="82" width="9" height="6" rx="3" fill="url(#lmSkin)"/>
-      </svg>
-    </div>
-
-    <div class="page-header">
-      <div class="page-icon">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
-        </svg>
-      </div>
-      <h1 class="page-title">管理登录</h1>
-      <p class="page-subtitle">请输入管理员密码以继续</p>
-    </div>
-
-    <form id="loginForm" class="page-form">
+  <div class="card">
+    <div class="page-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg></div>
+    <h1 class="page-title">管理登录</h1>
+    <p class="page-subtitle">请输入管理员密码以继续</p>
+    <form id="loginForm">
       <div class="form-group">
         <div class="input-wrapper">
-          <input type="password" id="password" name="password" class="with-icon" placeholder="请输入您的管理员密码" required disabled>
-          <svg class="input-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-          </svg>
+          <input type="password" id="password" placeholder="请输入管理员密码" required disabled>
+          <svg class="input-icon" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" fill="rgba(255,255,255,.35)"/></svg>
         </div>
       </div>
-      <button type="submit" class="btn btn-primary btn-full-width" id="loginBtn" disabled>立即登录</button>
+      <button type="submit" class="btn" id="loginBtn" disabled>立即登录</button>
       <div id="errorMsg" class="login-error login-error-hidden"></div>
     </form>
-
-    <div class="footer-hint">
-      由 <a href="https://github.com/cmliu/edgetunnel" target="_blank" rel="noopener">EdgeTunnel</a> 强力驱动
-    </div>
+    <div class="footer-hint">Beacon 灯塔 · 管理面板</div>
   </div>
 </div>
-
-<!-- IR User Warning Modal -->
-<div id="ir-modal" class="modal-overlay" style="backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:rgba(70,50,80,.6)">
-  <div class="modal" style="z-index:2147483647;max-width:700px;padding:0;border-radius:24px;background:rgba(255,255,255,.96);box-shadow:0 0 0 1px rgba(255,210,230,.15) inset,0 25px 50px -12px rgba(0,0,0,.25);overflow:hidden;border:none">
-    <div id="ir-modal-content"></div>
-  </div>
-</div>
-
+<div id="ir-modal" class="modal-overlay"><div class="modal" id="ir-modal-content"></div></div>
 <script>
-document.addEventListener('DOMContentLoaded', async () => {
-  const passwordInput = document.getElementById('password');
-  const loginBtn = document.getElementById('loginBtn');
-  const irModal = document.getElementById('ir-modal');
-  const redirectUrl = 'https://github.com/bia-pain-bache/BPB-Worker-Panel';
-
-  const enableLogin = () => {
-    passwordInput.removeAttribute('disabled');
-    loginBtn.removeAttribute('disabled');
-    passwordInput.focus();
-  };
-
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
-
-    const response = await fetch('/cdn-cgi/trace', { signal: controller.signal });
-    clearTimeout(timeoutId);
-
-    if (!response.ok) { throw new Error('Network response was not ok'); }
-
-    const text = await response.text();
-    const lines = text.split('\n');
-    const locLine = lines.find(line => line.startsWith('loc='));
-
-    if (locLine && locLine.split('=')[1].trim() === 'IR') {
-      const lang = navigator.language || navigator.userLanguage;
-      const modalContent = document.getElementById('ir-modal-content');
-      let contentHTML = '';
-
-      const primaryBtnStyle = 'display:inline-block;background:linear-gradient(135deg,#FF9AA2,#FF808D);color:white;text-decoration:none;padding:16px 32px;border-radius:14px;font-weight:700;font-size:17px;box-shadow:0 8px 16px rgba(255,154,162,.2);transition:all .3s ease;border:none;cursor:pointer;margin:10px;outline:none;position:relative;overflow:hidden;';
-      const secondaryBtnStyle = 'display:inline-block;background:#f3f4f6;color:#9ca3af;text-decoration:none;padding:16px 32px;border-radius:14px;font-weight:500;font-size:16px;transition:all .3s ease;border:none;cursor:pointer;margin:10px;outline:none;';
-
-      if (lang.toLowerCase().startsWith('zh')) {
-        contentHTML = `
-          <div style="background:linear-gradient(135deg,#dc2626,#991b1b);padding:40px 20px;text-align:center;">
-            <div style="font-size:64px;margin-bottom:20px;animation:shake 2s infinite;">🔒</div>
-            <h2 style="color:white;font-size:32px;font-weight:800;letter-spacing:-1px;margin:0;">👋 地域访问限制</h2>
-          </div>
-          <div style="padding:40px;text-align:left;line-height:1.8;">
-            <div style="background:#fdf2f2;border-left:4px solid #dc2626;padding:20px;border-radius:12px;margin-bottom:30px;">
-              <p style="font-size:16px;color:#991b1b;margin:0;">很遗憾，由于网络环境差异，此项目暂不适配伊朗用户的使用体验。为了给您提供更稳定、更优化的服务，我们强烈建议您使用由伊朗本地群组维护的专业项目。</p>
-            </div>
-            <div class="modal-button-container">
-              <button id="accept-suggestion" style="${primaryBtnStyle}">⭐ 使用 BPB-Worker-Panel</button>
-              <button id="stay-current" style="${secondaryBtnStyle}">继续使用当前项目</button>
-            </div>
-          </div>
-        `;
-      } else if (lang.toLowerCase().startsWith('en')) {
-        contentHTML = `
-          <div style="background:linear-gradient(135deg,#dc2626,#991b1b);padding:40px 20px;text-align:center;">
-            <div style="font-size:64px;margin-bottom:20px;animation:shake 2s infinite;">🔒</div>
-            <h2 style="color:white;font-size:32px;font-weight:800;letter-spacing:-1px;margin:0;">👋 Geographic Restriction</h2>
-          </div>
-          <div style="padding:40px;text-align:left;line-height:1.8;">
-            <div style="background:#fdf2f2;border-left:4px solid #dc2626;padding:20px;border-radius:12px;margin-bottom:30px;">
-              <p style="font-size:16px;color:#991b1b;margin:0;">We're unable to provide optimal service in your region. To get the best experience, we strongly recommend switching to specialized solutions maintained by the Iranian developer community.</p>
-            </div>
-            <div class="modal-button-container">
-              <button id="accept-suggestion" style="${primaryBtnStyle}">⭐ Use BPB-Worker-Panel</button>
-              <button id="stay-current" style="${secondaryBtnStyle}">Continue with current project</button>
-            </div>
-          </div>
-        `;
-      } else {
-        contentHTML = `
-          <div style="background:linear-gradient(135deg,#dc2626,#991b1b);padding:40px 20px;text-align:center;">
-            <div style="font-size:64px;margin-bottom:20px;animation:shake 2s infinite;">🔒</div>
-            <h2 style="color:white;font-size:32px;font-weight:800;letter-spacing:-1px;margin:0;">👋 دسترسی جغرافیایی محدود</h2>
-          </div>
-          <div style="padding:40px;text-align:right;line-height:1.8;direction:rtl;">
-            <div style="background:#fdf2f2;border-right:4px solid #dc2626;padding:20px;border-radius:12px;margin-bottom:30px;">
-              <p style="font-size:16px;color:#991b1b;margin:0;">برای خدمات بهتر، ما پروژه‌های متخصص توسعه‌یافته توسط جامعه توسعه‌دهندگان ایرانی را توصیه می‌کنیم. این راه‌حل‌ها برای محیط شبکه شما بهینه‌سازی شده‌اند.</p>
-            </div>
-            <div class="modal-button-container" style="direction:ltr;">
-              <button id="accept-suggestion" style="${primaryBtnStyle}">⭐ استفاده از BPB-Worker-Panel</button>
-              <button id="stay-current" style="${secondaryBtnStyle}">ادامه استفاده از پروژه فعلی</button>
-            </div>
-          </div>
-        `;
-      }
-
-      modalContent.innerHTML = contentHTML;
-      irModal.classList.add('show');
-
-      const acceptBtn = document.getElementById('accept-suggestion');
-      const stayBtn = document.getElementById('stay-current');
-
-      const progressBar = document.createElement('div');
-      progressBar.className = 'btn-countdown-line';
-      acceptBtn.classList.add('btn-tech-upgrade');
-      acceptBtn.appendChild(progressBar);
-
-      const redirectTimer = setTimeout(() => { window.location.href = redirectUrl; }, 8000);
-
-      acceptBtn.onclick = () => {
-        clearTimeout(redirectTimer);
-        window.location.href = redirectUrl;
-      };
-
-      stayBtn.onclick = () => {
-        clearTimeout(redirectTimer);
-        irModal.classList.remove('show');
-        enableLogin();
-      };
-    } else {
-      enableLogin();
-    }
-  } catch (error) {
-    console.log('Location check failed or timed out:', error);
-    enableLogin();
-  }
+document.addEventListener('DOMContentLoaded',async()=>{
+const p=document.getElementById('password'),b=document.getElementById('loginBtn'),m=document.getElementById('ir-modal'),r='https://github.com/bia-pain-bache/BPB-Worker-Panel';
+const e=()=>{p.removeAttribute('disabled');b.removeAttribute('disabled');p.focus()};
+try{const c=new AbortController(),t=setTimeout(()=>c.abort(),3000),res=await fetch('/cdn-cgi/trace',{signal:c.signal});clearTimeout(t);
+if(!res.ok)throw new Error();
+const txt=await res.text(),loc=txt.split('\n').find(l=>l.startsWith('loc='));
+if(loc&&loc.split('=')[1].trim()==='IR'){
+const lang=navigator.language||navigator.userLanguage,mc=document.getElementById('ir-modal-content');
+const bs='display:inline-block;background:linear-gradient(135deg,#FF9AA2,#FF808D);color:#fff;padding:14px 28px;border-radius:14px;font-weight:700;font-size:16px;border:none;cursor:pointer;margin:8px;font-family:inherit';
+const b2='display:inline-block;background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);padding:14px 28px;border-radius:14px;font-weight:500;font-size:15px;border:none;cursor:pointer;margin:8px;font-family:inherit';
+let h='';
+if(lang.startsWith('zh'))h='<div style="background:linear-gradient(135deg,#dc2626,#991b1b);padding:36px 20px;text-align:center"><div style="font-size:56px;margin-bottom:16px;animation:shake 2s infinite">&#x1F512;</div><h2 style="color:#fff;font-size:28px;font-weight:800;margin:0">地域访问限制</h2></div><div style="padding:36px;line-height:1.8"><div style="background:rgba(220,38,38,.15);border-left:3px solid #dc2626;padding:18px;border-radius:12px;margin-bottom:26px"><p style="font-size:15px;color:#fca5a5;margin:0">很遗憾，由于网络环境差异，此项目暂不适配伊朗用户。建议使用伊朗本地群组维护的专业项目。</p></div><div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap"><button id="accept-suggestion" style="'+bs+'">&#x2B50; 使用 BPB-Worker-Panel</button><button id="stay-current" style="'+b2+'">继续使用当前项目</button></div></div>';
+else if(lang.startsWith('en'))h='<div style="background:linear-gradient(135deg,#dc2626,#991b1b);padding:36px 20px;text-align:center"><div style="font-size:56px;margin-bottom:16px;animation:shake 2s infinite">&#x1F512;</div><h2 style="color:#fff;font-size:28px;font-weight:800;margin:0">Geographic Restriction</h2></div><div style="padding:36px;line-height:1.8"><div style="background:rgba(220,38,38,.15);border-left:3px solid #dc2626;padding:18px;border-radius:12px;margin-bottom:26px"><p style="font-size:15px;color:#fca5a5;margin:0">This project cannot provide optimal service in your region. Please use specialized solutions maintained by the Iranian developer community.</p></div><div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap"><button id="accept-suggestion" style="'+bs+'">&#x2B50; Use BPB-Worker-Panel</button><button id="stay-current" style="'+b2+'">Continue with current project</button></div></div>';
+else h='<div style="background:linear-gradient(135deg,#dc2626,#991b1b);padding:36px 20px;text-align:center"><div style="font-size:56px;margin-bottom:16px;animation:shake 2s infinite">&#x1F512;</div><h2 style="color:#fff;font-size:28px;font-weight:800;margin:0">دسترسی جغرافیایی محدود</h2></div><div style="padding:36px;text-align:right;line-height:1.8;direction:rtl"><div style="background:rgba(220,38,38,.15);border-right:3px solid #dc2626;padding:18px;border-radius:12px;margin-bottom:26px"><p style="font-size:15px;color:#fca5a5;margin:0">برای خدمات بهتر، پروژه‌های متخصص توسعه‌یافته توسط جامعه توسعه‌دهندگان ایرانی را توصیه می‌کنیم.</p></div><div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;direction:ltr"><button id="accept-suggestion" style="'+bs+'">&#x2B50; استفاده از BPB-Worker-Panel</button><button id="stay-current" style="'+b2+'">ادامه با پروژه فعلی</button></div></div>';
+mc.innerHTML=h;m.classList.add('show');
+const ab=document.getElementById('accept-suggestion'),sb=document.getElementById('stay-current'),rt=setTimeout(()=>{window.location.href=r},8000);
+ab.onclick=()=>{clearTimeout(rt);window.location.href=r};
+sb.onclick=()=>{clearTimeout(rt);m.classList.remove('show');e()};
+}else e()}catch(err){console.log('Location check failed:',err);e()}
 });
-
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const password = document.getElementById('password').value;
-  const loginBtn = document.getElementById('loginBtn');
-  const errorMsg = document.getElementById('errorMsg');
-  const passwordInput = document.getElementById('password');
-
-  errorMsg.classList.add('login-error-hidden');
-
-  loginBtn.disabled = true;
-  loginBtn.classList.add('btn-loading');
-
-  try {
-    const response = await fetch('/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: 'password=' + encodeURIComponent(password)
-    });
-
-    if (response.ok) {
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const data = await response.json();
-        if (data.success) {
-          window.location.href = '/admin';
-        }
-      } else {
-        errorMsg.textContent = '密码错误，请重试';
-        errorMsg.classList.remove('login-error-hidden');
-        passwordInput.focus();
-        passwordInput.select();
-      }
-    } else {
-      errorMsg.textContent = '登录失败，请重试';
-      errorMsg.classList.remove('login-error-hidden');
-    }
-  } catch (error) {
-    console.error('登录错误:', error);
-    errorMsg.textContent = '网络错误，请检查连接';
-    errorMsg.classList.remove('login-error-hidden');
-  } finally {
-    loginBtn.disabled = false;
-    loginBtn.classList.remove('btn-loading');
-  }
+document.getElementById('loginForm').addEventListener('submit',async(e)=>{
+e.preventDefault();
+const pw=document.getElementById('password').value,lb=document.getElementById('loginBtn'),em=document.getElementById('errorMsg'),pi=document.getElementById('password');
+em.classList.add('login-error-hidden');lb.disabled=true;lb.classList.add('btn-loading');
+try{
+const res=await fetch('/login',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'password='+encodeURIComponent(pw)});
+if(res.ok){const ct=res.headers.get('content-type');
+if(ct&&ct.includes('application/json')){const d=await res.json();if(d.success)window.location.href='/admin'}
+else{em.textContent='密码错误，请重试';em.classList.remove('login-error-hidden');pi.focus();pi.select()}
+}else{em.textContent='登录失败，请重试';em.classList.remove('login-error-hidden')}
+}catch(err){console.error('登录错误:',err);em.textContent='网络错误，请检查连接';em.classList.remove('login-error-hidden')}
+finally{lb.disabled=false;lb.classList.remove('btn-loading')}
 });
 </script>
 </body>
