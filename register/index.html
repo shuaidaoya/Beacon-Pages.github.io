@@ -36,7 +36,7 @@ body{
 }
 .split-right{
   flex:1;display:flex;align-items:center;justify-content:flex-end;
-  padding:24px 48px 24px 0;
+  padding:24px 48px 24px 24px;
 }
 @media(max-width:768px){
   .split-layout{flex-direction:column;padding:16px;gap:0}
@@ -200,18 +200,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .spinner.show{display:inline-block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .migration-card{animation:fadeIn .3s}
-/* ── TG验证 ── */
-.verify-step{text-align:center;padding:20px}.verify-step-icon{font-size:44px;margin-bottom:10px}
-.verify-code-box{background:rgba(255,255,255,.03);border:2px dashed rgba(56,189,248,.15);border-radius:14px;padding:16px;margin:14px 0}
-.verify-code{font-size:30px;font-weight:800;letter-spacing:6px;font-family:"SF Mono","Fira Code",monospace;background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:6px 0;user-select:all}
-.verify-instructions{text-align:left;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:14px;padding:14px;margin:14px 0;font-size:13px;color:var(--text2);line-height:1.7}
-.verify-instructions ol{margin:0;padding-left:18px}.verify-instructions li{margin-bottom:5px}
-.verify-instructions code{background:rgba(56,189,248,.08);color:var(--accent);padding:1px 7px;border-radius:4px;font-size:13px;font-weight:600}
-.verify-tg-link{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#25a55a,#2ecc71);color:#fff;padding:11px 22px;border-radius:14px;text-decoration:none;font-weight:700;font-size:14px;margin:8px 0}
-.verify-polling{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text2);font-size:13px;margin:10px 0}
-.verify-polling .spinner-sm{width:15px;height:15px;border:2px solid rgba(255,255,255,.08);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
-.verify-back-btn{background:none;border:none;color:var(--text2);cursor:pointer;font-size:13px;margin-top:14px;text-decoration:underline}
-.verify-success-icon{font-size:48px;margin-bottom:6px}
 
 /* ── 规则弹窗 ── */
 .rules-overlay{position:fixed;inset:0;z-index:10000;background:rgba(2,8,23,.9);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .3s}
@@ -434,12 +422,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
     AUTH_PASSWORD_NOT_SET:  { cls:'msg-warn',   title:'尚未设置密码' },
     AUTH_EMAIL_LOGIN_EXPIRED:{ cls:'msg-error', title:'邮箱登录已关闭' },
     AUTH_PASSWORD_TOO_WEAK: { cls:'msg-error',  title:'密码强度不足' },
-    AUTH_TG_VERIFY_REQUIRED: { cls:'msg-info', title:'需要TG验证' }, AUTH_TG_PENDING: { cls:'msg-info', title:'等待验证' },
-    AUTH_TG_CODE_INVALID: { cls:'msg-error', title:'验证码无效' }, AUTH_TG_CODE_EXPIRED: { cls:'msg-error', title:'验证码过期' },
-    AUTH_TG_DUPLICATE: { cls:'msg-error', title:'TG已绑定' }, AUTH_TG_NOT_CONFIGURED: { cls:'msg-error', title:'TG未配置' },
-    AUTH_TG_CHECK_FAILED: { cls:'msg-error', title:'验证失败' }, AUTH_TG_ACCOUNT_MISMATCH: { cls:'msg-error', title:'账号不匹配' },
-    AUTH_TG_INCOMPLETE: { cls:'msg-error', title:'数据不完整' }, AUTH_TG_UNKNOWN_STATUS: { cls:'msg-error', title:'未知状态' },
-    AUTH_TG_CODE_FAILED: { cls:'msg-error', title:'验证码生成失败' }, AUTH_TG_VERIFY_FAILED: { cls:'msg-error', title:'验证发起失败' },
   };
 
   const $ = (sel) => document.querySelector(sel);
@@ -489,7 +471,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
       if (code === 'AUTH_SIGNUP_SUCCESS') { showMsg('msg-success', '✅ ' + meta.title, message + ' 请切换到登录页面完成登录。'); setTimeout(function() { switchMode('signin'); }, 1200); }
       else if (code === 'AUTH_SIGNUP_EXISTS') { showMsg('msg-warn', 'ℹ️ ' + meta.title, message); setTimeout(function() { switchMode('signin'); }, 1200); }
       else if (code === 'AUTH_SIGNUP_DUPLICATE_USERNAME' || code === 'AUTH_SIGNUP_DUPLICATE_EMAIL' || code === 'AUTH_SIGNUP_DUPLICATE') { showMsg('msg-error', '❌ ' + meta.title, message); }
-      else if (code === 'AUTH_TG_VERIFY_REQUIRED') { showTGVerifyStep(data.data); }
       else if (code === 'AUTH_SIGNIN_SUCCESS') {
         var user = data.data || {}, node = user.node || {}, u = user.user || {};
         if (document.getElementById('rememberMe').checked) { var pwField = document.getElementById('password'); localStorage.setItem('beacon_remembered', JSON.stringify({ account: user.account || '', password: pwField ? pwField.value : '' })); }
@@ -523,11 +504,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
     function setMigLoading(v) { migSubmitBtn.disabled = v; if (v) { migSubmitSpin.classList.add('show'); migSubmitText.style.opacity = '0.5'; } else { migSubmitSpin.classList.remove('show'); migSubmitText.style.opacity = '1'; } }
     migSubmitBtn.addEventListener('click', async function() { var pw = migPw.value; if (!pw) { migMsg.className = 'msg msg-error show'; migMsg.innerHTML = '<strong>⚠️ 请输入密码</strong><br>密码不能为空'; return; } var hasLower = /[a-z]/.test(pw), hasUpper = /[A-Z]/.test(pw), hasNumber = /[0-9]/.test(pw), hasSpecial = /[^a-zA-Z0-9]/.test(pw); if (pw.length < 8 || !hasLower || !hasUpper || !hasNumber || !hasSpecial) { migMsg.className = 'msg msg-error show'; migMsg.innerHTML = '<strong>⚠️ 密码强度不足</strong><br>密码需至少8位，包含大小写字母、数字和特殊符号'; return; } migMsg.className = 'msg'; migMsg.innerHTML = ''; setMigLoading(true); try { var resp = await fetch(API_BASE + '/register/password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ migrationToken: token, password: pw }) }); var d = await resp.json(); if (d.code === 'AUTH_PASSWORD_SET') { migMsg.className = 'msg msg-success show'; migMsg.innerHTML = '<strong>✅ 密码设置成功</strong><br>即将跳转到用户面板...'; setTimeout(function() { location.href = '/user'; }, 1500); } else { migMsg.className = 'msg msg-error show'; migMsg.innerHTML = '<strong>❌ 设置失败</strong><br>' + (d.message || '未知错误，请重试'); } } catch (err) { migMsg.className = 'msg msg-error show'; migMsg.innerHTML = '<strong>🌐 网络错误</strong><br>请求发送失败，请检查网络连接'; } finally { setMigLoading(false); } });
   }
-
-  var tgt=null;
-  function showTGVerifyStep(d){authPanel.style.display='none';resultPanel.classList.add('show');resultTitle.textContent='📱 Telegram 验证';resultSub.textContent=d.account||'';var c=d.code||'',g=d.groupInviteLink||'',r=Math.max(0,Math.ceil(((d.expiresAt||0)-Date.now())/1000)),m=Math.floor(r/60),s=r%60;var h='<div class=\"verify-step\"><div class=\"verify-step-icon\">🔐</div><p style=\"font-size:15px;color:var(--text);font-weight:600\">请通过 Telegram 群组完成验证</p><div class=\"verify-code-box\"><div class=\"verify-code\">'+escHtml(c)+'</div><button class=\"copy-btn\" data-copy=\"'+escAttr('/start '+c)+'\" style=\"margin-top:6px;background:rgba(255,255,255,.04);color:var(--text2);border:1px solid rgba(255,255,255,.08);padding:6px 14px;border-radius:10px;cursor:pointer;font-size:13px\">📋 复制 /start '+escHtml(c)+'</button><div class=\"verify-expires\">⏰ '+m+'分'+s+'秒</div></div><div class=\"verify-instructions\"><ol>'+(g?'<li>点击按钮<b>加入官方群组</b></li>':'<li>进入<b>官方群组</b></li>')+'<li>发送 <code>/start '+escHtml(c)+'</code></li><li>Bot 验证通过后自动注册</li></ol></div>'+(g?'<a class=\"verify-tg-link\" href=\"'+escHtml(g)+'\" target=\"_blank\">📋 加入群组并发送验证码</a>':'')+'<div class=\"verify-polling\" id=\"verifyPolling\"><span class=\"spinner-sm\"></span><span id=\"verifyPollText\">等待验证中...</span></div><button class=\"verify-back-btn\" onclick=\"stopTGVerifyPolling();switchMode(\'signup\')\">← 返回</button></div>';resultItems.innerHTML=h;resultItems.querySelectorAll('.copy-btn').forEach(function(b){b.addEventListener('click',function(){copyText(b.dataset.copy,b)})});startTGVerifyPolling(d.account||'',c)}
-  function startTGVerifyPolling(a,c){stopTGVerifyPolling();var n=0;tgt=setInterval(async function(){n++;if(n>200){stopTGVerifyPolling();var pe=document.getElementById('verifyPolling');if(pe)pe.innerHTML='<span style=\"color:var(--error)\">⏰ 超时</span>';return}try{var r=await fetch(API_BASE+'/register/verify-tg/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({account:a,code:c})});var d=await r.json(),vc=d.code||'';if(vc==='AUTH_SIGNUP_SUCCESS'){stopTGVerifyPolling();resultItems.innerHTML='<div class=\"verify-step\"><div class=\"verify-success-icon\">🎉</div><p style=\"font-size:18px;color:var(--text);font-weight:700\">注册成功！</p></div>';setTimeout(function(){switchMode('signin')},2000)}else if(vc==='AUTH_TG_PENDING'){var rm=d.data?.remainingSeconds||0,pt=document.getElementById('verifyPollText');if(pt&&rm>0){var mm=Math.floor(rm/60),ss=rm%60;pt.textContent='等待中... '+mm+'分'+ss+'秒'}}else if(vc==='AUTH_TG_CODE_EXPIRED'){stopTGVerifyPolling();var p2=document.getElementById('verifyPolling');if(p2)p2.innerHTML='<span style=\"color:var(--error)\">⏰ 已过期</span>'}else if(vc==='AUTH_TG_DUPLICATE'){stopTGVerifyPolling();var p3=document.getElementById('verifyPolling');if(p3)p3.innerHTML='<span style=\"color:var(--error)\">⚠️ TG已绑定</span>'}else if(vc==='AUTH_SIGNUP_DUPLICATE_USERNAME'||vc==='AUTH_SIGNUP_DUPLICATE_EMAIL'){stopTGVerifyPolling();var p4=document.getElementById('verifyPolling');if(p4)p4.innerHTML='<span style=\"color:var(--error)\">❌ 信息冲突</span>'}}catch(err){}},3000)}
-  function stopTGVerifyPolling(){if(tgt){clearInterval(tgt);tgt=null}}
 
   function showResult(data) { authPanel.style.display = 'none'; resultPanel.classList.add('show'); const user = data.data || {}, node = user.node || {}, account = user.account || ''; resultTitle.textContent = '登录成功'; resultSub.textContent = account; const items = []; if (node.subscriptionUrl) items.push({ label:'订阅链接', value: node.subscriptionUrl, copy: true }); if (node.versionUrl) items.push({ label:'版本查询', value: node.versionUrl, copy: true }); if (node.registerPanelUrl) items.push({ label:'认证面板', value: node.registerPanelUrl, copy: true }); if (node.uuid) items.push({ label:'用户 UUID', value: node.uuid, copy: true }); if (node.token) items.push({ label:'订阅 Token', value: node.token, copy: true }); resultItems.innerHTML = items.map(item => '<div class="result-item"><strong>'+item.label+'</strong><div class="copy-row"><code>'+escHtml(item.value)+'</code>'+(item.copy?'<button class="copy-btn" data-copy="'+escAttr(item.value)+'">📋 复制</button>':'')+'</div></div>').join(''); resultItems.querySelectorAll('.copy-btn').forEach(btn => { btn.addEventListener('click', () => copyText(btn.dataset.copy, btn)); }); }
 
