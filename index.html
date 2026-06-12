@@ -133,7 +133,9 @@ body{
   box-shadow:0 20px 60px rgba(0,0,0,.4);
 }
 .auth-panel,.result-panel{padding:28px}
-.auth-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.auth-head{display:flex;align-items:flex-start;gap:16px;margin-bottom:18px}
+.auth-head > div:first-child{flex:1;min-width:0}
+.auth-head .tabs{flex-shrink:0;margin-left:auto}
 .auth-title{font-size:22px;font-weight:700;color:#fff}
 .auth-desc{color:var(--text2);font-size:14px;line-height:1.6;margin-top:4px}
 
