@@ -118,6 +118,30 @@ body{
 }
 .feature-dot{width:5px;height:5px;border-radius:50%;background:#818cf8}
 
+/* ── 公益代理说明 ── */
+.about-section{margin-top:22px;text-align:center}
+.about-divider{width:40px;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));margin:0 auto 14px;border-radius:1px;opacity:.5}
+.about-title{font-size:14px;font-weight:700;color:#e2e8f0;margin:0 0 8px}
+.about-desc{font-size:12px;color:var(--text2);line-height:1.8;margin:0 0 14px;max-width:380px;margin-left:auto;margin-right:auto}
+.about-pills{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.about-pill{display:inline-flex;align-items:center;gap:3px;padding:5px 12px;border-radius:99px;font-size:11px;font-weight:600;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.12);color:#a5b4fc}
+
+/* ── TG验证 ── */
+.verify-step{text-align:center;padding:20px}
+.verify-step-icon{font-size:44px;margin-bottom:10px}
+.verify-code-box{background:#0b1220;border:2px dashed #334155;border-radius:16px;padding:16px;margin:14px 0}
+.verify-code{font-size:32px;font-weight:800;letter-spacing:6px;font-family:"SF Mono","Fira Code",monospace;background:linear-gradient(135deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:6px 0;user-select:all;line-height:1.2}
+.verify-expires{font-size:12px;color:#94a3b8;margin-top:4px}
+.verify-instructions{text-align:left;background:#111c31;border:1px solid rgba(148,163,184,.14);border-radius:14px;padding:14px;margin:14px 0;font-size:13px;color:#cbd5e1;line-height:1.7}
+.verify-instructions ol{margin:0;padding-left:18px}
+.verify-instructions li{margin-bottom:5px}
+.verify-instructions code{background:rgba(99,102,241,.18);color:#a5b4fc;padding:1px 7px;border-radius:4px;font-size:13px;font-weight:600}
+.verify-tg-link{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#25a55a,#2ecc71);color:#fff;padding:11px 22px;border-radius:14px;text-decoration:none;font-weight:700;font-size:14px;margin:8px 0;transition:all .2s}
+.verify-polling{display:flex;align-items:center;justify-content:center;gap:8px;color:#94a3b8;font-size:13px;margin:10px 0}
+.verify-polling .spinner-sm{width:15px;height:15px;border:2px solid #1e293b;border-top-color:#818cf8;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+.verify-back-btn{background:none;border:none;color:#94a3b8;cursor:pointer;font-size:13px;margin-top:14px;text-decoration:underline}
+.verify-success-icon{font-size:48px;margin-bottom:6px}
+
 /* ── 面板 ── */
 .panel{
   background:var(--surface);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
@@ -190,25 +214,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .spinner.show{display:inline-block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .migration-card{animation:fadeIn .3s}
-
-/* ── TG验证 ── */
-.verify-step{text-align:center;padding:20px}
-.verify-step-icon{font-size:44px;margin-bottom:10px}
-.verify-code-box{background:#0b1220;border:2px dashed #334155;border-radius:16px;padding:16px;margin:14px 0}
-.verify-code-label{font-size:11px;color:#64748b;margin-bottom:6px;text-transform:uppercase;letter-spacing:2px}
-.verify-code{font-size:32px;font-weight:800;letter-spacing:6px;font-family:"SF Mono","Fira Code",monospace;background:linear-gradient(135deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:6px 0;user-select:all;line-height:1.2}
-.verify-expires{font-size:12px;color:#94a3b8;margin-top:4px}
-.verify-instructions{text-align:left;background:#111c31;border:1px solid rgba(148,163,184,.14);border-radius:14px;padding:14px;margin:14px 0;font-size:13px;color:#cbd5e1;line-height:1.7}
-.verify-instructions ol{margin:0;padding-left:18px}
-.verify-instructions li{margin-bottom:5px}
-.verify-instructions code{background:rgba(99,102,241,.18);color:#a5b4fc;padding:1px 7px;border-radius:4px;font-size:13px;font-weight:600}
-.verify-tg-link{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#25a55a,#2ecc71);color:#fff;padding:11px 22px;border-radius:14px;text-decoration:none;font-weight:700;font-size:14px;margin:8px 0;transition:all .2s}
-.verify-tg-link:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(46,204,113,.3)}
-.verify-polling{display:flex;align-items:center;justify-content:center;gap:8px;color:#94a3b8;font-size:13px;margin:10px 0}
-.verify-polling .spinner-sm{width:15px;height:15px;border:2px solid #1e293b;border-top-color:#818cf8;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
-.verify-back-btn{background:none;border:none;color:#94a3b8;cursor:pointer;font-size:13px;margin-top:14px;text-decoration:underline}
-.verify-back-btn:hover{color:#cbd5e1}
-.verify-success-icon{font-size:48px;margin-bottom:6px}
 
 /* ── 规则弹窗 ── */
 .rules-overlay{position:fixed;inset:0;z-index:10000;background:rgba(2,8,23,.9);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .3s}
@@ -289,6 +294,16 @@ button:disabled{opacity:.5;cursor:not-allowed}
       <span class="feature-tag"><i class="feature-dot"></i>全球节点覆盖</span>
       <span class="feature-tag"><i class="feature-dot"></i>多协议支持</span>
       <span class="feature-tag"><i class="feature-dot"></i>免费使用</span>
+    </div>
+    <div class="about-section">
+      <div class="about-divider"></div>
+      <h3 class="about-title">公益代理说明</h3>
+      <p class="about-desc">Beacon 灯塔 公益代理 旨在打破信息壁垒，为科研、学习提供基础网络支持。我们承诺永久免费，但也请您合理使用资源。</p>
+      <div class="about-pills">
+        <span class="about-pill">🆓 永久免费</span>
+        <span class="about-pill">👥 社区维护</span>
+        <span class="about-pill">🔒 安全加密</span>
+      </div>
     </div>
   </div>
 
@@ -518,23 +533,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
   }
 
   var tgVerifyPollTimer = null;
-  function showTGVerifyStep(data) {
-    authPanel.style.display = 'none'; resultPanel.classList.add('show'); resultTitle.textContent = '📱 Telegram 验证'; resultSub.textContent = data.account || '';
-    var code = data.code || '', gi = data.groupInviteLink || '', rem = Math.max(0, Math.ceil(((data.expiresAt || 0) - Date.now()) / 1000)), m = Math.floor(rem / 60), s = rem % 60;
-    var html = '<div class=\"verify-step\"><div class=\"verify-step-icon\">🔐</div><p style=\"font-size:15px;color:#e2e8f0;font-weight:600;margin:0 0 4px\">请通过 Telegram 官方群组完成验证</p><p style=\"font-size:13px;color:#94a3b8;margin:0\">在官方群组内发送验证码，Bot 将自动验证您的身份</p><div class=\"verify-code-box\"><div class=\"verify-code-label\">验证码</div><div class=\"verify-code\">' + escHtml(code) + '</div><div style=\"margin-top:6px\"><button class=\"copy-btn\" data-copy=\"' + escAttr('/start ' + code) + '\" style=\"background:#1e293b;color:#cbd5e1;border:1px solid #334155;padding:6px 14px;border-radius:10px;cursor:pointer;font-size:13px\">📋 复制 /start ' + escHtml(code) + '</button></div><div class=\"verify-expires\">⏰ 有效期 ' + m + '分' + s + '秒</div></div><div class=\"verify-instructions\"><ol>';
-    if (gi) html += '<li>点击下方按钮<b>加入官方群组</b></li><li>在<b>群组内</b>发送 <code>/start ' + escHtml(code) + '</code></li>';
-    else html += '<li>打开 Telegram 并<b>进入官方群组</b></li><li>在<b>群组内</b>发送 <code>/start ' + escHtml(code) + '</code></li>';
-    html += '<li>Bot 将在群组内<b>公开回复</b>验证结果</li><li>验证通过后本页面将<b>自动完成注册</b></li></ol></div>';
-    if (gi) html += '<a class=\"verify-tg-link\" href=\"' + escHtml(gi) + '\" target=\"_blank\" rel=\"noopener\"><span>📋</span> 加入官方群组并发送验证码</a>';
-    else html += '<div class=\"verify-tg-link\" style=\"opacity:0.6;cursor:not-allowed\"><span>⚠️</span> 群组邀请链接不可用</div>';
-    html += '<br><button class=\"verify-copy-cmd-btn\" data-copy=\"' + escAttr('/start ' + code) + '\" style=\"display:inline-flex;align-items:center;gap:6px;background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:9px 16px;border-radius:12px;cursor:pointer;font-size:13px;margin-top:8px\">📋 复制命令 /start ' + escHtml(code) + '</button>';
-    html += '<div class=\"verify-polling\" id=\"verifyPolling\"><span class=\"spinner-sm\"></span><span id=\"verifyPollText\">等待 Telegram 验证中...</span></div><div id=\"verifyFailMsg\" style=\"display:none;margin-top:10px\"></div>';
-    html += '<button class=\"verify-back-btn\" onclick=\"stopTGVerifyPolling();switchMode(\'signup\')\">← 返回修改注册信息</button></div>';
-    resultItems.innerHTML = html;
-    resultItems.querySelectorAll('.copy-btn,.verify-copy-cmd-btn').forEach(function(btn) { btn.addEventListener('click', function() { copyText(btn.dataset.copy, btn); }); });
-    startTGVerifyPolling(data.account || '', code);
-  }
-  function startTGVerifyPolling(account, code) { stopTGVerifyPolling(); var a = 0; tgVerifyPollTimer = setInterval(async function() { a++; if (a > 200) { stopTGVerifyPolling(); var pe = document.getElementById('verifyPolling'); if (pe) pe.innerHTML = '<span style=\"color:#fca5a5\">⏰ 验证超时</span>'; return; } try { var r = await fetch(API_BASE + '/register/verify-tg/check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ account: account, code: code }) }); var d = await r.json(), vc = d.code || ''; if (vc === 'AUTH_SIGNUP_SUCCESS') { stopTGVerifyPolling(); resultTitle.textContent = '✅ 注册成功'; resultSub.textContent = d.data?.account || account; var h2 = '<div class=\"verify-step\"><div class=\"verify-success-icon\">🎉</div><p style=\"font-size:18px;color:#e2e8f0;font-weight:700;margin:0 0 6px\">注册成功！</p><p style=\"font-size:14px;color:#94a3b8;margin:0 0 4px\">TG账号 ' + (d.data?.tgUsername || '') + ' 已绑定</p><p style=\"font-size:13px;color:#64748b;margin:0 0 16px\">即将跳转到登录页面...</p></div>'; resultItems.innerHTML = h2; setTimeout(function() { switchMode('signin'); }, 2000); } else if (vc === 'AUTH_TG_PENDING') { var rm = d.data?.remainingSeconds || 0, pt = document.getElementById('verifyPollText'); if (pt && rm > 0) { var mm = Math.floor(rm / 60), ss = rm % 60; pt.textContent = '等待验证中... 剩余 ' + mm + '分' + ss + '秒 (' + a + ')'; } else if (pt) pt.textContent = '等待 Telegram 验证中... (' + a + ')'; } else if (vc === 'AUTH_TG_CODE_EXPIRED') { stopTGVerifyPolling(); var p2 = document.getElementById('verifyPolling'); if (p2) p2.innerHTML = '<span style=\"color:#fca5a5\">⏰ 验证码已过期</span>'; } else if (vc === 'AUTH_TG_DUPLICATE') { stopTGVerifyPolling(); var p3 = document.getElementById('verifyPolling'); if (p3) p3.innerHTML = '<span style=\"color:#fca5a5\">⚠️ 该TG账号已被绑定</span>'; } else if (vc === 'AUTH_SIGNUP_DUPLICATE_USERNAME' || vc === 'AUTH_SIGNUP_DUPLICATE_EMAIL') { stopTGVerifyPolling(); var p4 = document.getElementById('verifyPolling'); if (p4) p4.innerHTML = '<span style=\"color:#fca5a5\">❌ ' + (d.message || '注册信息冲突') + '</span>'; } } catch (err) { console.warn('[TG poll]', err.message); } }, 3000); }
+  function showTGVerifyStep(data) { authPanel.style.display = 'none'; resultPanel.classList.add('show'); resultTitle.textContent = '📱 Telegram 验证'; resultSub.textContent = data.account || ''; var code = data.code || '', gi = data.groupInviteLink || '', rem = Math.max(0, Math.ceil(((data.expiresAt || 0) - Date.now()) / 1000)), m = Math.floor(rem / 60), s = rem % 60; var html = '<div class=\"verify-step\"><div class=\"verify-step-icon\">🔐</div><p style=\"font-size:15px;color:#e2e8f0;font-weight:600;margin:0 0 4px\">请通过 Telegram 官方群组完成验证</p><p style=\"font-size:13px;color:#94a3b8;margin:0\">在群组内发送验证码</p><div class=\"verify-code-box\"><div class=\"verify-code\">' + escHtml(code) + '</div><button class=\"copy-btn\" data-copy=\"' + escAttr('/start ' + code) + '\" style=\"background:#1e293b;color:#cbd5e1;border:1px solid #334155;padding:6px 14px;border-radius:10px;cursor:pointer;font-size:13px;margin-top:6px\">📋 复制 /start ' + escHtml(code) + '</button><div class=\"verify-expires\">⏰ ' + m + '分' + s + '秒</div></div><div class=\"verify-instructions\"><ol>' + (gi ? '<li>点击下方按钮<b>加入官方群组</b></li>' : '<li>进入<b>官方群组</b></li>') + '<li>发送 <code>/start ' + escHtml(code) + '</code></li><li>Bot 验证通过后自动完成注册</li></ol></div>' + (gi ? '<a class=\"verify-tg-link\" href=\"' + escHtml(gi) + '\" target=\"_blank\" rel=\"noopener\">📋 加入群组并发送验证码</a>' : '<div class=\"verify-tg-link\" style=\"opacity:0.6\">⚠️ 群组链接不可用</div>') + '<div class=\"verify-polling\" id=\"verifyPolling\"><span class=\"spinner-sm\"></span><span id=\"verifyPollText\">等待验证中...</span></div><button class=\"verify-back-btn\" onclick=\"stopTGVerifyPolling();switchMode(\'signup\')\">← 返回</button></div>'; resultItems.innerHTML = html; resultItems.querySelectorAll('.copy-btn').forEach(function(btn) { btn.addEventListener('click', function() { copyText(btn.dataset.copy, btn); }); }); startTGVerifyPolling(data.account || '', code); }
+  function startTGVerifyPolling(account, code) { stopTGVerifyPolling(); var a = 0; tgVerifyPollTimer = setInterval(async function() { a++; if (a > 200) { stopTGVerifyPolling(); var pe = document.getElementById('verifyPolling'); if (pe) pe.innerHTML = '<span style=\"color:#fca5a5\">⏰ 超时</span>'; return; } try { var r = await fetch(API_BASE + '/register/verify-tg/check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ account: account, code: code }) }); var d = await r.json(), vc = d.code || ''; if (vc === 'AUTH_SIGNUP_SUCCESS') { stopTGVerifyPolling(); resultTitle.textContent = '✅ 注册成功'; resultSub.textContent = d.data?.account || account; resultItems.innerHTML = '<div class=\"verify-step\"><div class=\"verify-success-icon\">🎉</div><p style=\"font-size:18px;color:#e2e8f0;font-weight:700\">注册成功！</p><p style=\"font-size:14px;color:#94a3b8\">TG账号 ' + (d.data?.tgUsername || '') + ' 已绑定</p></div>'; setTimeout(function() { switchMode('signin'); }, 2000); } else if (vc === 'AUTH_TG_PENDING') { var rm = d.data?.remainingSeconds || 0, pt = document.getElementById('verifyPollText'); if (pt && rm > 0) { var mm = Math.floor(rm / 60), ss = rm % 60; pt.textContent = '等待中... 剩余 ' + mm + '分' + ss + '秒'; } } else if (vc === 'AUTH_TG_CODE_EXPIRED') { stopTGVerifyPolling(); var p2 = document.getElementById('verifyPolling'); if (p2) p2.innerHTML = '<span style=\"color:#fca5a5\">⏰ 验证码已过期</span>'; } else if (vc === 'AUTH_TG_DUPLICATE') { stopTGVerifyPolling(); var p3 = document.getElementById('verifyPolling'); if (p3) p3.innerHTML = '<span style=\"color:#fca5a5\">⚠️ TG已绑定</span>'; } else if (vc === 'AUTH_SIGNUP_DUPLICATE_USERNAME' || vc === 'AUTH_SIGNUP_DUPLICATE_EMAIL') { stopTGVerifyPolling(); var p4 = document.getElementById('verifyPolling'); if (p4) p4.innerHTML = '<span style=\"color:#fca5a5\">❌ 信息冲突</span>'; } } catch (err) {} }, 3000); }
   function stopTGVerifyPolling() { if (tgVerifyPollTimer) { clearInterval(tgVerifyPollTimer); tgVerifyPollTimer = null; } }
 
   function showResult(data) { authPanel.style.display = 'none'; resultPanel.classList.add('show'); const user = data.data || {}, node = user.node || {}, account = user.account || ''; resultTitle.textContent = '登录成功'; resultSub.textContent = account; const items = []; if (node.subscriptionUrl) items.push({ label:'订阅链接', value: node.subscriptionUrl, copy: true }); if (node.versionUrl) items.push({ label:'版本查询', value: node.versionUrl, copy: true }); if (node.registerPanelUrl) items.push({ label:'认证面板', value: node.registerPanelUrl, copy: true }); if (node.uuid) items.push({ label:'用户 UUID', value: node.uuid, copy: true }); if (node.token) items.push({ label:'订阅 Token', value: node.token, copy: true }); resultItems.innerHTML = items.map(item => '<div class="result-item"><strong>'+item.label+'</strong><div class="copy-row"><code>'+escHtml(item.value)+'</code>'+(item.copy?'<button class="copy-btn" data-copy="'+escAttr(item.value)+'">📋 复制</button>':'')+'</div></div>').join(''); resultItems.querySelectorAll('.copy-btn').forEach(btn => { btn.addEventListener('click', () => copyText(btn.dataset.copy, btn)); }); }
