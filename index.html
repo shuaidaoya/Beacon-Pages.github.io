@@ -27,18 +27,33 @@ body{
 .page{
   position:relative;z-index:1;
   display:grid;
-  grid-template-columns:1fr 460px;
-  grid-template-rows:1fr auto;
+  grid-template-columns:minmax(0,1fr) minmax(420px,460px);
+  grid-template-rows:minmax(0,1fr) auto;
   grid-template-areas:"brand auth" "footer footer";
-  min-height:100vh;max-width:1400px;padding:0;
+  min-height:100vh;width:100%;max-width:1560px;margin:0 auto;
+  padding:0 clamp(24px,5vw,72px);column-gap:clamp(48px,8vw,128px);
 }
-.brand-area{grid-area:brand;display:flex;align-items:center;padding:48px 32px 48px 48px}
-.auth-area{grid-area:auth;display:flex;align-items:center;justify-content:flex-start;padding:48px 48px 48px 0}
+.brand-area{grid-area:brand;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:clamp(56px,9vh,104px) 0 48px;max-width:640px}
+.auth-area{grid-area:auth;display:flex;align-items:center;justify-content:flex-end;padding:48px 0}
 .footer-area{grid-area:footer}
 @media(max-width:900px){
-  .page{grid-template-columns:1fr;grid-template-rows:auto auto auto;grid-template-areas:"brand" "auth" "footer"}
-  .brand-area{padding:32px 24px 0;justify-content:flex-start}
-  .auth-area{padding:24px;justify-content:center}
+  .page{grid-template-columns:100%;grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"brand" "auth" "footer";padding:0 6%;column-gap:0}
+  .brand-area{width:100%;max-width:none;padding:32px 0 0;align-items:center;justify-content:flex-start;text-align:center}
+  .auth-area{padding:24px 0 32px;align-items:flex-start;justify-content:center}
+  .wrap{width:100%;max-width:460px}
+  .panel{width:100%;max-width:100%}
+  .auth-panel,.result-panel{padding:6%}
+  .hero-logo{justify-content:center}
+  .hero-slogan,.hero-desc,.auth-title,.auth-desc{max-width:100%}
+  .features{justify-content:center}
+  .footer{padding-left:0;padding-right:0}
+  .about-desc{max-width:100%}
+  .copy-row{flex-wrap:wrap}
+  .rules-overlay{padding:5%}
+  .rules-modal{width:100%;max-width:100%;max-height:90vh}
+  .rules-modal-header{padding:6% 6% 0}
+  .rules-modal-body{padding:4% 6%}
+  .rules-modal-footer{padding:4% 6% 6%}
 }
 
 /* ── 流体背景层 ── */
@@ -100,7 +115,7 @@ body{
 .hero-name{font-size:20px;font-weight:800;color:#a5b4fc}
 .hero-slogan{font-size:28px;font-weight:800;line-height:1.3;margin:0 0 8px;color:#fff}
 .hero-desc{font-size:16px;color:var(--text2);line-height:1.7;margin:0 0 20px;max-width:520px}
-.features{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+.features{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-start;margin-top:14px}
 .feature-tag{
   display:inline-flex;align-items:center;gap:5px;padding:5px 12px;
   border-radius:99px;font-size:11px;font-weight:600;
@@ -222,8 +237,10 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
 /* ── 响应式 ── */
 @media(max-width:520px){
-  body{padding:16px 12px}.hero-slogan{font-size:22px}
+  body{padding:0}.page{padding:0 4%}.hero-slogan{font-size:22px}
   .auth-head{flex-direction:column}.auth-title{font-size:20px}
+  .tabs{width:100%}.tab-btn{flex:1;padding-left:10px;padding-right:10px}
+  .actions{width:100%}.primary-btn{width:100%}
 }
 </style>
 </head>
