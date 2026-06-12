@@ -21,8 +21,27 @@
 body{
   font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   background:#0a0a14;color:var(--text);min-height:100vh;
-  display:flex;align-items:center;justify-content:center;padding:24px 16px;
   overflow-x:hidden;position:relative;
+  display:flex;align-items:center;justify-content:center;padding:0;
+}
+/* split layout */
+.split-layout{
+  position:relative;z-index:1;width:100%;max-width:1100px;
+  min-height:100vh;display:flex;align-items:stretch;
+  padding:24px;gap:0;
+}
+.split-left{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:48px 32px;
+}
+.split-right{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:24px;
+}
+@media(max-width:768px){
+  .split-layout{flex-direction:column;padding:16px;gap:0}
+  .split-left{padding:32px 16px 8px;flex:none}
+  .split-right{padding:8px 16px 32px;flex:none}
 }
 
 /* ── 流体背景层 ── */
@@ -238,7 +257,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <!-- 网格线 -->
 <div class="grid-lines" aria-hidden="true"></div>
 
-<div class="wrap">
+<div class="split-layout">
+  <div class="split-left">
   <div class="hero">
     <div class="hero-logo">
       <div class="hero-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
@@ -254,7 +274,10 @@ button:disabled{opacity:.5;cursor:not-allowed}
   </div>
 
   <!-- 使用须知弹窗 -->
-  <div class="rules-overlay" id="rulesOverlay">
+  </div>
+  <div class="split-right">
+    <div class="wrap">
+<div class="rules-overlay" id="rulesOverlay">
     <div class="rules-modal">
       <div class="rules-modal-header"><span style="font-size:24px">📋</span><h2>使用须知</h2></div>
       <div class="rules-modal-body">
@@ -319,6 +342,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
   </section>
 
   <div class="footer">Powered by Cloudflare Workers · <a href="https://github.com/cmliu/edgetunnel" target="_blank" rel="noopener">EdgeTunnel</a></div>
+</div>
+    </div>
+  </div>
 </div>
 
 <script>

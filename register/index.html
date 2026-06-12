@@ -21,8 +21,27 @@
 body{
   font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   background:#0a0a14;color:var(--text);min-height:100vh;
-  display:flex;align-items:center;justify-content:center;padding:24px 16px;
   overflow-x:hidden;position:relative;
+  display:flex;align-items:center;justify-content:center;padding:0;
+}
+/* split layout */
+.split-layout{
+  position:relative;z-index:1;width:100%;max-width:1100px;
+  min-height:100vh;display:flex;align-items:stretch;
+  padding:24px;gap:0;
+}
+.split-left{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:48px 32px;
+}
+.split-right{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:24px;
+}
+@media(max-width:768px){
+  .split-layout{flex-direction:column;padding:16px;gap:0}
+  .split-left{padding:32px 16px 8px;flex:none}
+  .split-right{padding:8px 16px 32px;flex:none}
 }
 
 /* ── 流体背景层 ── */
@@ -257,7 +276,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <!-- 网格线 -->
 <div class="grid-lines" aria-hidden="true"></div>
 
-<div class="wrap">
+<div class="split-layout">
+  <div class="split-left">
   <div class="hero">
     <div class="hero-logo">
       <div class="hero-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
@@ -273,7 +293,10 @@ button:disabled{opacity:.5;cursor:not-allowed}
   </div>
 
   <!-- 使用须知弹窗 -->
-  <div class="rules-overlay" id="rulesOverlay">
+  </div>
+  <div class="split-right">
+    <div class="wrap">
+<div class="rules-overlay" id="rulesOverlay">
     <div class="rules-modal">
       <div class="rules-modal-header"><span style="font-size:24px">📋</span><h2>使用须知</h2></div>
       <div class="rules-modal-body">
@@ -338,6 +361,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
   </section>
 
   <div class="footer">Powered by Cloudflare Workers · <a href="https://github.com/cmliu/edgetunnel" target="_blank" rel="noopener">EdgeTunnel</a></div>
+</div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -491,50 +517,24 @@ button:disabled{opacity:.5;cursor:not-allowed}
     migSubmitBtn.addEventListener('click', async function() { var pw = migPw.value; if (!pw) { migMsg.className = 'msg msg-error show'; migMsg.innerHTML = '<strong>⚠️ 请输入密码</strong><br>密码不能为空'; return; } var hasLower = /[a-z]/.test(pw), hasUpper = /[A-Z]/.test(pw), hasNumber = /[0-9]/.test(pw), hasSpecial = /[^a-zA-Z0-9]/.test(pw); if (pw.length < 8 || !hasLower || !hasUpper || !hasNumber || !hasSpecial) { migMsg.className = 'msg msg-error show'; migMsg.innerHTML = '<strong>⚠️ 密码强度不足</strong><br>密码需至少8位，包含大小写字母、数字和特殊符号'; return; } migMsg.className = 'msg'; migMsg.innerHTML = ''; setMigLoading(true); try { var resp = await fetch(API_BASE + '/register/password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ migrationToken: token, password: pw }) }); var d = await resp.json(); if (d.code === 'AUTH_PASSWORD_SET') { migMsg.className = 'msg msg-success show'; migMsg.innerHTML = '<strong>✅ 密码设置成功</strong><br>即将跳转到用户面板...'; setTimeout(function() { location.href = '/user'; }, 1500); } else { migMsg.className = 'msg msg-error show'; migMsg.innerHTML = '<strong>❌ 设置失败</strong><br>' + (d.message || '未知错误，请重试'); } } catch (err) { migMsg.className = 'msg msg-error show'; migMsg.innerHTML = '<strong>🌐 网络错误</strong><br>请求发送失败，请检查网络连接'; } finally { setMigLoading(false); } });
   }
 
-  // ── TG verification ──
   var tgVerifyPollTimer = null;
   function showTGVerifyStep(data) {
-    authPanel.style.display = 'none'; resultPanel.classList.add('show');
-    resultTitle.textContent = '📱 Telegram 验证'; resultSub.textContent = data.account || '';
-    var code = data.code || '', groupInviteLink = data.groupInviteLink || '';
-    var remaining = Math.max(0, Math.ceil(((data.expiresAt || 0) - Date.now()) / 1000));
-    var m = Math.floor(remaining / 60), s = remaining % 60;
-    var html = '<div class="verify-step"><div class="verify-step-icon">🔐</div>';
-    html += '<p style="font-size:15px;color:#e2e8f0;font-weight:600;margin:0 0 4px">请通过 Telegram 官方群组完成验证</p>';
-    html += '<p style="font-size:13px;color:#94a3b8;margin:0">在官方群组内发送验证码，Bot 将自动验证您的身份</p>';
-    html += '<div class="verify-code-box"><div class="verify-code-label">验证码</div>';
-    html += '<div class="verify-code">' + escHtml(code) + '</div>';
-    html += '<div style="margin-top:6px"><button class="copy-btn" data-copy="' + escAttr('/start ' + code) + '" style="background:#1e293b;color:#cbd5e1;border:1px solid #334155;padding:6px 14px;border-radius:10px;cursor:pointer;font-size:13px">📋 复制 /start ' + escHtml(code) + '</button></div>';
-    html += '<div class="verify-expires">⏰ 有效期 ' + m + '分' + s + '秒</div></div>';
-    html += '<div class="verify-instructions"><ol>';
-    if (groupInviteLink) { html += '<li>点击下方按钮<b>加入官方群组</b></li><li>在<b>群组内</b>发送 <code>/start ' + escHtml(code) + '</code></li>'; }
-    else { html += '<li>打开 Telegram 并<b>进入官方群组</b></li><li>在<b>群组内</b>发送 <code>/start ' + escHtml(code) + '</code></li>'; }
+    authPanel.style.display = 'none'; resultPanel.classList.add('show'); resultTitle.textContent = '📱 Telegram 验证'; resultSub.textContent = data.account || '';
+    var code = data.code || '', gi = data.groupInviteLink || '', rem = Math.max(0, Math.ceil(((data.expiresAt || 0) - Date.now()) / 1000)), m = Math.floor(rem / 60), s = rem % 60;
+    var html = '<div class=\"verify-step\"><div class=\"verify-step-icon\">🔐</div><p style=\"font-size:15px;color:#e2e8f0;font-weight:600;margin:0 0 4px\">请通过 Telegram 官方群组完成验证</p><p style=\"font-size:13px;color:#94a3b8;margin:0\">在官方群组内发送验证码，Bot 将自动验证您的身份</p><div class=\"verify-code-box\"><div class=\"verify-code-label\">验证码</div><div class=\"verify-code\">' + escHtml(code) + '</div><div style=\"margin-top:6px\"><button class=\"copy-btn\" data-copy=\"' + escAttr('/start ' + code) + '\" style=\"background:#1e293b;color:#cbd5e1;border:1px solid #334155;padding:6px 14px;border-radius:10px;cursor:pointer;font-size:13px\">📋 复制 /start ' + escHtml(code) + '</button></div><div class=\"verify-expires\">⏰ 有效期 ' + m + '分' + s + '秒</div></div><div class=\"verify-instructions\"><ol>';
+    if (gi) html += '<li>点击下方按钮<b>加入官方群组</b></li><li>在<b>群组内</b>发送 <code>/start ' + escHtml(code) + '</code></li>';
+    else html += '<li>打开 Telegram 并<b>进入官方群组</b></li><li>在<b>群组内</b>发送 <code>/start ' + escHtml(code) + '</code></li>';
     html += '<li>Bot 将在群组内<b>公开回复</b>验证结果</li><li>验证通过后本页面将<b>自动完成注册</b></li></ol></div>';
-    if (groupInviteLink) { html += '<a class="verify-tg-link" href="' + escHtml(groupInviteLink) + '" target="_blank" rel="noopener"><span>📋</span> 加入官方群组并发送验证码</a>'; }
-    else { html += '<div class="verify-tg-link" style="opacity:0.6;cursor:not-allowed"><span>⚠️</span> 群组邀请链接不可用</div>'; }
-    html += '<br><button class="verify-copy-cmd-btn" data-copy="' + escAttr('/start ' + code) + '" style="display:inline-flex;align-items:center;gap:6px;background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:9px 16px;border-radius:12px;cursor:pointer;font-size:13px;margin-top:8px">📋 复制命令 /start ' + escHtml(code) + '</button>';
-    html += '<div class="verify-polling" id="verifyPolling"><span class="spinner-sm"></span><span id="verifyPollText">等待 Telegram 验证中...</span></div>';
-    html += '<div id="verifyFailMsg" style="display:none;margin-top:10px"></div>';
-    html += '<button class="verify-back-btn" onclick="stopTGVerifyPolling();switchMode(\'signup\')">← 返回修改注册信息</button></div>';
+    if (gi) html += '<a class=\"verify-tg-link\" href=\"' + escHtml(gi) + '\" target=\"_blank\" rel=\"noopener\"><span>📋</span> 加入官方群组并发送验证码</a>';
+    else html += '<div class=\"verify-tg-link\" style=\"opacity:0.6;cursor:not-allowed\"><span>⚠️</span> 群组邀请链接不可用</div>';
+    html += '<br><button class=\"verify-copy-cmd-btn\" data-copy=\"' + escAttr('/start ' + code) + '\" style=\"display:inline-flex;align-items:center;gap:6px;background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:9px 16px;border-radius:12px;cursor:pointer;font-size:13px;margin-top:8px\">📋 复制命令 /start ' + escHtml(code) + '</button>';
+    html += '<div class=\"verify-polling\" id=\"verifyPolling\"><span class=\"spinner-sm\"></span><span id=\"verifyPollText\">等待 Telegram 验证中...</span></div><div id=\"verifyFailMsg\" style=\"display:none;margin-top:10px\"></div>';
+    html += '<button class=\"verify-back-btn\" onclick=\"stopTGVerifyPolling();switchMode(\'signup\')\">← 返回修改注册信息</button></div>';
     resultItems.innerHTML = html;
     resultItems.querySelectorAll('.copy-btn,.verify-copy-cmd-btn').forEach(function(btn) { btn.addEventListener('click', function() { copyText(btn.dataset.copy, btn); }); });
     startTGVerifyPolling(data.account || '', code);
   }
-  function startTGVerifyPolling(account, code) {
-    stopTGVerifyPolling(); var attempts = 0;
-    tgVerifyPollTimer = setInterval(async function() {
-      attempts++; if (attempts > 200) { stopTGVerifyPolling(); var pe = document.getElementById('verifyPolling'); if (pe) pe.innerHTML = '<span style="color:#fca5a5">⏰ 验证超时，请返回重新注册。</span>'; return; }
-      try {
-        var resp = await fetch(API_BASE + '/register/verify-tg/check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ account: account, code: code }) });
-        var data = await resp.json(), vcode = data.code || '';
-        if (vcode === 'AUTH_SIGNUP_SUCCESS') { stopTGVerifyPolling(); resultTitle.textContent = '✅ 注册成功'; resultSub.textContent = data.data?.account || account; var h2 = '<div class="verify-step"><div class="verify-success-icon">🎉</div><p style="font-size:18px;color:#e2e8f0;font-weight:700;margin:0 0 6px">注册成功！</p><p style="font-size:14px;color:#94a3b8;margin:0 0 4px">TG账号 ' + (data.data?.tgUsername || '') + ' 已绑定</p><p style="font-size:13px;color:#64748b;margin:0 0 16px">即将跳转到登录页面...</p></div>'; resultItems.innerHTML = h2; setTimeout(function() { switchMode('signin'); }, 2000); }
-        else if (vcode === 'AUTH_TG_PENDING') { var rem = data.data?.remainingSeconds || 0, pt = document.getElementById('verifyPollText'); if (pt && rem > 0) { var mm = Math.floor(rem / 60), ss = rem % 60; pt.textContent = '等待验证中... 剩余 ' + mm + '分' + ss + '秒 (' + attempts + ')'; } else if (pt) pt.textContent = '等待 Telegram 验证中... (' + attempts + ')'; }
-        else if (vcode === 'AUTH_TG_CODE_EXPIRED') { stopTGVerifyPolling(); var p2 = document.getElementById('verifyPolling'); if (p2) p2.innerHTML = '<span style="color:#fca5a5">⏰ 验证码已过期，请返回重新注册。</span>'; }
-        else if (vcode === 'AUTH_TG_DUPLICATE') { stopTGVerifyPolling(); var p3 = document.getElementById('verifyPolling'); if (p3) p3.innerHTML = '<span style="color:#fca5a5">⚠️ 该TG账号已被其他用户绑定。</span>'; }
-        else if (vcode === 'AUTH_SIGNUP_DUPLICATE_USERNAME' || vcode === 'AUTH_SIGNUP_DUPLICATE_EMAIL') { stopTGVerifyPolling(); var p4 = document.getElementById('verifyPolling'); if (p4) p4.innerHTML = '<span style="color:#fca5a5">❌ ' + (data.message || '注册信息冲突') + '</span>'; }
-      } catch (err) { console.warn('[TG poll]', err.message); }
-    }, 3000);
-  }
+  function startTGVerifyPolling(account, code) { stopTGVerifyPolling(); var a = 0; tgVerifyPollTimer = setInterval(async function() { a++; if (a > 200) { stopTGVerifyPolling(); var pe = document.getElementById('verifyPolling'); if (pe) pe.innerHTML = '<span style=\"color:#fca5a5\">⏰ 验证超时</span>'; return; } try { var r = await fetch(API_BASE + '/register/verify-tg/check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ account: account, code: code }) }); var d = await r.json(), vc = d.code || ''; if (vc === 'AUTH_SIGNUP_SUCCESS') { stopTGVerifyPolling(); resultTitle.textContent = '✅ 注册成功'; resultSub.textContent = d.data?.account || account; var h2 = '<div class=\"verify-step\"><div class=\"verify-success-icon\">🎉</div><p style=\"font-size:18px;color:#e2e8f0;font-weight:700;margin:0 0 6px\">注册成功！</p><p style=\"font-size:14px;color:#94a3b8;margin:0 0 4px\">TG账号 ' + (d.data?.tgUsername || '') + ' 已绑定</p><p style=\"font-size:13px;color:#64748b;margin:0 0 16px\">即将跳转到登录页面...</p></div>'; resultItems.innerHTML = h2; setTimeout(function() { switchMode('signin'); }, 2000); } else if (vc === 'AUTH_TG_PENDING') { var rm = d.data?.remainingSeconds || 0, pt = document.getElementById('verifyPollText'); if (pt && rm > 0) { var mm = Math.floor(rm / 60), ss = rm % 60; pt.textContent = '等待验证中... 剩余 ' + mm + '分' + ss + '秒 (' + a + ')'; } else if (pt) pt.textContent = '等待 Telegram 验证中... (' + a + ')'; } else if (vc === 'AUTH_TG_CODE_EXPIRED') { stopTGVerifyPolling(); var p2 = document.getElementById('verifyPolling'); if (p2) p2.innerHTML = '<span style=\"color:#fca5a5\">⏰ 验证码已过期</span>'; } else if (vc === 'AUTH_TG_DUPLICATE') { stopTGVerifyPolling(); var p3 = document.getElementById('verifyPolling'); if (p3) p3.innerHTML = '<span style=\"color:#fca5a5\">⚠️ 该TG账号已被绑定</span>'; } else if (vc === 'AUTH_SIGNUP_DUPLICATE_USERNAME' || vc === 'AUTH_SIGNUP_DUPLICATE_EMAIL') { stopTGVerifyPolling(); var p4 = document.getElementById('verifyPolling'); if (p4) p4.innerHTML = '<span style=\"color:#fca5a5\">❌ ' + (d.message || '注册信息冲突') + '</span>'; } } catch (err) { console.warn('[TG poll]', err.message); } }, 3000); }
   function stopTGVerifyPolling() { if (tgVerifyPollTimer) { clearInterval(tgVerifyPollTimer); tgVerifyPollTimer = null; } }
 
   function showResult(data) { authPanel.style.display = 'none'; resultPanel.classList.add('show'); const user = data.data || {}, node = user.node || {}, account = user.account || ''; resultTitle.textContent = '登录成功'; resultSub.textContent = account; const items = []; if (node.subscriptionUrl) items.push({ label:'订阅链接', value: node.subscriptionUrl, copy: true }); if (node.versionUrl) items.push({ label:'版本查询', value: node.versionUrl, copy: true }); if (node.registerPanelUrl) items.push({ label:'认证面板', value: node.registerPanelUrl, copy: true }); if (node.uuid) items.push({ label:'用户 UUID', value: node.uuid, copy: true }); if (node.token) items.push({ label:'订阅 Token', value: node.token, copy: true }); resultItems.innerHTML = items.map(item => '<div class="result-item"><strong>'+item.label+'</strong><div class="copy-row"><code>'+escHtml(item.value)+'</code>'+(item.copy?'<button class="copy-btn" data-copy="'+escAttr(item.value)+'">📋 复制</button>':'')+'</div></div>').join(''); resultItems.querySelectorAll('.copy-btn').forEach(btn => { btn.addEventListener('click', () => copyText(btn.dataset.copy, btn)); }); }
