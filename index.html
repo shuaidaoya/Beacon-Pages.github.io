@@ -469,7 +469,11 @@ button:disabled{opacity:.5;cursor:not-allowed}
       const freq = cfg.rulesFrequency || 'always';
       if (freq === 'once' && localStorage.getItem('beacon_rules_agreed') === '1') { document.getElementById('rulesOverlay').classList.add('hidden'); }
       if (cfg.signupAvailable === false) {
+        console.log('[init] signupAvailable=false, calling setRegisterClosed(true)');
         setRegisterClosed(true);
+        console.log('[init] state.mode after setRegisterClosed:', state.mode);
+      } else {
+        console.log('[init] signupAvailable=', cfg.signupAvailable, ', not closing signup');
       }
     } catch(e) {}
     let sec = 15;
@@ -491,6 +495,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   const state = { mode: 'signup', loading: false, registerEnabled: true };
 
   function setRegisterClosed(closed) {
+    console.log('[setRegisterClosed] closed=', closed, 'current mode=', state.mode, 'registerEnabled=', state.registerEnabled);
     state.registerEnabled = !closed;
     var panel = document.getElementById('authPanel');
     if (closed) {
@@ -498,6 +503,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
     } else {
       if (panel) panel.classList.remove('reg-closed');
     }
+    console.log('[setRegisterClosed] done, state.registerEnabled=', state.registerEnabled);
   }
 
   const CODE_MESSAGES = {
@@ -542,6 +548,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   $$('.tab-btn').forEach(btn => { btn.addEventListener('click', () => switchMode(btn.dataset.mode)); });
 
   function switchMode(mode) {
+    console.log('[switchMode] called with mode=', mode, 'current mode=', state.mode, 'loading=', state.loading);
     if (state.loading) return; state.mode = mode;
     // 注册关闭时标记登录模式以恢复表单可用性
     var panel = document.getElementById('authPanel');
