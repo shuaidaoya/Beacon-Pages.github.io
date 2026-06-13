@@ -41,49 +41,35 @@ body{
 /* ── main container ── */
 .main{max-width:1200px;margin:0 auto;padding:28px 24px 48px}
 
-/* ── hero card ── */
+/* ── hero card (glass) ── */
 .hero{
   position:relative;overflow:hidden;border-radius:20px;padding:40px 36px;margin-bottom:24px;
   color:#fff;
-  background:
-    radial-gradient(ellipse 70% 50% at 20% 30%,rgba(139,92,246,.35) 0%,transparent 60%),
-    radial-gradient(ellipse 60% 55% at 85% 20%,rgba(99,102,241,.3) 0%,transparent 55%),
-    radial-gradient(ellipse 50% 40% at 60% 85%,rgba(245,158,11,.2) 0%,transparent 50%),
-    linear-gradient(135deg,#4f46e5 0%,#6366f1 35%,#8b5cf6 70%,#7c3aed 100%);
-  box-shadow:0 4px 32px rgba(99,102,241,.25),0 1px 3px rgba(0,0,0,.08);
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.2);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  box-shadow:0 4px 24px rgba(0,0,0,.06),inset 0 1px 0 rgba(255,255,255,.15);
 }
 .hero::before{
   content:'';position:absolute;right:-40px;top:-40px;width:240px;height:240px;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,255,255,.12) 0%,transparent 70%);
+  background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);
   pointer-events:none;animation:heroGlow 8s ease-in-out infinite alternate;
 }
 .hero::after{
   content:'';position:absolute;left:15%;bottom:-50px;width:200px;height:200px;border-radius:50%;
-  background:radial-gradient(circle,rgba(245,158,11,.15) 0%,transparent 70%);
+  background:radial-gradient(circle,rgba(245,158,11,.08) 0%,transparent 70%);
   pointer-events:none;animation:heroGlow 10s ease-in-out infinite alternate-reverse;
 }
 @keyframes heroGlow{
   0%{transform:translate(0,0) scale(1)}
   100%{transform:translate(15px,-20px) scale(1.1)}
 }
-.hero-shimmer{
-  position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:.08;z-index:0;
-}
-.hero-shimmer::before{
-  content:'';position:absolute;width:400px;height:400px;
-  background:conic-gradient(from 0deg,transparent 0deg,rgba(255,255,255,.4) 60deg,transparent 120deg);
-  top:-200px;left:-100px;animation:shimmer 12s linear infinite;
-}
-@keyframes shimmer{
-  0%{transform:rotate(0deg)}
-  100%{transform:rotate(360deg)}
-}
-.hero h1{font-size:26px;font-weight:800;margin:0 0 6px;position:relative;z-index:1}
-.hero p{font-size:14px;opacity:.8;margin:0;position:relative;z-index:1}
+.hero h1{font-size:26px;font-weight:800;margin:0 0 6px;position:relative;z-index:1;color:#1e293b}
+.hero p{font-size:14px;margin:0;position:relative;z-index:1;color:#64748b}
 .hero .uuid-badge{
   display:inline-block;margin-top:10px;padding:4px 12px;
-  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.1);border-radius:99px;
-  font-size:12px;opacity:.8;font-family:'SF Mono','Monaco','Menlo',monospace;
+  background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.06);border-radius:99px;
+  font-size:12px;color:#64748b;font-family:'SF Mono','Monaco','Menlo',monospace;
   letter-spacing:.5px;position:relative;z-index:1;
 }
 
