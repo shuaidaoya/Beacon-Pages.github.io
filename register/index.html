@@ -136,6 +136,18 @@ body{
 .footer-credit{color:#475569;font-size:12px}
 .footer-credit a{color:#64748b;text-decoration:none}
 .brand-area .hero-logo,.brand-area .hero-slogan,.brand-area .hero-desc,.brand-area .features{text-align:left}
+
+/* ── 注册关闭提醒横幅 ── */
+.reg-closed-banner{display:none;align-items:center;gap:10px;padding:14px 18px;margin-bottom:16px;border-radius:12px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.25);color:#fbbf24;font-size:13px;line-height:1.6;font-weight:500;animation:fadeIn .3s}
+.reg-closed-banner.show{display:flex}
+.reg-closed-banner .banner-icon{font-size:20px;flex-shrink:0}
+.reg-closed-banner .banner-text{flex:1;min-width:0}
+.reg-closed-banner .banner-text strong{display:block;margin-bottom:2px;font-size:14px;color:#fbbf24}
+.reg-closed #authForm input,.reg-closed #authForm button.primary-btn,.reg-closed .tab-btn[data-mode=signup]{opacity:.45;pointer-events:none;cursor:not-allowed}
+.reg-closed .tab-btn[data-mode=signin]{pointer-events:auto;opacity:1}
+.reg-closed.signin-active #authForm input,.reg-closed.signin-active #authForm button.primary-btn{opacity:1;pointer-events:auto;cursor:auto}
+.reg-closed.signin-active .tab-btn[data-mode=signup]{opacity:.45;pointer-events:none}
+
 @media(max-width:900px){
   .brand-area .hero-logo,.brand-area .hero-slogan,.brand-area .hero-desc,.brand-area .features{text-align:center}
 }
@@ -191,6 +203,19 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .msg-warn{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25);color:#fde68a}
 .msg-info{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);color:#c7d2fe}
 
+/* ── TG验证 ── */
+.verify-step{text-align:center;padding:20px}.verify-step-icon{font-size:44px;margin-bottom:10px}
+.verify-code-box{background:rgba(255,255,255,.03);border:2px dashed rgba(56,189,248,.15);border-radius:14px;padding:16px;margin:14px 0}
+.verify-code{font-size:30px;font-weight:800;letter-spacing:6px;font-family:"SF Mono","Fira Code",monospace;background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:6px 0;user-select:all}
+.verify-instructions{text-align:left;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:14px;padding:14px;margin:14px 0;font-size:13px;color:var(--text2);line-height:1.7}
+.verify-instructions ol{margin:0;padding-left:18px}.verify-instructions li{margin-bottom:5px}
+.verify-instructions code{background:rgba(56,189,248,.08);color:var(--accent);padding:1px 7px;border-radius:4px;font-size:13px;font-weight:600}
+.verify-tg-link{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#25a55a,#2ecc71);color:#fff;padding:11px 22px;border-radius:14px;text-decoration:none;font-weight:700;font-size:14px;margin:8px 0}
+.verify-polling{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text2);font-size:13px;margin:10px 0}
+.verify-polling .spinner-sm{width:15px;height:15px;border:2px solid rgba(255,255,255,.08);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+.verify-back-btn{background:none;border:none;color:var(--text2);cursor:pointer;font-size:13px;margin-top:14px;text-decoration:underline}
+.verify-success-icon{font-size:48px;margin-bottom:6px}
+
 /* ── 结果面板 ── */
 .result-panel{display:none}
 .result-panel.show{display:block}
@@ -226,8 +251,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .verify-polling{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text2);font-size:13px;margin:10px 0}
 .verify-polling .spinner-sm{width:15px;height:15px;border:2px solid rgba(255,255,255,.08);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
 .verify-back-btn{background:none;border:none;color:var(--text2);cursor:pointer;font-size:13px;margin-top:14px;text-decoration:underline}
-.verify-success-icon{font-size:48px;margin-bottom:6px}
-
 /* ── 规则弹窗 ── */
 .rules-overlay{position:fixed;inset:0;z-index:10000;background:rgba(2,8,23,.9);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .3s}
 .rules-overlay.hidden{display:none}
@@ -371,6 +394,10 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
   <!-- auth panel -->
   <section class="panel auth-panel" id="authPanel">
+    <div class="reg-closed-banner" id="regClosedBanner" role="alert" aria-live="polite">
+      <span class="banner-icon" aria-hidden="true">⚠️</span>
+      <span class="banner-text"><strong>注册功能已暂停</strong>当前注册功能已暂停开放，敬请留意后续通知</span>
+    </div>
     <div class="auth-head">
       <div><div class="auth-title" id="authTitle">创建用户账户</div><div class="auth-desc" id="authDesc">先完成注册，成功后会自动切换到登录模式。</div></div>
       <div class="tabs" role="tablist">
@@ -447,15 +474,43 @@ button:disabled{opacity:.5;cursor:not-allowed}
     try {
       const resp = await fetch('/register/config'); const cfg = await resp.json();
       const freq = cfg.rulesFrequency || 'always';
-      if (freq === 'once' && localStorage.getItem('beacon_rules_agreed') === '1') { document.getElementById('rulesOverlay').classList.add('hidden'); return; }
+      if (freq === 'once' && localStorage.getItem('beacon_rules_agreed') === '1') { document.getElementById('rulesOverlay').classList.add('hidden'); }
+      // 检查注册开关状态
+      if (cfg.signupAvailable === false || cfg.registerEnabled === false) {
+        setRegisterClosed(true);
+      }
     } catch(e) {}
     let sec = 15;
     const countdownEl = document.getElementById('rulesCountdown'), checkLabel = document.getElementById('rulesCheckLabel'), checkbox = document.getElementById('rulesCheckbox');
     const timer = setInterval(() => { sec--; if (sec <= 0) { clearInterval(timer); countdownEl.textContent = '请勾选同意后继续'; countdownEl.style.color = '#94a3b8'; checkLabel.style.opacity = '1'; checkLabel.style.pointerEvents = 'auto'; checkbox.disabled = false; } else { countdownEl.textContent = '请仔细阅读使用须知（'+sec+'秒后可勾选同意）'; } }, 1000);
   })();
 
+  // 定期轮询注册开关状态（每30秒）
+  setInterval(async function() {
+    try {
+      var r = await fetch('/register/config');
+      var c = await r.json();
+      var closed = (c.signupAvailable === false || c.registerEnabled === false);
+      if (closed !== !state.registerEnabled) setRegisterClosed(closed);
+    } catch(e) {}
+  }, 30000);
+
   const API_BASE = '';
-  const state = { mode: 'signup', loading: false };
+  const state = { mode: 'signup', loading: false, registerEnabled: true };
+
+  function setRegisterClosed(closed) {
+    state.registerEnabled = !closed;
+    var banner = document.getElementById('regClosedBanner');
+    var panel = document.getElementById('authPanel');
+    if (closed) {
+      if (banner) banner.classList.add('show');
+      if (panel) panel.classList.add('reg-closed');
+      if (state.mode === 'signup') switchMode('signin');
+    } else {
+      if (banner) banner.classList.remove('show');
+      if (panel) panel.classList.remove('reg-closed');
+    }
+  }
 
   const CODE_MESSAGES = {
     AUTH_SIGNUP_SUCCESS:    { cls:'msg-success', title:'注册成功' },
@@ -500,6 +555,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
   function switchMode(mode) {
     if (state.loading) return; state.mode = mode;
+    var panel = document.getElementById('authPanel');
+    if (panel && !state.registerEnabled) { panel.classList.toggle('signin-active', mode === 'signin'); }
     $$('.tab-btn').forEach(b => b.setAttribute('aria-selected', b.dataset.mode === mode ? 'true' : 'false'));
     if (mode === 'signup') { authTitle.textContent = '创建用户账户'; authDesc.textContent = '设置用户名、邮箱和密码完成注册。'; submitText.textContent = '创建账户'; }
     else { authTitle.textContent = '登录账户'; authDesc.textContent = '输入用户名和密码完成登录。'; submitText.textContent = '登录'; }
@@ -514,7 +571,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
   document.addEventListener('keydown', e => { if (e.key === 'Enter') handleSubmit(); });
 
   async function handleSubmit() {
-    if (state.loading) return; clearMsg(); clearHints();
+    if (state.loading) return;
+    if (state.mode === 'signup' && !state.registerEnabled) { showMsg('msg-warn', '⚠️ 注册已暂停', '当前注册功能已暂停开放，敬请留意后续通知。'); return; }
+    clearMsg(); clearHints();
     const account = accountInp.value.trim(), email = emailInp.value.trim(), password = passwordInp ? passwordInp.value : '';
     var isOldEmailLogin = !!state._oldLogin; state._oldLogin = false; var valid = true;
     if (!account) { accountHint.textContent = '请输入用户名'; accountInp.setAttribute('aria-invalid','true'); valid = false; }
