@@ -495,8 +495,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
     var panel = document.getElementById('authPanel');
     if (closed) {
       if (panel) panel.classList.add('reg-closed');
-      // 注册关闭时自动切换到登录模式
-      if (state.mode === 'signup') switchMode('signin');
     } else {
       if (panel) panel.classList.remove('reg-closed');
     }
