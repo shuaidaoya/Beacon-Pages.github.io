@@ -465,10 +465,12 @@ button:disabled{opacity:.5;cursor:not-allowed}
       const resp = await fetch('/register/config'); const cfg = await resp.json();
       const freq = cfg.rulesFrequency || 'always';
       if (freq === 'once' && localStorage.getItem('beacon_rules_agreed') === '1') { document.getElementById('rulesOverlay').classList.add('hidden'); }
-      // 检查注册开关状态
-      if (cfg.signupAvailable === false || cfg.registerEnabled === false) {
-        setRegisterClosed(true);
+      // 检查注册开关状态（兼容多种字段名）
+      var regClosed = cfg.signupAvailable === false || cfg.registerEnabled === false || cfg.signup_enabled === false;
+      if (!regClosed && cfg.register && typeof cfg.register === 'object') {
+        regClosed = cfg.register.open === false || cfg.register.enabled === false;
       }
+      if (regClosed) setRegisterClosed(true);
     } catch(e) {}
     let sec = 15;
     const countdownEl = document.getElementById('rulesCountdown'), checkLabel = document.getElementById('rulesCheckLabel'), checkbox = document.getElementById('rulesCheckbox');
@@ -480,7 +482,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
     try {
       var r = await fetch('/register/config');
       var c = await r.json();
-      var closed = (c.signupAvailable === false || c.registerEnabled === false);
+      var closed = c.signupAvailable === false || c.registerEnabled === false || c.signup_enabled === false;
+      if (!closed && c.register && typeof c.register === 'object') { closed = c.register.open === false || c.register.enabled === false; }
       if (closed !== !state.registerEnabled) setRegisterClosed(closed);
     } catch(e) {}
   }, 30000);
@@ -600,7 +603,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
       else if (code === 'AUTH_PASSWORD_TOO_WEAK') { showMsg('msg-error', '⚠️ ' + meta.title, message); }
       else if (code === 'AUTH_VALIDATION_ERROR') { var errors = (data.data && data.data.errors) || {}; if (errors.account) accountHint.textContent = errors.account; if (errors.email) emailHint.textContent = errors.email; if (errors.password) passwordHint.textContent = errors.password; showMsg(meta.cls, '⚠️ ' + meta.title, message); }
       else if (code === 'AUTH_USER_NOT_FOUND') { showMsg('msg-warn', '🔍 ' + meta.title, message + ' 请切换到注册模式完成注册。'); if (data.data && data.data.nextMode === 'signup') { setTimeout(function() { switchMode('signup'); }, 1200); } }
-      else if (code === 'AUTH_SIGNUP_DISABLED') { showMsg('msg-warn', '🚫 ' + meta.title, message); }
+      else if (code === 'AUTH_SIGNUP_DISABLED') { setRegisterClosed(true); showMsg('msg-warn', '🚫 ' + meta.title, message); }
       else if (code === 'AUTH_USER_BANNED') { showMsg('msg-error', '⛔ ' + meta.title, message + ' 请联系管理员解封。'); }
       else { showMsg(meta.cls, '⚠️ ' + meta.title, message); }
     } catch (err) { showMsg('msg-error', '🌐 网络错误', '请求发送失败，请检查网络连接后重试。' + (err.message ? ' (' + err.message + ')' : '')); }
