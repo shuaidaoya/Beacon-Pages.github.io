@@ -137,15 +137,18 @@ body{
 .footer-credit a{color:#64748b;text-decoration:none}
 .brand-area .hero-logo,.brand-area .hero-slogan,.brand-area .hero-desc,.brand-area .features{text-align:left}
 
-/* ── 注册关闭提醒横幅 ── */
-.reg-closed-banner{display:none;align-items:center;gap:10px;padding:14px 18px;margin-bottom:16px;border-radius:12px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.25);color:#fbbf24;font-size:13px;line-height:1.6;font-weight:500;animation:fadeIn .3s}
-.reg-closed-banner.show{display:flex}
-.reg-closed-banner .banner-icon{font-size:20px;flex-shrink:0}
-.reg-closed-banner .banner-text{flex:1;min-width:0}
-.reg-closed-banner .banner-text strong{display:block;margin-bottom:2px;font-size:14px;color:#fbbf24}
-.reg-closed #authForm input,.reg-closed #authForm button.primary-btn,.reg-closed .tab-btn[data-mode=signup]{opacity:.45;pointer-events:none;cursor:not-allowed}
+/* ── 注册关闭卡片内提示 ── */
+.reg-closed-notice{text-align:center;padding:32px 20px;animation:fadeIn .3s}
+.reg-closed-notice .notice-icon{font-size:44px;margin-bottom:12px}
+.reg-closed-notice .notice-title{font-size:17px;font-weight:700;color:var(--text);margin:0 0 8px}
+.reg-closed-notice .notice-desc{font-size:13px;color:var(--text2);line-height:1.7;margin:0;max-width:320px;margin-left:auto;margin-right:auto}
+.reg-closed #authForm{display:none}
+.reg-closed #regClosedNotice{display:block}
+.reg-closed .tab-btn[data-mode=signup]{opacity:.45;pointer-events:none}
 .reg-closed .tab-btn[data-mode=signin]{pointer-events:auto;opacity:1}
-.reg-closed.signin-active #authForm input,.reg-closed.signin-active #authForm button.primary-btn{opacity:1;pointer-events:auto;cursor:auto}
+/* 登录模式下恢复表单可用 */
+.reg-closed.signin-active #authForm{display:grid}
+.reg-closed.signin-active #regClosedNotice{display:none}
 .reg-closed.signin-active .tab-btn[data-mode=signup]{opacity:.45;pointer-events:none}
 
 @media(max-width:900px){
@@ -202,7 +205,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .msg-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fecaca}
 .msg-warn{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25);color:#fde68a}
 .msg-info{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);color:#c7d2fe}
-
 /* ── TG验证 ── */
 .verify-step{text-align:center;padding:20px}.verify-step-icon{font-size:44px;margin-bottom:10px}
 .verify-code-box{background:rgba(255,255,255,.03);border:2px dashed rgba(56,189,248,.15);border-radius:14px;padding:16px;margin:14px 0}
@@ -251,6 +253,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .verify-polling{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text2);font-size:13px;margin:10px 0}
 .verify-polling .spinner-sm{width:15px;height:15px;border:2px solid rgba(255,255,255,.08);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
 .verify-back-btn{background:none;border:none;color:var(--text2);cursor:pointer;font-size:13px;margin-top:14px;text-decoration:underline}
+.verify-success-icon{font-size:48px;margin-bottom:6px}
+
 /* ── 规则弹窗 ── */
 .rules-overlay{position:fixed;inset:0;z-index:10000;background:rgba(2,8,23,.9);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .3s}
 .rules-overlay.hidden{display:none}
@@ -394,16 +398,17 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
   <!-- auth panel -->
   <section class="panel auth-panel" id="authPanel">
-    <div class="reg-closed-banner" id="regClosedBanner" role="alert" aria-live="polite">
-      <span class="banner-icon" aria-hidden="true">⚠️</span>
-      <span class="banner-text"><strong>注册功能已暂停</strong>当前注册功能已暂停开放，敬请留意后续通知</span>
-    </div>
     <div class="auth-head">
       <div><div class="auth-title" id="authTitle">创建用户账户</div><div class="auth-desc" id="authDesc">先完成注册，成功后会自动切换到登录模式。</div></div>
       <div class="tabs" role="tablist">
         <button class="tab-btn" role="tab" aria-selected="true" data-mode="signup">注册</button>
         <button class="tab-btn" role="tab" aria-selected="false" data-mode="signin">登录</button>
       </div>
+    </div>
+    <div class="reg-closed-notice" id="regClosedNotice" role="alert" aria-live="polite" style="display:none">
+      <div class="notice-icon" aria-hidden="true">🔒</div>
+      <p class="notice-title">注册功能已暂停开放</p>
+      <p class="notice-desc">当前注册功能已暂停开放，敬请留意后续通知。您仍可登录已有账户。</p>
     </div>
     <div class="form" id="authForm">
       <div class="field"><label for="account">用户名</label><input type="text" id="account" placeholder="输入你的用户名" autocomplete="username" maxlength="64"><div class="field-hint" id="accountHint"></div></div>
@@ -503,14 +508,11 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
   function setRegisterClosed(closed) {
     state.registerEnabled = !closed;
-    var banner = document.getElementById('regClosedBanner');
     var panel = document.getElementById('authPanel');
     if (closed) {
-      if (banner) banner.classList.add('show');
       if (panel) panel.classList.add('reg-closed');
       if (state.mode === 'signup') switchMode('signin');
     } else {
-      if (banner) banner.classList.remove('show');
       if (panel) panel.classList.remove('reg-closed');
     }
   }
@@ -558,6 +560,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
   function switchMode(mode) {
     if (state.loading) return; state.mode = mode;
+    // 注册关闭时标记登录模式以恢复表单可用性
     var panel = document.getElementById('authPanel');
     if (panel && !state.registerEnabled) { panel.classList.toggle('signin-active', mode === 'signin'); }
     $$('.tab-btn').forEach(b => b.setAttribute('aria-selected', b.dataset.mode === mode ? 'true' : 'false'));
