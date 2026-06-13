@@ -468,7 +468,11 @@ button:disabled{opacity:.5;cursor:not-allowed}
       const resp = await fetch('/register/config'); const cfg = await resp.json();
       const freq = cfg.rulesFrequency || 'always';
       if (freq === 'once' && localStorage.getItem('beacon_rules_agreed') === '1') { document.getElementById('rulesOverlay').classList.add('hidden'); }
-      if (cfg.signupAvailable === false) setRegisterClosed(true);
+      if (cfg.signupAvailable === false) {
+        setRegisterClosed(true);
+        // 注册关闭时默认打开登录卡片，避免先展示注册卡片
+        switchMode('signin');
+      }
     } catch(e) {}
     let sec = 15;
     const countdownEl = document.getElementById('rulesCountdown'), checkLabel = document.getElementById('rulesCheckLabel'), checkbox = document.getElementById('rulesCheckbox');
