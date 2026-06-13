@@ -383,7 +383,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
       <div class="field" id="emailField"><label for="email">邮箱 <span style="font-weight:400;color:#f59e0b;font-size:11px">(必填，用于找回密码和身份识别)</span></label><input type="email" id="email" placeholder="your@email.com" autocomplete="email" maxlength="128"><div class="field-hint" id="emailHint"></div></div>
       <div class="field" id="passwordField"><label for="password">密码</label><div style="position:relative"><input type="password" id="password" placeholder="至少8位，含大小写字母+数字+特殊符号" autocomplete="new-password" maxlength="128" style="width:100%;box-sizing:border-box;padding-right:44px"><button type="button" id="pwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px;padding:4px;line-height:1;z-index:1" title="显示/隐藏密码">👁</button></div><div class="field-hint" id="passwordHint"></div><div id="pwStrength" style="display:none;margin-top:6px"><div style="height:4px;background:#1e293b;border-radius:2px;overflow:hidden"><div id="pwStrengthBar" style="height:100%;width:0%;transition:width .3s;border-radius:2px"></div></div><span id="pwStrengthLabel" style="font-size:11px;margin-top:3px;display:inline-block"></span></div></div>
       <div class="field" id="oldLoginToggle" style="display:none;text-align:center;padding-top:0"><button type="button" id="oldLoginBtn" style="background:none;border:none;color:#f59e0b;cursor:pointer;font-size:12px;text-decoration:underline">使用邮箱登录（存量用户）</button></div>
-      <div class="field" style="display:flex;flex-direction:row;align-items:center;gap:8px;padding-top:2px"><input type="checkbox" id="rememberMe" style="width:18px;height:18px;accent-color:#818cf8;cursor:pointer;flex-shrink:0;margin:0"><label for="rememberMe" style="margin:0;cursor:pointer;user-select:none;font-weight:500;font-size:13px;color:#cbd5e1">记住用户名</label> <a href="#" id="forgotPwLink" style="margin-left:auto;font-size:12px;color:#f59e0b;text-decoration:underline">忘记密码？</a></div>
+      <div class="field" style="display:flex;flex-direction:row;align-items:center;gap:8px;padding-top:2px"><input type="checkbox" id="rememberMe" style="width:18px;height:18px;accent-color:#818cf8;cursor:pointer;flex-shrink:0;margin:0"><label for="rememberMe" style="margin:0;cursor:pointer;user-select:none;font-weight:500;font-size:13px;color:#cbd5e1">记住用户名和密码</label> <a href="#" id="forgotPwLink" style="margin-left:auto;font-size:12px;color:#f59e0b;text-decoration:underline">忘记密码？</a></div>
       <div class="actions"><button class="primary-btn" id="submitBtn"><span id="submitText">创建账户</span><span class="spinner" id="submitSpinner"></span></button></div>
     </div>
     <div class="msg" id="authMsg"></div>
@@ -437,6 +437,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
       var remembered = JSON.parse(localStorage.getItem('beacon_remembered') || 'null');
       if (remembered && remembered.account) {
         var accountEl = document.getElementById('account'); if (accountEl) accountEl.value = remembered.account || '';
+        var passwordEl = document.getElementById('password'); if (remembered.password && passwordEl) passwordEl.value = remembered.password;
         if (remembered.email) { var emailEl = document.getElementById('email'); if (emailEl) emailEl.value = remembered.email || ''; }
         document.getElementById('rememberMe').checked = true;
         var _origAgree = window.agreeRules;
@@ -536,7 +537,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
       else if (code === 'AUTH_TG_VERIFY_REQUIRED') { showTGVerifyStep(data.data); }
       else if (code === 'AUTH_SIGNIN_SUCCESS') {
         var user = data.data || {}, node = user.node || {}, u = user.user || {};
-        if (document.getElementById('rememberMe').checked) { localStorage.setItem('beacon_remembered', JSON.stringify({ account: user.account || '' })); }
+        if (document.getElementById('rememberMe').checked) { var pwField = document.getElementById('password'); localStorage.setItem('beacon_remembered', JSON.stringify({ account: user.account || '', password: pwField ? pwField.value : '' })); }
         else { localStorage.removeItem('beacon_remembered'); }
         localStorage.setItem('beacon_user', JSON.stringify({ account: user.account || '', email: user.email || '', passwordSet: user.passwordSet || false, uuid: node.uuid || '', token: node.token || '', subUrl: node.subscriptionUrl || '', verUrl: node.versionUrl || '', traffic: u.traffic || 0, used_traffic: u.used_traffic || 0 }));
         if (data.migrationToken) { showMigrationWizard(data.migrationToken, user.account || ''); setLoading(false); return; }
