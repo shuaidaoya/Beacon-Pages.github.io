@@ -43,21 +43,34 @@ body{
 
 /* ── hero card ── */
 .hero{
-  background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);
-  border-radius:20px;padding:36px 32px;margin-bottom:24px;
-  color:#fff;position:relative;overflow:hidden;
-  box-shadow:0 4px 24px rgba(15,23,42,.15);
+  position:relative;overflow:hidden;border-radius:20px;padding:40px 36px;margin-bottom:24px;
+  color:#fff;
+  background:
+    radial-gradient(ellipse 80% 60% at 70% 20%,rgba(245,158,11,.25) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 50% at 20% 80%,rgba(234,88,12,.18) 0%,transparent 50%),
+    radial-gradient(ellipse 50% 40% at 80% 90%,rgba(168,85,247,.12) 0%,transparent 50%),
+    linear-gradient(135deg,#0f172a 0%,#1e1b2e 40%,#1a1825 100%);
+  box-shadow:0 4px 32px rgba(15,23,42,.18),0 1px 2px rgba(0,0,0,.08);
+}
+.hero::before{
+  content:'';position:absolute;right:-60px;top:-60px;width:280px;height:280px;border-radius:50%;
+  background:radial-gradient(circle,rgba(245,158,11,.18) 0%,transparent 70%);
+  pointer-events:none;animation:heroGlow 8s ease-in-out infinite alternate;
 }
 .hero::after{
-  content:'';position:absolute;right:-40px;top:-40px;
-  width:200px;height:200px;border-radius:50%;
-  background:rgba(245,158,11,.12);pointer-events:none;
+  content:'';position:absolute;left:10%;bottom:-40px;width:180px;height:180px;border-radius:50%;
+  background:radial-gradient(circle,rgba(234,88,12,.12) 0%,transparent 70%);
+  pointer-events:none;animation:heroGlow 10s ease-in-out infinite alternate-reverse;
+}
+@keyframes heroGlow{
+  0%{transform:translate(0,0) scale(1)}
+  100%{transform:translate(20px,-15px) scale(1.15)}
 }
 .hero h1{font-size:26px;font-weight:800;margin:0 0 6px;position:relative;z-index:1}
 .hero p{font-size:14px;color:#94a3b8;margin:0;position:relative;z-index:1}
 .hero .uuid-badge{
   display:inline-block;margin-top:10px;padding:4px 12px;
-  background:rgba(255,255,255,.08);border-radius:99px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.06);border-radius:99px;
   font-size:12px;color:#94a3b8;font-family:'SF Mono','Monaco','Menlo',monospace;
   letter-spacing:.5px;position:relative;z-index:1;
 }
@@ -624,6 +637,7 @@ body{
     main.innerHTML = `
       <div class="hero">
         <h1>欢迎回来，${esc(d.account || '用户')}</h1>
+        <p>Beacon 灯塔 · 用户面板</p>
         ${d.uuid ? '<div class="uuid-badge">UUID: ' + esc(d.uuid.slice(0,8) + '...') + '</div>' : ''}
         ${migrationBanner}
       </div>
