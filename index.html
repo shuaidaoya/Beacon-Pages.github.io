@@ -468,13 +468,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
       const resp = await fetch('/register/config'); const cfg = await resp.json();
       const freq = cfg.rulesFrequency || 'always';
       if (freq === 'once' && localStorage.getItem('beacon_rules_agreed') === '1') { document.getElementById('rulesOverlay').classList.add('hidden'); }
-      if (cfg.signupAvailable === false) {
-        console.log('[init] signupAvailable=false, calling setRegisterClosed(true)');
-        setRegisterClosed(true);
-        console.log('[init] state.mode after setRegisterClosed:', state.mode);
-      } else {
-        console.log('[init] signupAvailable=', cfg.signupAvailable, ', not closing signup');
-      }
+      // 检查注册开关状态（后端返回 signupAvailable/registerEnabled/registerOpen 三个同义字段）
+      if (cfg.signupAvailable === false || cfg.registerEnabled === false || cfg.registerOpen === false) { setRegisterClosed(true); }
     } catch(e) {}
     let sec = 15;
     const countdownEl = document.getElementById('rulesCountdown'), checkLabel = document.getElementById('rulesCheckLabel'), checkbox = document.getElementById('rulesCheckbox');
