@@ -206,7 +206,11 @@ body{
   flex:1;min-width:200px;font-size:12px;color:#475569;word-break:break-all;
   font-family:'SF Mono','Monaco','Menlo',monospace;background:#f8fafc;
   padding:10px 14px;border-radius:10px;border:1px solid #e2e8f0;
+  cursor:pointer;user-select:none;transition:all .2s;
 }
+.link-value.masked{color:transparent;text-shadow:0 0 12px rgba(71,85,105,.8);letter-spacing:2px}
+.link-value.masked:hover{background:#f1f5f9}
+.link-value:not(.masked){user-select:text}
 .link-btn{
   background:#fff;color:#334155;border:1px solid #e2e8f0;
   border-radius:10px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;
@@ -829,13 +833,13 @@ body{
         ${subscriptionUrl ? `
         <div class="link-card">
           <span class="link-label">订阅地址</span>
-          <span class="link-value">${esc(subscriptionUrl)}</span>
+          <span class="link-value masked" data-full="${escAttr(subscriptionUrl)}" onclick="this.classList.toggle('masked');this.textContent=this.classList.contains('masked')?'点击显示':this.dataset.full">点击显示</span>
           <button class="link-btn" data-copy="${escAttr(subscriptionUrl)}">复制</button>
         </div>` : ''}
         ${d.uuid ? `
         <div class="link-card">
           <span class="link-label">用户 UUID</span>
-          <span class="link-value">${esc(d.uuid)}</span>
+          <span class="link-value masked" data-full="${escAttr(d.uuid)}" onclick="this.classList.toggle('masked');this.textContent=this.classList.contains('masked')?'点击显示':this.dataset.full">点击显示</span>
           <button class="link-btn" data-copy="${escAttr(d.uuid)}">复制</button>
         </div>` : ''}
 
