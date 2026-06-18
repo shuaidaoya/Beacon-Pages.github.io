@@ -509,7 +509,7 @@ body{
     const metaEl = document.getElementById('checkinMeta');
     const checkin = d.checkin || {};
     const minGB = checkin.minRewardGB || 2;
-    const maxGB = checkin.maxRewardGB || 20;
+    const maxGB = checkin.maxRewardGB || 10;
     if (metaEl) {
       const parts = ['每日随机领取 ' + minGB + '-' + maxGB + ' GB'];
       if (checkin.totalClaimDays) parts.push('累计签到 ' + checkin.totalClaimDays + ' 天');
@@ -822,7 +822,7 @@ body{
 
       <div class="sec-title">每日签到</div>
       <div class="checkin-card">
-        <div class="reward-text">随机领取 2–20 GB</div>
+        <div class="reward-text">随机领取 2–10 GB</div>
         <div class="checkin-meta" id="checkinMeta">每日签到可增加总流量配额</div>
         <div class="checkin-status" id="checkinStatus">正在检查签到状态...</div>
         <button id="checkinBtn" type="button" class="checkin-btn">签到领流量</button>
