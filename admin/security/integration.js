@@ -70,16 +70,21 @@
 .sec-module .sec-config-row input{background:#fff;border:1px solid #d1d5db;border-radius:8px;padding:6px 8px;color:#1f2937;font-size:13px;width:80px;text-align:right}
 .sec-module .sec-config-row select{background:#fff;border:1px solid #d1d5db;border-radius:8px;padding:6px 10px;color:#1f2937;font-size:13px}
 .sec-module .sec-config-row input:focus,.sec-module .sec-config-row select:focus{border-color:#faab41;outline:none;box-shadow:0 0 0 2px rgba(250,171,65,.15)}
-.sec-module .sec-empty{padding:40px;text-align:center;color:#9ca3af;font-size:14px}
+.sec-module .sec-empty{padding:24px;text-align:center;color:#9ca3af;font-size:13px;background:#f3f4f6;border-radius:10px}
 .sec-module .sec-loading{display:flex;align-items:center;justify-content:center;padding:40px;gap:10px;color:#9ca3af}
 .sec-module .sec-spinner{width:18px;height:18px;border:2px solid #e5e7eb;border-top-color:#faab41;border-radius:50%;animation:sec-spin .6s linear infinite}
 @keyframes sec-spin{to{transform:rotate(360deg)}}
 .sec-drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px}
-.sec-drawer{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;max-width:560px;width:100%;max-height:75vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.1)}
-.sec-drawer h3{font-size:16px;margin:0 0 12px;color:#1f2937}
-.sec-drawer pre{background:#f9fafb;border-radius:10px;padding:12px;overflow-x:auto;font-size:12px;color:#1f2937;white-space:pre-wrap}
-.sec-drawer-close{float:right;background:transparent;border:none;color:#9ca3af;font-size:20px;cursor:pointer}
-.sec-drawer-close:hover{color:#1f2937}
+.sec-drawer{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:28px 32px;max-width:820px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.12);scroll-behavior:smooth}
+.sec-drawer::-webkit-scrollbar{width:6px}
+.sec-drawer::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px}
+.sec-drawer h3{font-size:20px;margin:0 0 20px;color:#1f2937;font-weight:800;display:flex;align-items:center;gap:10px}
+.sec-drawer-close{position:absolute;top:20px;right:20px;background:#f9fafb;border:1px solid #e5e7eb;color:#9ca3af;font-size:18px;width:32px;height:32px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.sec-drawer-close:hover{background:#f3f4f6;color:#1f2937}
+.sec-drawer-section{background:#f9fafb;border:1px solid #e5e7eb;border-radius:14px;padding:20px 22px;margin-bottom:14px;transition:all .2s}
+.sec-drawer-section:hover{border-color:#d1d5db;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.sec-drawer-section h4{font-size:14px;font-weight:700;color:#374151;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:8px}
+.sec-drawer pre{background:#f3f4f6;border-radius:10px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#374151;white-space:pre-wrap;line-height:1.8;font-family:'SF Mono','Monaco','Menlo',monospace}
 .sec-modal-form{display:flex;flex-direction:column;gap:14px;margin-top:8px}
 .sec-modal-group{display:flex;flex-direction:column;gap:8px}
 .sec-modal-label{font-size:13px;font-weight:700;color:#1f2937}
