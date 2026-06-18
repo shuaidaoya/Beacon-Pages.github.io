@@ -545,6 +545,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
     AUTH_TG_CHECK_FAILED: { cls:'msg-error', title:'验证失败' }, AUTH_TG_ACCOUNT_MISMATCH: { cls:'msg-error', title:'账号不匹配' },
     AUTH_TG_INCOMPLETE: { cls:'msg-error', title:'数据不完整' }, AUTH_TG_UNKNOWN_STATUS: { cls:'msg-error', title:'未知状态' },
     AUTH_TG_CODE_FAILED: { cls:'msg-error', title:'验证码生成失败' }, AUTH_TG_VERIFY_FAILED: { cls:'msg-error', title:'验证发起失败' },
+    AUTH_RISK_REGISTRATION_BLOCKED: { cls:'msg-error', title:'注册已被拦截' },
+    AUTH_RISK_CHALLENGE_REQUIRED:    { cls:'msg-warn',  title:'需要人机验证' },
   };
 
   const $ = (sel) => document.querySelector(sel);
@@ -617,6 +619,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
       else if (code === 'AUTH_USER_NOT_FOUND') { showMsg('msg-warn', '🔍 ' + meta.title, message + ' 请切换到注册模式完成注册。'); if (data.data && data.data.nextMode === 'signup') { setTimeout(function() { switchMode('signup'); }, 1200); } }
       else if (code === 'AUTH_SIGNUP_DISABLED') { setRegisterClosed(true); showMsg('msg-warn', '🚫 ' + meta.title, message); }
       else if (code === 'AUTH_USER_BANNED') { showMsg('msg-error', '⛔ ' + meta.title, message + ' 请联系管理员解封。'); }
+      else if (code === 'AUTH_RISK_REGISTRATION_BLOCKED') { showMsg('msg-error', '🛡️ ' + meta.title, message + ' (' + (data.data.count || '?') + '/' + (data.data.threshold || '?') + ') 请等待一段时间再试，或联系管理员。'); }
+      else if (code === 'AUTH_RISK_CHALLENGE_REQUIRED') { showMsg('msg-warn', '🔐 ' + meta.title, message + ' (' + (data.data.count || '?') + '/' + (data.data.threshold || '?') + ') 请重新提交注册以完成 Telegram 人机验证。'); }
       else { showMsg(meta.cls, '⚠️ ' + meta.title, message); }
     } catch (err) { showMsg('msg-error', '🌐 网络错误', '请求发送失败，请检查网络连接后重试。' + (err.message ? ' (' + err.message + ')' : '')); }
     finally { setLoading(false); }

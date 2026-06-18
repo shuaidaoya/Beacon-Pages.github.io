@@ -116,6 +116,7 @@
       <button class="sec-tab" data-p="users">👥 用户管理</button>
       <button class="sec-tab" data-p="audit">📋 审计日志</button>
       <button class="sec-tab" data-p="registration">📝 注册管控</button>
+      <button class="sec-tab" data-p="risk">🛡️ 风控</button>
       <button class="sec-tab" data-p="config">⚙️ 策略配置</button>
     </div>
     <div id="sec-content"></div>
@@ -468,6 +469,7 @@
       esc(u.profile?.tgUsername||'未绑定'),
       '<span class="sec-badge sec-badge-'+(u.status==='banned'?'banned':'active')+'">'+esc(u.status||'-')+'</span>',
       (u.subscription?.risk?.level ? '<span class="sec-badge sec-badge-'+(u.subscription.risk.level==='high'?'high':u.subscription.risk.level==='medium'?'medium':'low')+'">'+esc(u.subscription.risk.level)+(u.subscription.risk.score?' '+u.subscription.risk.score:'')+'</span>' : '-'),
+      (function(){var m=getRiskControlMeta(u.riskControl);return '<span class="sec-badge'+m.className+'" title="'+(u.riskControl&&u.riskControl.clusterId?'集群: '+esc(u.riskControl.clusterId):'')+'">'+esc(m.label)+'</span>';})(),
       '<span style="font-size:11px">'+fmtBytes(u.used_traffic||0)+' / '+fmtQuota(u)+'</span>',
       esc(u.lastIp||u.profile?.lastIp||'-'),
       ago(u.lastSeenAt||u.lifecycle?.lastSeenAt),
@@ -483,7 +485,7 @@
 
     const tblEl = $('#sec-users-table');
     if (tblEl) {
-      tblEl.innerHTML = '<div class="sec-table-wrap"><table class="sec-table"><tr><th></th><th>UUID</th><th>账户</th><th>邮箱</th><th>TG</th><th>状态</th><th>风险</th><th>用量</th><th>最后IP</th><th>最后活跃</th><th>多账号</th><th>操作</th></tr>' +
+      tblEl.innerHTML = '<div class="sec-table-wrap"><table class="sec-table"><tr><th></th><th>UUID</th><th>账户</th><th>邮箱</th><th>TG</th><th>状态</th><th>风险</th><th>风控</th><th>用量</th><th>最后IP</th><th>最后活跃</th><th>多账号</th><th>操作</th></tr>' +
         rows.map(r => '<tr>'+r.map(c => '<td>'+c+'</td>').join('')+'</tr>').join('') +
         '</table></div>';
       bindUserTableActions(tblEl);
@@ -529,6 +531,7 @@
       esc(u.profile?.tgUsername||'未绑定'),
       '<span class="sec-badge sec-badge-'+(u.status==='banned'?'banned':'active')+'">'+esc(u.status||'-')+'</span>',
       (u.subscription?.risk?.level ? '<span class="sec-badge sec-badge-'+(u.subscription.risk.level==='high'?'high':u.subscription.risk.level==='medium'?'medium':'low')+'">'+esc(u.subscription.risk.level)+'</span>' : '-'),
+      (function(){var m=getRiskControlMeta(u.riskControl);return '<span class="sec-badge'+m.className+'" title="'+(u.riskControl&&u.riskControl.clusterId?'集群: '+esc(u.riskControl.clusterId):'')+'">'+esc(m.label)+'</span>';})(),
       '<span style="font-size:11px">'+fmtBytes(u.used_traffic||0)+' / '+fmtQuota(u)+'</span>',
       esc(u.lastIp||'-'),
       ago(u.lastSeenAt),
@@ -690,6 +693,27 @@
       html += '<div class="sec-drawer-section"><h4>封禁与风控</h4>';
       html += '<pre>账号状态:  ' + esc(subBanned ? '已封禁' : '正常') + '\n风险等级:  ' + esc(riskLevel) + '\n风险分:    <span style="color:' + riskColor + '">' + esc(String(riskScore)) + '</span>' + (sub.bannedReasonLabel ? '\n封禁原因:  ' + esc(sub.bannedReasonLabel) : '') + '\n封禁时间:  ' + ts(sub.bannedAt) + (sub.bannedReason ? '\n原因代码:  ' + esc(sub.bannedReason) : '') + '\n令牌模式:  ' + esc(sub.tokenMode === 'managed' ? '已托管' : '兼容旧令牌') + '\n令牌更新:  ' + ts(sub.tokenUpdatedAt) + '</pre></div>';
 
+      // ── 风控（薅羊毛防治）详情面板 ──
+      var rc = user?.riskControl;
+      if (rc && rc.enabled) {
+        var rcMeta = getRiskControlMeta(rc);
+        var flagList = rc.flags ? Object.keys(rc.flags) : [];
+        var flagLabels = { usernamePattern:'用户名字符受限', usernameEmailCharsetOverlap:'用户名与邮箱字符重合', suspiciousEmailDomain:'可疑邮箱域名', lowTraffic:'初始流量极低', noTgBinding:'未绑定TG' };
+        html += '<div class="sec-drawer-section"><h4>🛡️ 风控信息（薅羊毛防治）</h4>';
+        html += '<pre>风控风险分:  <strong>' + rcMeta.score + '</strong>\n风控状态:    ' + rcMeta.label + '\n风险集群ID:  ' + (rc.clusterId ? '<code>' + esc(rc.clusterId) + '</code>' : '-') + '\n注册IP:      ' + esc(rc.registerIp || '-') + '\n设备指纹:    <code>' + esc((rc.deviceFp || '-').slice(0, 16)) + '</code>\n申诉白名单:  ' + (rc.whitelisted ? '已加入' : '未加入') + '\n风险标记:    ' + (flagList.length ? flagList.map(function(f){return flagLabels[f]||f;}).join(', ') : '无') + '</pre>';
+        if (rc.clusterId || rcMeta.score >= 25) {
+          html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">';
+          if (rc.whitelisted) {
+            html += '<button class="sec-btn sec-btn-sm sec-btn-danger" data-risk-action="whitelist-remove" data-user-uuid="' + escAttr(uuid) + '">移除申诉白名单</button>';
+          } else {
+            html += '<button class="sec-btn sec-btn-sm" data-risk-action="whitelist" data-user-uuid="' + escAttr(uuid) + '">申诉解封（加入白名单）</button>';
+          }
+          html += '</div>';
+        }
+        html += '<div style="font-size:12px;color:#6b7280;line-height:1.6">风控说明：系统对近期新注册账号进行用户名编辑距离、字符集重合度、邮箱域名、注册IP/设备指纹多维度加权聚类，规模≥3且相似度超阈值的账号集群标记为风险集群，支持一键批量封禁与申诉解封。</div>';
+        html += '</div>';
+      }
+
       // 节点与订阅
       if (user?.node) {
         html += '<div class="sec-drawer-section"><h4>节点与订阅</h4>';
@@ -749,6 +773,30 @@
               const d = document.getElementById('sec-drawer');
               if (d) d.remove();
               userAction(action, targetUuid);
+            }
+          });
+        });
+        // bind risk action buttons (whitelist/whitelist-remove) in detail drawer
+        drawer.querySelectorAll('[data-risk-action]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const action = btn.getAttribute('data-risk-action');
+            const targetUuid = btn.getAttribute('data-user-uuid');
+            if (!action || !targetUuid) return;
+            try {
+              if (action === 'whitelist') {
+                if (!confirm('确认将该用户加入申诉白名单并解封吗？')) return;
+                await api('/risk/whitelist', { method: 'POST', body: JSON.stringify({ uuid: targetUuid, reason: 'admin-ui-appeal' }) });
+                toast('已加入申诉白名单并解封');
+              } else if (action === 'whitelist-remove') {
+                if (!confirm('确认将该用户移出申诉白名单吗？')) return;
+                await api('/risk/whitelist/remove', { method: 'POST', body: JSON.stringify({ uuid: targetUuid }) });
+                toast('已移出申诉白名单');
+              }
+              const d = document.getElementById('sec-drawer');
+              if (d) d.remove();
+              loadUsers();
+            } catch(e) {
+              if (e.message !== 'auth_redirect') toast('操作失败: ' + e.message, 'error');
             }
           });
         });
@@ -935,6 +983,128 @@
   }
 
   // ══════════════════════════════════════════
+  //  6. 风控（薅羊毛防治）
+  // ══════════════════════════════════════════
+  function getRiskControlMeta(rc) {
+    if (!rc || !rc.enabled) return { label: '-', className: ' sec-badge-low', score: 0 };
+    const score = rc.score || 0;
+    if (rc.whitelisted) return { label: '已申诉', className: '', score, whitelisted: true };
+    if (rc.clusterId) return { label: '集群 ' + score, className: ' sec-badge-high', score, clusterId: rc.clusterId };
+    if (score >= 50) return { label: '高风险 ' + score, className: ' sec-badge-high', score };
+    if (score >= 25) return { label: '中风险 ' + score, className: ' sec-badge-medium', score };
+    if (score > 0) return { label: '低风险 ' + score, className: '', score };
+    return { label: '正常', className: '', score: 0 };
+  }
+
+  async function loadRisk() {
+    const el = $('#sec-content');
+    el.innerHTML = '<div class="sec-loading"><span class="sec-spinner"></span>加载中...</div>';
+    try {
+      const clustersResp = await api('/risk/clusters?windowHours=72');
+      const reportsResp = await api('/risk/report?limit=50');
+      const clusters = clustersResp.clusters || [];
+      const summary = clustersResp.summary || {};
+      const reports = (reportsResp && Array.isArray(reportsResp.reports)) ? reportsResp.reports : [];
+      const reportSummary = (reportsResp && reportsResp.summary) || {};
+      const flagLabels = { usernamePattern: '用户名字符受限', usernameEmailCharsetOverlap: '用户名邮箱重合', suspiciousEmailDomain: '可疑邮箱', lowTraffic: '低流量', noTgBinding: '未绑TG' };
+
+      let html = '<div class="sec-stats">';
+      html += '<div class="sec-stat"><div class="sec-stat-num">' + (summary.clusterCount || 0) + '</div><div class="sec-stat-label">风险集群数</div></div>';
+      html += '<div class="sec-stat sec-stat-danger"><div class="sec-stat-num">' + (summary.flaggedUserCount || 0) + '</div><div class="sec-stat-label">涉及账号数</div></div>';
+      html += '<div class="sec-stat"><div class="sec-stat-num">' + (summary.scannedUserCount || 0) + '</div><div class="sec-stat-label">扫描账号数</div></div>';
+      html += '<div class="sec-stat"><div class="sec-stat-num">' + (reportSummary.totalDisposedAccounts || 0) + '</div><div class="sec-stat-label">累计处置账号</div></div>';
+      html += '</div>';
+
+      html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
+      html += '<button class="sec-btn sec-btn-primary" id="sec-risk-scan">🔍 重新扫描</button>';
+      html += '</div>';
+
+      html += '<h4 style="margin:16px 0 8px;color:#1f2937">🛡️ 风险集群识别（薅羊毛防治）</h4>';
+      if (!clusters.length) {
+        html += '<div class="sec-empty">当前回溯窗口（72 小时）内未发现风险集群。点击"重新扫描"刷新。</div>';
+      } else {
+        html += '<div class="sec-table-wrap"><table class="sec-table"><tr><th>集群ID</th><th>规模</th><th>平均相似度</th><th>风险分</th><th>风险标记</th><th>操作</th></tr>';
+        clusters.forEach(c => {
+          const flags = Object.keys(c.flags || {}).map(f => '<span class="sec-badge sec-badge-low">' + esc(flagLabels[f] || f) + '</span>').join(' ');
+          html += '<tr><td><code>' + esc(c.clusterId) + '</code></td><td><strong>' + c.size + '</strong></td><td>' + c.avgSimilarity + '</td><td><span class="sec-badge sec-badge-high">' + c.riskScore + '</span></td><td>' + (flags || '<span class="sec-badge sec-badge-low">无</span>') + '</td><td><button class="sec-btn sec-btn-danger sec-btn-sm" data-risk-ban-cluster="1" data-cluster-id="' + escAttr(c.clusterId) + '" data-cluster-members="' + escAttr(JSON.stringify(c.members)) + '">一键封禁集群</button></td></tr>';
+        });
+        html += '</table></div>';
+      }
+
+      html += '<h4 style="margin:16px 0 8px;color:#1f2937">成员明细</h4>';
+      if (!clusters.length) {
+        html += '<div class="sec-empty">暂无成员</div>';
+      } else {
+        const allMembers = [];
+        clusters.forEach(c => {
+          (c.memberDetails || []).forEach(m => {
+            allMembers.push({ ...m, clusterId: c.clusterId });
+          });
+        });
+        html += '<div class="sec-table-wrap"><table class="sec-table"><tr><th>集群</th><th>UUID</th><th>用户名</th><th>邮箱</th><th>注册IP</th><th>创建时间</th><th>状态</th></tr>';
+        allMembers.forEach(m => {
+          const isBanned = m.status === 'banned';
+          html += '<tr><td><code>' + esc(m.clusterId) + '</code></td><td><code style="font-size:11px">' + esc((m.uuid || '').slice(0, 12) + '...') + '</code></td><td>' + esc(m.account || '-') + '</td><td>' + esc(m.email || '-') + '</td><td>' + esc(m.registerIp || '-') + '</td><td>' + ts(m.createdAt) + '</td><td><span class="sec-badge ' + (isBanned ? 'sec-badge-banned' : 'sec-badge-active') + '">' + (isBanned ? '已封禁' : '正常') + '</span></td></tr>';
+        });
+        html += '</table></div>';
+      }
+
+      html += '<h4 style="margin:16px 0 8px;color:#1f2937">📊 违规账号处置报表</h4>';
+      if (!reports.length) {
+        html += '<div class="sec-empty">暂无处置记录</div>';
+      } else {
+        html += '<div class="sec-table-wrap"><table class="sec-table"><tr><th>处置时间</th><th>集群ID</th><th>动作</th><th>账号数</th><th>成功数</th><th>来源</th></tr>';
+        reports.forEach(r => {
+          html += '<tr><td>' + ts(r.disposedAt) + '</td><td><code>' + esc(r.clusterId || '-') + '</code></td><td><span class="sec-badge">' + esc(r.action || '-') + '</span></td><td><strong>' + (r.count || 0) + '</strong></td><td>' + ((r.summary && r.summary.succeeded) || r.count || 0) + '</td><td>' + esc(r.operator || '-') + '</td></tr>';
+        });
+        html += '</table></div>';
+      }
+
+      el.innerHTML = html;
+      bindRiskEvents(el);
+    } catch(e) {
+      if (e.message !== 'auth_redirect') el.innerHTML = '<div class="sec-empty">加载失败: ' + esc(e.message) + '</div>';
+    }
+  }
+
+  function bindRiskEvents(scope) {
+    if (!scope) return;
+    // 重新扫描按钮
+    const scanBtn = scope.querySelector('#sec-risk-scan');
+    if (scanBtn) scanBtn.onclick = async () => {
+      try {
+        const statusEl = $('#sec-content');
+        const result = await api('/risk/clusters?windowHours=72');
+        _riskState.clusters = result.clusters || [];
+        _riskState.summary = result.summary || {};
+        loadRisk();
+        toast('扫描完成：发现 ' + (_riskState.clusters.length) + ' 个风险集群，涉及 ' + (_riskState.summary.flaggedUserCount || 0) + ' 个账号');
+      } catch (error) { toast('扫描失败: ' + error.message, 'error'); }
+    };
+    // 一键封禁集群
+    scope.querySelectorAll('[data-risk-ban-cluster]').forEach(btn => {
+      btn.onclick = async () => {
+        const clusterId = btn.getAttribute('data-cluster-id');
+        const membersJson = btn.getAttribute('data-cluster-members');
+        if (!clusterId || !membersJson) return;
+        let members = [];
+        try { members = JSON.parse(membersJson); } catch(e) {}
+        if (!members.length) return;
+        if (!confirm('确认一键批量封禁集群 ' + clusterId + ' 的 ' + members.length + ' 个账号吗？')) return;
+        try {
+          btn.disabled = true; btn.textContent = '封禁中...';
+          const result = await api('/risk/ban-cluster', { method: 'POST', body: JSON.stringify({ clusterId, members }) });
+          toast('集群封禁完成：成功 ' + ((result.summary && result.summary.succeeded) || 0) + ' / ' + members.length);
+          loadRisk();
+        } catch (error) { toast('集群封禁失败: ' + error.message, 'error'); btn.disabled = false; btn.textContent = '一键封禁集群'; }
+      };
+    });
+  }
+
+  // 风控面板模块级状态（用于重扫描后刷新）
+  var _riskState = { clusters: null, summary: null };
+
+  // ══════════════════════════════════════════
   //  5. 策略配置
   // ══════════════════════════════════════════
   async function loadConfig() {
@@ -1002,6 +1172,19 @@
       const reg = cfg.register || {};
       html += '<div class="sec-config-row"><label>启用</label><select id="cfg-regenabled"><option value="1"'+(reg.enabled?' selected':'')+'>是</option><option value="0"'+(reg.enabled?'':' selected')+'>否</option></select></div>';
       html += '<div class="sec-config-row"><label>使用须知弹窗</label><select id="cfg-regrules"><option value="always"'+(reg.rulesFrequency!=='once'?' selected':'')+'>每次都弹窗</option><option value="once"'+(reg.rulesFrequency==='once'?' selected':'')+'>仅首次弹窗</option></select></div>';
+      html += '</div>';
+
+      // ── 风控（薅羊毛防治）──
+      html += '<div class="sec-config-group"><h4>🛡️ 风控（薅羊毛防治）</h4>';
+      const risk = cfg.riskControl || {};
+      html += '<div class="sec-config-row"><label>启用风控</label><select id="cfg-riskenabled"><option value="1"'+(risk.enabled!==false?' selected':'')+'>是</option><option value="0"'+(risk.enabled===false?' selected':'')+'>否</option></select></div>';
+      html += '<div class="sec-config-row"><label>相似度阈值</label><input type="number" id="cfg-risksim" value="'+(risk.accountSimilarityThreshold||0.6)+'" min="0" max="1" step="0.05" style="width:70px"></div>';
+      html += '<div class="sec-config-row"><label>字符集阈值</label><input type="number" id="cfg-riskcharsim" value="'+(risk.usernameCharsetJaccardThreshold||0.5)+'" min="0" max="1" step="0.05" style="width:70px"></div>';
+      html += '<div class="sec-config-row"><label>集群最小规模</label><input type="number" id="cfg-riskclustmin" value="'+(risk.clusterMinSize||3)+'" min="2" max="50" step="1" style="width:70px"></div>';
+      html += '<div class="sec-config-row"><label>集群回溯窗口(h)</label><input type="number" id="cfg-riskclustwin" value="'+(risk.clusterWindowHours||72)+'" min="1" max="720" step="1" style="width:70px"></div>';
+      html += '<div class="sec-config-row"><label>注册验证阈值</label><input type="number" id="cfg-riskregchal" value="'+(risk.registerIpChallengeThreshold||3)+'" min="1" max="100" step="1" style="width:70px"></div>';
+      html += '<div class="sec-config-row"><label>注册拦截阈值</label><input type="number" id="cfg-riskregblock" value="'+(risk.registerIpBlockThreshold||5)+'" min="1" max="100" step="1" style="width:70px"></div>';
+      html += '<div class="sec-config-row"><label>计数窗口(h)</label><input type="number" id="cfg-riskregwin" value="'+(risk.registerWindowHours||24)+'" min="1" max="168" step="1" style="width:70px"></div>';
       html += '</div>';
 
       // TG notification (fetched separately)
@@ -1084,6 +1267,16 @@
     cfg.register.enabled = ($('#cfg-regenabled')?.value === '1');
     cfg.register.rulesFrequency = $('#cfg-regrules')?.value || 'always';
 
+    cfg.riskControl = cfg.riskControl || {};
+    cfg.riskControl.enabled = ($('#cfg-riskenabled')?.value === '1');
+    cfg.riskControl.accountSimilarityThreshold = Number($('#cfg-risksim')?.value) || 0.6;
+    cfg.riskControl.usernameCharsetJaccardThreshold = Number($('#cfg-riskcharsim')?.value) || 0.5;
+    cfg.riskControl.clusterMinSize = Number($('#cfg-riskclustmin')?.value) || 3;
+    cfg.riskControl.clusterWindowHours = Number($('#cfg-riskclustwin')?.value) || 72;
+    cfg.riskControl.registerIpChallengeThreshold = Number($('#cfg-riskregchal')?.value) || 3;
+    cfg.riskControl.registerIpBlockThreshold = Number($('#cfg-riskregblock')?.value) || 5;
+    cfg.riskControl.registerWindowHours = Number($('#cfg-riskregwin')?.value) || 24;
+
     cfg.adminApi = cfg.adminApi || {};
     cfg.adminApi.listLimit = v('cfg-apill', cfg.adminApi.listLimit);
 
@@ -1128,6 +1321,7 @@
       ban: { baseSeconds: 900, multiplier: 2, maxSeconds: 86400, lookbackSeconds: 604800 },
       subscription: { enabled: true, hourlyLimit: 6, invalidTokenHourlyLimit: 4, uniqueIpAlertLimit: 6 },
       register: { enabled: false, scheduleEnabled: false, startAt: null, endAt: null },
+      riskControl: { enabled: true, accountSimilarityThreshold: 0.6, usernameCharsetJaccardThreshold: 0.5, clusterMinSize: 3, clusterWindowHours: 72, registerIpChallengeThreshold: 3, registerIpBlockThreshold: 5, registerWindowHours: 24 },
       adminApi: { listLimit: 50 },
     };
 
@@ -1142,6 +1336,14 @@
     setVal('cfg-apill', 50);
     const regSel = $('#cfg-regenabled'); if (regSel) regSel.value = '0';
     const rulesSel = $('#cfg-regrules'); if (rulesSel) rulesSel.value = 'always';
+    const riskEnabledSel = $('#cfg-riskenabled'); if (riskEnabledSel) riskEnabledSel.value = '1';
+    setVal('cfg-risksim', 0.6);
+    setVal('cfg-riskcharsim', 0.5);
+    setVal('cfg-riskclustmin', 3);
+    setVal('cfg-riskclustwin', 72);
+    setVal('cfg-riskregchal', 3);
+    setVal('cfg-riskregblock', 5);
+    setVal('cfg-riskregwin', 24);
     window._secCfgData = defaults;
     toast('已重置为推荐值，点击"保存配置"生效');
   }
@@ -1206,6 +1408,7 @@
       users: () => loadUsers(),
       audit: loadAudit,
       registration: loadRegistration,
+      risk: loadRisk,
       config: loadConfig,
     }[name];
     if (fn) fn();
@@ -1236,6 +1439,8 @@
     _secResetConfig: resetConfig,
     _secTestTg: testTg,
     _secSetWebhook: setWebhook,
+    _secLoadRisk: loadRisk,
+    _secScanRisk: () => { var b = document.getElementById('sec-risk-scan'); if (b) b.click(); },
   };
   Object.assign(window, EXPORTS);
 
