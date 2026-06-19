@@ -255,6 +255,10 @@ body{
 .latency-body p{margin:0 0 10px}
 .latency-code{display:flex;align-items:center;gap:8px;margin:10px 0;padding:10px 12px;background:#f8fafc;border:1px dashed #f59e0b;border-radius:10px;color:#c2410c;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;word-break:break-all}
 .latency-code .tag{flex-shrink:0;padding:2px 8px;border-radius:6px;background:rgba(245,158,11,.18);color:#b45309;font-size:11px;font-weight:700}
+.latency-code .latency-url{flex:1;min-width:0}
+.latency-copy{flex-shrink:0;border:1px solid #f59e0b;background:rgba(245,158,11,.12);color:#b45309;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap}
+.latency-copy:hover{background:rgba(245,158,11,.22);border-color:#d97706}
+.latency-copy.copied{background:rgba(22,163,74,.15);border-color:rgba(22,163,74,.45);color:#15803d}
 .latency-note{font-size:12px;color:#64748b;line-height:1.6;margin:10px 0 0}
 .latency-actions{display:flex;gap:10px;margin-top:18px}
 .latency-actions .lbtn{flex:1;justify-content:center;display:inline-flex;align-items:center;border-radius:12px;padding:12px 16px;font-size:14px;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#334155}
@@ -527,7 +531,7 @@ body{
       '<div class="latency-body">' +
         '<p>本订阅部署在 Cloudflare 上，而 CF Workers 默认<strong style="color:#b45309">不允许访问自身所托管的网络</strong>。多数代理软件默认用 CF 链接测延迟，会导致测延迟全部显示为超时（红），但实际并不影响代理使用。</p>' +
         '<p>请在代理软件的<strong style="color:#c2410c">测延迟 URL / 健康检查地址</strong>处改为下方链接：</p>' +
-        '<div class="latency-code"><span class="tag">测延迟</span>' + LATENCY_TEST_URL + '</div>' +
+        '<div class="latency-code"><span class="tag">测延迟</span><span class="latency-url">' + LATENCY_TEST_URL + '</span><button type="button" class="latency-copy" id="latencyCopyUrl">📋 复制</button></div>' +
         '<p class="latency-note">修改完成后再复制订阅地址导入。请阅读 <strong style="color:#1e293b">' + LATENCY_READ_SECONDS + '</strong> 秒后方可继续复制。</p>' +
       '</div>' +
       '<div class="latency-actions">' +
@@ -540,6 +544,12 @@ body{
     m._t = setInterval(function(){ remaining -= 1; if (remaining > 0) { confirmBtn.innerHTML = '<span class="count">' + remaining + '</span> 秒后可复制'; } else { clearInterval(m._t); m._t = null; confirmBtn.disabled = false; confirmBtn.textContent = '我已知晓，复制订阅地址'; } }, 1000);
     m.querySelector('#latencyCancel').onclick = closeLatencyMask;
     m.onclick = function(e){ if (e.target === m) closeLatencyMask(); };
+    var copyUrlBtn = m.querySelector('#latencyCopyUrl');
+    copyUrlBtn.onclick = function(){
+      var done = function(){ copyUrlBtn.classList.add('copied'); copyUrlBtn.textContent = '✓ 已复制'; setTimeout(function(){ copyUrlBtn.classList.remove('copied'); copyUrlBtn.textContent = '📋 复制'; }, 1500); };
+      if (navigator.clipboard) { navigator.clipboard.writeText(LATENCY_TEST_URL).then(done); }
+      else { var ta=document.createElement('textarea');ta.value=LATENCY_TEST_URL;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);done(); }
+    };
     confirmBtn.onclick = function(){ if (confirmBtn.disabled) return; copy(value, btn); closeLatencyMask(); };
   }
 
