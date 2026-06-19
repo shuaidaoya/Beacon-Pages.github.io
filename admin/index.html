@@ -8968,11 +8968,6 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                 <label>Chat ID</label>
                 <input type="text" id="telegramChatID" placeholder="输入Chat ID">
             </div>
-            <div class="form-group subapi-form-group">
-                <label>管理员 TG ID（逗号分隔，留空则用群管理员身份判定）</label>
-                <input type="text" id="telegramAdminIDs" placeholder="例如：408496390, 123456789">
-                <button type="button" class="btn btn-secondary" style="margin-top:8px" onclick="saveTelegramAdminIDs()">单独保存管理员白名单</button>
-            </div>
             <div id="telegramStatus" class="subapi-status"></div>
             <div class="subapi-buttons">
                 <button type="button" class="btn btn-primary btn-test-api" onclick="testTelegramConfig()">可用性验证</button>
@@ -16683,10 +16678,6 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             const chatID = currentConfig.TG?.ChatID || currentConfig.通知?.Telegram?.ChatID || '';
             document.getElementById('telegramBotToken').value = '';
             document.getElementById('telegramChatID').value = chatID;
-            // 回显管理员 TG ID 白名单
-            const adminIDs = Array.isArray(currentConfig.TG?.AdminIDs) ? currentConfig.TG.AdminIDs.join(', ') : '';
-            const adminIDsEl = document.getElementById('telegramAdminIDs');
-            if (adminIDsEl) adminIDsEl.value = adminIDs;
 
             // 重置状态和保存按钮
             document.getElementById('telegramStatus').style.display = 'none';
@@ -16832,10 +16823,6 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                 return;
             }
 
-            // 解析管理员 TG ID 白名单
-            const adminIDsRaw = (document.getElementById('telegramAdminIDs')?.value || '').trim();
-            const adminIDs = adminIDsRaw ? adminIDsRaw.split(/[,，\s]+/).map(s => s.trim()).filter(Boolean) : [];
-
             try {
                 confirmBtn.disabled = true;
                 confirmBtn.textContent = '保存中...';
@@ -16848,8 +16835,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                     },
                     body: JSON.stringify({
                         BotToken: token,
-                        ChatID: chatID,
-                        AdminIDs: adminIDs
+                        ChatID: chatID
                     })
                 });
 
@@ -16862,7 +16848,6 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                     currentConfig.TG = Object.assign({}, currentConfig.TG, {
                         BotToken: token,
                         ChatID: chatID,
-                        AdminIDs: adminIDs,
                         启用: true
                     });
                     updateTelegramButtonStates(true);
@@ -16881,34 +16866,6 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                 showToast('❌ 保存失败: ' + error.message, 'error');
                 confirmBtn.disabled = false;
                 confirmBtn.textContent = '保存';
-            }
-        }
-
-        // 单独保存管理员 TG ID 白名单（无需重填/验证 Bot Token）
-        async function saveTelegramAdminIDs() {
-            const adminIDsRaw = (document.getElementById('telegramAdminIDs')?.value || '').trim();
-            const adminIDs = adminIDsRaw ? adminIDsRaw.split(/[,，\s]+/).map(s => s.trim()).filter(Boolean) : [];
-            const chatID = document.getElementById('telegramChatID')?.value.trim() || currentConfig.TG?.ChatID || '';
-            if (!chatID) {
-                showToast('❌ 缺少 Chat ID，请先配置完整的 Telegram 参数', 'error');
-                return;
-            }
-            try {
-                // 后端 merge 语义：BotToken 留空会保留旧值，AdminIDs 用本次提交覆盖
-                const response = await fetch('/admin/tg.json', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ChatID: chatID, AdminIDs: adminIDs })
-                });
-                if (response.ok) {
-                    showToast('✅ 管理员白名单已保存', 'success');
-                    currentConfig.TG = Object.assign({}, currentConfig.TG, { ChatID: chatID, AdminIDs: adminIDs });
-                } else {
-                    const errorData = await response.json().catch(() => ({}));
-                    showToast('❌ 保存失败: ' + (errorData.error || '未知错误'), 'error');
-                }
-            } catch (error) {
-                showToast('❌ 保存失败: ' + error.message, 'error');
             }
         }
 

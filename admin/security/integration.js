@@ -1205,6 +1205,7 @@
       html += '<div class="sec-config-group" style="grid-column:1/-1"><h4>🤖 TG Bot 通知设置</h4>';
       html += '<div class="sec-config-row"><label>Bot Token</label><input type="text" id="cfg-tgbot" value="'+esc(tgCfg.botToken||'')+'" style="width:100%;max-width:400px;text-align:left"></div>';
       html += '<div class="sec-config-row"><label>Chat ID</label><input type="text" id="cfg-tgchat" value="'+esc(tgCfg.chatId||'')+'" style="width:100%;max-width:200px;text-align:left"></div>';
+      html += '<div class="sec-config-row"><label>管理员 TG ID</label><input type="text" id="cfg-tgadmins" value="'+esc((tgCfg.adminIds||[]).join(', '))+'" placeholder="逗号分隔，留空则用群管理员身份判定" style="width:100%;max-width:300px;text-align:left"><small style="color:var(--sec-text2,#94a3b8);font-size:11px">多个用逗号分隔，可用 /bnwhoami 获取自己的 TG ID</small></div>';
       html += '<div class="sec-config-row"><label>安全事件通知</label><select id="cfg-tgsecurity"><option value="1"'+(tgCfg.securityNotifyEnabled?' selected':'')+'>开启</option><option value="0"'+(tgCfg.securityNotifyEnabled?'':' selected')+'>关闭</option></select></div>';
       html += '<div class="sec-config-row"><label>退群自动封禁</label><select id="cfg-tgsync"><option value="1"'+(tgCfg.syncEnabled?' selected':'')+'>启用</option><option value="0"'+(tgCfg.syncEnabled?'':' selected')+'>关闭</option></select></div>';
       html += '<div style="margin-top:10px;display:flex;gap:8px">';
