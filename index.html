@@ -301,6 +301,24 @@ button:disabled{opacity:.5;cursor:not-allowed}
   .about-desc{line-height:1.35;margin-bottom:6px}
   .about-pill{padding:3px 9px}
 }
+
+/* ── 复制订阅地址前的测延迟提示弹窗 ── */
+.latency-mask{position:fixed;inset:0;background:rgba(7,10,24,.74);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .2s ease;pointer-events:none}
+.latency-mask.show{opacity:1;pointer-events:auto}
+.latency-dialog{width:100%;max-width:440px;background:linear-gradient(160deg,rgba(15,23,42,.97),rgba(11,18,32,.97));border:1px solid var(--border);border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.55);padding:26px 24px;transform:translateY(12px) scale(.98);transition:transform .22s ease}
+.latency-mask.show .latency-dialog{transform:translateY(0) scale(1)}
+.latency-icon{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,rgba(99,102,241,.2),rgba(139,92,246,.16));border:1px solid rgba(99,102,241,.32);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:14px}
+.latency-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:10px}
+.latency-body{font-size:13.5px;line-height:1.7;color:#cbd5e1}
+.latency-body p{margin:0 0 10px}
+.latency-code{display:flex;align-items:center;gap:8px;margin:10px 0;padding:10px 12px;background:rgba(2,8,23,.6);border:1px dashed rgba(99,102,241,.45);border-radius:10px;color:#93c5fd;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;word-break:break-all}
+.latency-code .tag{flex-shrink:0;padding:2px 8px;border-radius:6px;background:rgba(99,102,241,.18);color:#bfdbfe;font-size:11px;font-weight:700}
+.latency-note{font-size:12px;color:var(--text2);line-height:1.6;margin:10px 0 0}
+.latency-actions{display:flex;gap:10px;margin-top:18px}
+.latency-actions .lbtn{flex:1;justify-content:center;display:inline-flex;align-items:center;border-radius:12px;padding:12px 16px;font-size:14px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:rgba(255,255,255,.04);color:#cbd5e1}
+.latency-confirm{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none}
+.latency-confirm[disabled]{opacity:.55;cursor:not-allowed;filter:saturate(.6)}
+.latency-confirm .count{display:inline-block;min-width:18px;text-align:center}
 </style>
 </head>
 <body>
@@ -628,7 +646,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   function startTGVerifyPolling(a,c){stopTGVerifyPolling();var n=0;tgt=setInterval(async function(){n++;if(n>800){stopTGVerifyPolling();var pe=document.getElementById('verifyPolling');if(pe)pe.innerHTML='<span style=\"color:var(--error)\">⏰ 超时</span>';return}try{var r=await fetch(API_BASE+'/register/verify-tg/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({account:a,code:c})});var d=await r.json(),vc=d.code||'';if(vc==='AUTH_SIGNUP_SUCCESS'){stopTGVerifyPolling();resultItems.innerHTML='<div class=\"verify-step\"><div class=\"verify-success-icon\">🎉</div><p style=\"font-size:18px;color:var(--text);font-weight:700\">注册成功！</p></div>';setTimeout(function(){switchMode('signin')},1000)}else if(vc==='AUTH_TG_PENDING'){var rm=d.data?.remainingSeconds||0,pt=document.getElementById('verifyPollText');if(pt&&rm>0){var mm=Math.floor(rm/60),ss=rm%60;pt.textContent='等待中... '+mm+'分'+ss+'秒'}}else if(vc==='AUTH_TG_CODE_EXPIRED'){stopTGVerifyPolling();var p2=document.getElementById('verifyPolling');if(p2)p2.innerHTML='<span style=\"color:var(--error)\">⏰ 已过期</span>'}else if(vc==='AUTH_TG_DUPLICATE'){stopTGVerifyPolling();var p3=document.getElementById('verifyPolling');if(p3)p3.innerHTML='<span style=\"color:var(--error)\">⚠️ TG已绑定</span>'}else if(vc==='AUTH_SIGNUP_DUPLICATE_USERNAME'||vc==='AUTH_SIGNUP_DUPLICATE_EMAIL'){stopTGVerifyPolling();var p4=document.getElementById('verifyPolling');if(p4)p4.innerHTML='<span style=\"color:var(--error)\">❌ 信息冲突</span>'}}catch(err){}},500)}
   function stopTGVerifyPolling(){if(tgt){clearInterval(tgt);tgt=null}}
 
-  function showResult(data) { authPanel.style.display = 'none'; resultPanel.classList.add('show'); const user = data.data || {}, node = user.node || {}, account = user.account || ''; resultTitle.textContent = '登录成功'; resultSub.textContent = account; const items = []; if (node.subscriptionUrl) items.push({ label:'订阅链接', value: node.subscriptionUrl, copy: true }); if (node.versionUrl) items.push({ label:'版本查询', value: node.versionUrl, copy: true }); if (node.registerPanelUrl) items.push({ label:'认证面板', value: node.registerPanelUrl, copy: true }); if (node.uuid) items.push({ label:'用户 UUID', value: node.uuid, copy: true }); if (node.token) items.push({ label:'订阅 Token', value: node.token, copy: true }); resultItems.innerHTML = items.map(item => '<div class="result-item"><strong>'+item.label+'</strong><div class="copy-row"><code>'+escHtml(item.value)+'</code>'+(item.copy?'<button class="copy-btn" data-copy="'+escAttr(item.value)+'">📋 复制</button>':'')+'</div></div>').join(''); resultItems.querySelectorAll('.copy-btn').forEach(btn => { btn.addEventListener('click', () => copyText(btn.dataset.copy, btn)); }); }
+  function showResult(data) { authPanel.style.display = 'none'; resultPanel.classList.add('show'); const user = data.data || {}, node = user.node || {}, account = user.account || ''; resultTitle.textContent = '登录成功'; resultSub.textContent = account; const items = []; if (node.subscriptionUrl) items.push({ label:'订阅链接', value: node.subscriptionUrl, copy: true, sub: true }); if (node.versionUrl) items.push({ label:'版本查询', value: node.versionUrl, copy: true }); if (node.registerPanelUrl) items.push({ label:'认证面板', value: node.registerPanelUrl, copy: true }); if (node.uuid) items.push({ label:'用户 UUID', value: node.uuid, copy: true }); if (node.token) items.push({ label:'订阅 Token', value: node.token, copy: true }); resultItems.innerHTML = items.map(item => '<div class="result-item"><strong>'+item.label+'</strong><div class="copy-row"><code>'+escHtml(item.value)+'</code>'+(item.copy?'<button class="copy-btn" data-copy="'+escAttr(item.value)+'"'+(item.sub?' data-copy-sub="1"':'')+'>📋 复制</button>':'')+'</div></div>').join(''); resultItems.querySelectorAll('.copy-btn').forEach(btn => { btn.addEventListener('click', () => { if (btn.getAttribute('data-copy-sub') === '1') { copySubWithLatencyCheck(btn.dataset.copy, btn); return; } copyText(btn.dataset.copy, btn); }); }); }
 
   function setLoading(v) { state.loading = v; submitBtn.disabled = v; if (v) { submitSpin.classList.add('show'); submitText.style.opacity = '0.5'; } else { submitSpin.classList.remove('show'); submitText.style.opacity = '1'; } $$('.tab-btn').forEach(b => b.disabled = v); }
   function showMsg(cls, title, desc) { authMsg.className = 'msg ' + cls + ' show'; authMsg.innerHTML = '<strong>' + escHtml(title) + '</strong><br>' + escHtml(desc); }
@@ -643,6 +661,36 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
   function copyText(text, btn) { if (navigator.clipboard) { navigator.clipboard.writeText(text).then(() => showToast('已复制到剪贴板')); } else { const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('已复制到剪贴板'); } }
   function showToast(msg) { const t = document.createElement('div'); t.className = 'copy-toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(function() { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; }, 1500); setTimeout(function() { document.body.removeChild(t); }, 2000); }
+
+  // ── 复制订阅地址前的测延迟提示（5 秒阅读）──
+  var LATENCY_TEST_URL = 'http://www.gstatic.com/generate_204';
+  var LATENCY_READ_SECONDS = 5;
+  function closeLatencyMask() { var m = document.getElementById('latencyMask'); if (!m) return; m.classList.remove('show'); if (m._t) { clearInterval(m._t); m._t = null; } setTimeout(function(){ if (m.parentNode) m.parentNode.removeChild(m); }, 220); }
+  function openLatencyMask(value, btn) {
+    var old = document.getElementById('latencyMask'); if (old) old.remove();
+    var m = document.createElement('div'); m.id = 'latencyMask'; m.className = 'latency-mask';
+    m.innerHTML = '<div class="latency-dialog" role="dialog" aria-modal="true" aria-labelledby="latencyTitle">' +
+      '<div class="latency-icon">⚡</div>' +
+      '<div class="latency-title" id="latencyTitle">复制前请先修改测延迟链接</div>' +
+      '<div class="latency-body">' +
+        '<p>本订阅部署在 Cloudflare 上，而 CF Workers 默认<strong style="color:#fbbf24">不允许访问自身所托管的网络</strong>。多数代理软件默认用 CF 链接测延迟，会导致测延迟全部显示为超时（红），但实际并不影响代理使用。</p>' +
+        '<p>请在代理软件的<strong style="color:#93c5fd">测延迟 URL / 健康检查地址</strong>处改为下方链接：</p>' +
+        '<div class="latency-code"><span class="tag">测延迟</span>' + LATENCY_TEST_URL + '</div>' +
+        '<p class="latency-note">修改完成后再复制订阅地址导入。请阅读 <strong style="color:#f8fafc">' + LATENCY_READ_SECONDS + '</strong> 秒后方可继续复制。</p>' +
+      '</div>' +
+      '<div class="latency-actions">' +
+        '<button type="button" class="lbtn" id="latencyCancel">稍后再说</button>' +
+        '<button type="button" class="lbtn latency-confirm" id="latencyConfirm" disabled><span class="count">' + LATENCY_READ_SECONDS + '</span> 秒后可复制</button>' +
+      '</div></div>';
+    document.body.appendChild(m);
+    requestAnimationFrame(function(){ m.classList.add('show'); });
+    var confirmBtn = m.querySelector('#latencyConfirm'), remaining = LATENCY_READ_SECONDS;
+    m._t = setInterval(function(){ remaining -= 1; if (remaining > 0) { confirmBtn.innerHTML = '<span class="count">' + remaining + '</span> 秒后可复制'; } else { clearInterval(m._t); m._t = null; confirmBtn.disabled = false; confirmBtn.textContent = '我已知晓，复制订阅地址'; } }, 1000);
+    m.querySelector('#latencyCancel').onclick = closeLatencyMask;
+    m.onclick = function(e){ if (e.target === m) closeLatencyMask(); };
+    confirmBtn.onclick = function(){ if (confirmBtn.disabled) return; copyText(value, btn); closeLatencyMask(); };
+  }
+  function copySubWithLatencyCheck(value, btn) { openLatencyMask(value, btn); }
 
   var forgotState = { token: '', uuid: '', account: '' };
   function showForgotPassword() { document.getElementById('forgotPanel').style.display = ''; document.getElementById('authPanel').style.display = 'none'; document.getElementById('resultPanel').classList.remove('show'); document.getElementById('forgotStep1').style.display = ''; document.getElementById('forgotStep2').style.display = 'none'; document.getElementById('forgotStep3').style.display = 'none'; document.getElementById('forgotId').value = ''; document.getElementById('forgotId').focus(); forgotState = { token: '', uuid: '', account: '' }; }
