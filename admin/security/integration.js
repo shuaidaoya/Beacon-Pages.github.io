@@ -372,16 +372,13 @@
 
   async function loadUsers(cursor) {
     const el = $('#sec-content');
-    // 先读取筛选值，再销毁 DOM（否则 loading 会清空控件导致值丢失）
-    const q = ($('#sec-user-search')?.value||'').trim();
-    const st = ($('#sec-user-status')?.value||'');
-    const ma = ($('#sec-user-multiaccount')?.value||'');
-    const mat = ($('#sec-user-multiaccount-type')?.value||'');
-    if (!cursor) { el.innerHTML = '<div class="sec-loading"><span class="sec-spinner"></span>加载中...</div>'; usersState.selected.clear(); }
-    let url = '?limit=60';
-    if (q) url += '&q=' + encodeURIComponent(q);
-    if (st) url += '&status=' + encodeURIComponent(st);
-    if (ma) { url += '&multiAccount=' + encodeURIComponent(ma); if (mat) url += '&multiAccountType=' + encodeURIComponent(mat); }
+	    // 先读取筛选值，再销毁 DOM（否则 loading 会清空控件导致值丢失）
+	    const q = ($('#sec-user-search')?.value||'').trim();
+	    const st = ($('#sec-user-status')?.value||'');
+	    if (!cursor) { el.innerHTML = '<div class="sec-loading"><span class="sec-spinner"></span>加载中...</div>'; usersState.selected.clear(); }
+	    let url = '?limit=60';
+	    if (q) url += '&q=' + encodeURIComponent(q);
+	    if (st) url += '&status=' + encodeURIComponent(st);
     if (cursor) url += '&cursor=' + encodeURIComponent(cursor);
 
     try {
@@ -402,10 +399,8 @@
         el.innerHTML =
           '<div class="sec-filter">' +
           '<input type="text" id="sec-user-search" placeholder="搜索 UUID / 用户名 / 邮箱 / IP ..." value="'+escAttr(q)+'" onchange="window._secLoadUsers()" onkeydown="if(event.key===\'Enter\')window._secLoadUsers()">' +
-          '<select id="sec-user-status" onchange="window._secLoadUsers()"><option value="">全部状态</option><option value="active"'+(st==='active'?' selected':'')+'>活跃</option><option value="banned"'+(st==='banned'?' selected':'')+'>已封禁</option></select>' +
-          '<select id="sec-user-multiaccount" onchange="window._secLoadUsers()"><option value="">全部用户</option><option value="only"'+(ma==='only'?' selected':'')+'>多账号用户</option></select>' +
-          '<select id="sec-user-multiaccount-type" onchange="window._secLoadUsers()" style="display:'+(ma==='only'?'inline':'none')+';max-width:140px"><option value="">全部类型</option><option value="account">同名用户</option><option value="email">同邮箱</option><option value="lastIp">同IP</option><option value="userKey">同身份</option></select>' +
-          '<button class="sec-btn sec-btn-primary" onclick="window._secLoadUsers()">🔍 搜索</button>' +
+	          '<select id="sec-user-status" onchange="window._secLoadUsers()"><option value="">全部状态</option><option value="active"'+(st==='active'?' selected':'')+'>活跃</option><option value="banned"'+(st==='banned'?' selected':'')+'>已封禁</option></select>' +
+	          '<button class="sec-btn sec-btn-primary" onclick="window._secLoadUsers()">🔍 搜索</button>' +
           '<button class="sec-btn sec-btn-danger sec-btn-sm" id="sec-batch-ban" disabled>批量封禁</button>' +
           '<button class="sec-btn sec-btn-sm" id="sec-batch-restore" disabled>批量解禁</button>' +
           '<button class="sec-btn sec-btn-sm" id="sec-batch-reset" disabled>批量重置</button>' +
@@ -415,17 +410,8 @@
           '<div id="sec-users-table"></div>' +
           '<div id="sec-users-pager" class="sec-pagination"></div>';
 
-        renderUsers(data.users||[], data.summary);
-
-        // sync multi-account type visibility
-        setTimeout(() => {
-          const maSel = $('#sec-user-multiaccount');
-          const matSel = $('#sec-user-multiaccount-type');
-          if (maSel && matSel) {
-            maSel.addEventListener('change', () => { matSel.style.display = maSel.value === 'only' ? 'inline' : 'none'; });
-          }
-        }, 50);
-      }
+	        renderUsers(data.users||[], data.summary);
+	      }
     } catch(e) {
       if (e.message !== 'auth_redirect') el.innerHTML = '<div class="sec-empty">加载失败: '+esc(e.message)+'</div>';
     }
@@ -447,21 +433,12 @@
     return '<div style="margin-bottom:10px;font-size:13px;color:#374151;font-weight:500">'+parts.join(' · ')+'</div>';
   }
 
-  function renderUsers(users, summary) {
-    // store user map for detail lookup
-    usersState.userMap = usersState.userMap || {};
-    users.forEach(u => { if (u.uuid) usersState.userMap[u.uuid] = u; });
+	  function renderUsers(users, summary) {
+	    // store user map for detail lookup
+	    usersState.userMap = usersState.userMap || {};
+	    users.forEach(u => { if (u.uuid) usersState.userMap[u.uuid] = u; });
 
-    const multiAccountBadge = (u) => {
-      if (!u.multiAccount?.isMulti) return '-';
-      const types = (u.multiAccount.types||[]);
-      const labels = { account:'同名', email:'同邮箱', lastIp:'同IP', userKey:'同身份' };
-      const badges = types.map(t => '<span class="sec-badge sec-badge-high">'+esc(labels[t]||t)+'</span>').join(' ');
-      const count = u.multiAccount.maxCount > 2 ? (' ×'+u.multiAccount.maxCount) : '';
-      return '<span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px">'+badges+'<span style="font-size:10px;color:#ef4444">'+count+'</span></span>';
-    };
-
-    const rows = users.map(u => [
+	    const rows = users.map(u => [
       '<input type="checkbox" class="sec-user-cb" data-uuid="'+escAttr(u.uuid||'')+'">',
       '<code style="font-size:11px">'+esc((u.uuid||'').slice(0,12)+'...')+'</code>',
       esc(u.profile?.account||u.label||(u.uuid||'').slice(0,8)||'未绑定'),
@@ -472,8 +449,8 @@
       (function(){var m=getRiskControlMeta(u.riskControl);return '<span class="sec-badge'+m.className+'" title="'+(u.riskControl&&u.riskControl.clusterId?'集群: '+esc(u.riskControl.clusterId):'')+'">'+esc(m.label)+'</span>';})(),
       '<span style="font-size:11px">'+fmtBytes(u.used_traffic||0)+' / '+fmtQuota(u)+'</span>',
       esc(u.lastIp||u.profile?.lastIp||'-'),
-      ago(u.lastSeenAt||u.lifecycle?.lastSeenAt),
-      multiAccountBadge(u),
+	      ago(u.lastSeenAt||u.lifecycle?.lastSeenAt),
+	      '-',
       '<button class="sec-btn sec-btn-sm" data-user-detail="'+escAttr(u.uuid)+'">详情</button>' +
       (u.status==='banned'
         ? ' <button class="sec-btn sec-btn-sm" data-user-action="restore" data-user-uuid="'+escAttr(u.uuid)+'">解禁</button>'
@@ -485,7 +462,7 @@
 
     const tblEl = $('#sec-users-table');
     if (tblEl) {
-      tblEl.innerHTML = '<div class="sec-table-wrap"><table class="sec-table"><tr><th></th><th>UUID</th><th>账户</th><th>邮箱</th><th>TG</th><th>状态</th><th>风险</th><th>风控</th><th>用量</th><th>最后IP</th><th>最后活跃</th><th>多账号</th><th>操作</th></tr>' +
+	      tblEl.innerHTML = '<div class="sec-table-wrap"><table class="sec-table"><tr><th></th><th>UUID</th><th>账户</th><th>邮箱</th><th>TG</th><th>状态</th><th>风险</th><th>风控</th><th>用量</th><th>最后IP</th><th>最后活跃</th><th>操作</th></tr>' +
         rows.map(r => '<tr>'+r.map(c => '<td>'+c+'</td>').join('')+'</tr>').join('') +
         '</table></div>';
       bindUserTableActions(tblEl);
@@ -511,19 +488,11 @@
     }
   }
 
-  function appendUsers(users) {
-    // remove pager, append rows to existing table
-    const tbl = $('#sec-users-table .sec-table');
-    if (!tbl) return;
-    const multiAccountBadge = (u) => {
-      if (!u.multiAccount?.isMulti) return '-';
-      const types = (u.multiAccount.types||[]);
-      const labels = { account:'同名', email:'同邮箱', lastIp:'同IP', userKey:'同身份' };
-      const badges = types.map(t => '<span class="sec-badge sec-badge-high">'+esc(labels[t]||t)+'</span>').join(' ');
-      const count = u.multiAccount.maxCount > 2 ? (' ×'+u.multiAccount.maxCount) : '';
-      return '<span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px">'+badges+'<span style="font-size:10px;color:#ef4444">'+count+'</span></span>';
-    };
-    const rows = users.map(u => [
+	  function appendUsers(users) {
+	    // remove pager, append rows to existing table
+	    const tbl = $('#sec-users-table .sec-table');
+	    if (!tbl) return;
+	    const rows = users.map(u => [
       '<input type="checkbox" class="sec-user-cb" data-uuid="'+escAttr(u.uuid||'')+'">',
       '<code style="font-size:11px">'+esc((u.uuid||'').slice(0,12)+'...')+'</code>',
       esc(u.profile?.account||u.label||(u.uuid||'').slice(0,8)||'未绑定'),
@@ -534,8 +503,8 @@
       (function(){var m=getRiskControlMeta(u.riskControl);return '<span class="sec-badge'+m.className+'" title="'+(u.riskControl&&u.riskControl.clusterId?'集群: '+esc(u.riskControl.clusterId):'')+'">'+esc(m.label)+'</span>';})(),
       '<span style="font-size:11px">'+fmtBytes(u.used_traffic||0)+' / '+fmtQuota(u)+'</span>',
       esc(u.lastIp||'-'),
-      ago(u.lastSeenAt),
-      multiAccountBadge(u),
+	      ago(u.lastSeenAt),
+	      '-',
       '<button class="sec-btn sec-btn-sm" data-user-detail="'+escAttr(u.uuid)+'">详情</button>' +
       (u.status==='banned'
         ? ' <button class="sec-btn sec-btn-sm" data-user-action="restore" data-user-uuid="'+escAttr(u.uuid)+'">解禁</button>'
