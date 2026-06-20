@@ -531,11 +531,14 @@ button:disabled{opacity:.5;cursor:not-allowed}
   function setRegisterClosed(closed) {
     state.registerEnabled = !closed;
     var panel = document.getElementById('authPanel');
+    var signupBtn = panel && panel.querySelector('.tab-btn[data-mode=signup]');
     if (closed) {
       if (panel) panel.classList.add('reg-closed');
+      if (signupBtn) { signupBtn.textContent = '注册功能已关闭'; signupBtn.setAttribute('data-orig-text', '注册'); }
       if (state.mode === 'signup') switchMode('signin');
     } else {
       if (panel) panel.classList.remove('reg-closed');
+      if (signupBtn && signupBtn.hasAttribute('data-orig-text')) { signupBtn.textContent = signupBtn.getAttribute('data-orig-text'); signupBtn.removeAttribute('data-orig-text'); }
     }
   }
 
