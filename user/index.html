@@ -89,6 +89,37 @@ body{
 .hero:hover .hero-glare{background-position:100% 100%}
 @media(prefers-reduced-motion:reduce){.hero-glare{transition:none}}
 
+/* ── magic bento (悬停增强：边框光晕 + 聚光灯 + 3D倾斜 + 磁吸) ── */
+.magic-card{
+  position:relative;
+  --glow-x:50%;--glow-y:50%;--glow-intensity:0;--glow-radius:200px;--glow-color:245,158,11;
+}
+/* borderGlow：跟随鼠标的边框光晕（mask 镂空技法，只照亮边框） */
+.magic-card::after{
+  content:'';position:absolute;inset:0;padding:1px;border-radius:inherit;
+  background:radial-gradient(
+    var(--glow-radius) circle at var(--glow-x) var(--glow-y),
+    rgba(var(--glow-color),calc(var(--glow-intensity) * .9)) 0%,
+    rgba(var(--glow-color),calc(var(--glow-intensity) * .45)) 30%,
+    transparent 60%);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  mask-composite:exclude;pointer-events:none;opacity:0;
+  transition:opacity .3s ease;z-index:1;
+}
+.magic-card:hover::after{opacity:1}
+/* 全局聚光灯层 */
+.magic-spotlight{
+  position:fixed;width:640px;height:640px;border-radius:50%;pointer-events:none;z-index:200;
+  background:radial-gradient(circle,
+    rgba(245,158,11,.13) 0%,rgba(245,158,11,.07) 18%,rgba(245,158,11,.03) 32%,
+    rgba(245,158,11,.01) 50%,transparent 70%);
+  transform:translate(-50%,-50%);mix-blend-mode:multiply;opacity:0;will-change:transform,opacity;
+}
+/* 无障碍：触屏/减少动态效果时仅保留静态边框光晕，关闭聚光灯 */
+@media(hover:none){.magic-spotlight{display:none}}
+@media(prefers-reduced-motion:reduce){.magic-spotlight{display:none}.magic-card::after{transition:none}}
+
 /* ── section title ── */
 .sec-title{
   font-size:15px;font-weight:700;color:#334155;margin:0 0 14px;
@@ -114,11 +145,11 @@ body{
 /* ── network card ── */
 .network-card{
   background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:20px 22px;
-  box-shadow:0 1px 3px rgba(0,0,0,.04);transition:all .25s;
+  box-shadow:0 1px 3px rgba(0,0,0,.04);transition:box-shadow .25s,border-color .25s;
   display:flex;flex-direction:column;
 }
 .network-card:hover{
-  box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
   border-color:#f59e0b;
 }
 .network-card-head{
@@ -154,9 +185,9 @@ body{
 /* ── stat card ── */
 .stat-card{
   background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:22px 20px;
-  box-shadow:0 1px 3px rgba(0,0,0,.04);text-align:center;transition:all .25s;
+  box-shadow:0 1px 3px rgba(0,0,0,.04);text-align:center;transition:box-shadow .25s,border-color .25s;
 }
-.stat-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-2px)}
+.stat-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08)}
 .stat-value{font-size:24px;font-weight:800;color:#1e293b;font-family:'SF Mono','Monaco','Menlo',monospace;margin-bottom:4px}
 .stat-label{font-size:12px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
 .stat-sub{font-size:11px;color:#94a3b8;margin-top:4px;font-weight:400}
@@ -214,7 +245,7 @@ body{
 .link-card{
   background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px 20px;
   box-shadow:0 1px 3px rgba(0,0,0,.04);display:flex;align-items:center;gap:14px;
-  flex-wrap:wrap;transition:all .25s;
+  flex-wrap:wrap;transition:box-shadow .25s,border-color .25s;
 }
 .link-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.06)}
 .link-label{font-weight:700;font-size:13px;color:#334155;min-width:90px;white-space:nowrap}
@@ -282,6 +313,10 @@ body{
 .latency-confirm[disabled]{opacity:.55;cursor:not-allowed;filter:saturate(.6)}
 .latency-confirm .count{display:inline-block;min-width:18px;text-align:center}
 </style>
+<!-- GSAP（MagicBento 悬停增强所需；失败时优雅降级为纯 CSS 边框光晕） -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"
+  integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt"
+  crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -698,6 +733,118 @@ body{
     }
   }
 
+  // ── magic bento：展示卡片的悬停增强（边框光晕 + 聚光灯 + 3D倾斜 + 磁吸） ──
+  // 仅作用于展示类卡片（网络/流量/签到/链接），表单卡（含输入框）不参与，避免干扰输入。
+  var MAGIC_GLOW_COLOR = '245,158,11';     // 品牌橙
+  var MAGIC_SPOTLIGHT_RADIUS = 300;
+  var magicSpotlightEl = null;             // 聚光灯层单例（跨多次渲染复用）
+  var magicLiveCards = [];                 // 当前活跃卡片列表（聚光灯计算用，每次渲染刷新）
+  var magicMoveBound = false;              // document mousemove 是否已绑定（全局仅一次）
+
+  function initMagicBento(scope) {
+    var root = scope || document;
+    var cards = root.querySelectorAll('.network-card, .stat-card, .checkin-card, .link-card');
+    if (!cards.length) return;
+
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    var canHover = window.matchMedia('(hover:hover)').matches && window.matchMedia('(pointer:fine)').matches;
+    var hasGsap = (typeof gsap !== 'undefined');
+    // GSAP 倾斜/磁吸仅在「能悬停 + 非减少动态 + gsap 可用」时启用
+    var enableTilt = canHover && !reduceMotion && hasGsap;
+    // 聚光灯仅在「能悬停 + 非减少动态」时启用（不依赖 gsap，纯 CSS 变量驱动）
+    var enableSpotlight = canHover && !reduceMotion;
+
+    cards.forEach(function(card){
+      card.classList.add('magic-card');
+      card.style.setProperty('--glow-color', MAGIC_GLOW_COLOR);
+
+      if (!enableTilt) return; // 仅静态边框光晕，无需绑定指针事件
+
+      var magnetAnim = null;
+      card.addEventListener('mouseenter', function(){
+        gsap.to(card, {rotateX:5, rotateY:5, duration:.3, ease:'power2.out', transformPerspective:1000});
+      });
+      card.addEventListener('mousemove', function(e){
+        var rect = card.getBoundingClientRect();
+        var x = e.clientX - rect.left, y = e.clientY - rect.top;
+        var cx = rect.width / 2, cy = rect.height / 2;
+        var rotateX = ((y - cy) / cy) * -10;
+        var rotateY = ((x - cx) / cx) * 10;
+        gsap.to(card, {rotateX:rotateX, rotateY:rotateY, duration:.1, ease:'power2.out', transformPerspective:1000});
+        var magnetX = (x - cx) * 0.05, magnetY = (y - cy) * 0.05;
+        magnetAnim = gsap.to(card, {x:magnetX, y:magnetY, duration:.3, ease:'power2.out'});
+      });
+      card.addEventListener('mouseleave', function(){
+        if (magnetAnim) magnetAnim.kill();
+        gsap.to(card, {rotateX:0, rotateY:0, x:0, y:0, duration:.3, ease:'power2.out'});
+      });
+    });
+
+    if (!enableSpotlight) return;
+
+    // 聚光灯层（单例）
+    if (!magicSpotlightEl || !document.body.contains(magicSpotlightEl)) {
+      magicSpotlightEl = document.createElement('div');
+      magicSpotlightEl.className = 'magic-spotlight';
+      document.body.appendChild(magicSpotlightEl);
+    }
+    // 刷新活跃卡片列表（innerHTML 重渲染后旧卡片已随节点销毁，闭包自动引用最新列表）
+    magicLiveCards = Array.prototype.slice.call(root.querySelectorAll('.magic-card'));
+
+    // document mousemove 仅绑定一次（全局聚光灯），靠 magicLiveCards 变量读取最新卡片
+    if (!magicMoveBound) {
+      magicMoveBound = true;
+      var proximity = MAGIC_SPOTLIGHT_RADIUS * 0.5;
+      var fadeDistance = MAGIC_SPOTLIGHT_RADIUS * 0.75;
+      document.addEventListener('mousemove', function(e){
+        var spotlight = magicSpotlightEl;
+        if (!spotlight) return;
+        var live = magicLiveCards;
+        var inside = false;
+        var minDist = Infinity;
+        for (var i = 0; i < live.length; i++){
+          var r = live[i].getBoundingClientRect();
+          if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) inside = true;
+          var ccx = r.left + r.width / 2, ccy = r.top + r.height / 2;
+          var dist = Math.hypot(e.clientX - ccx, e.clientY - ccy) - Math.max(r.width, r.height) / 2;
+          if (dist < minDist) minDist = Math.max(0, dist);
+        }
+        if (!inside && minDist > fadeDistance){
+          if (hasGsap) gsap.to(spotlight, {opacity:0, duration:.5, ease:'power2.out'});
+          else spotlight.style.opacity = 0;
+          live.forEach(function(c){ c.style.setProperty('--glow-intensity', '0'); });
+          return;
+        }
+        // 逐卡计算边框光晕强度（距鼠标越近越亮）
+        live.forEach(function(card){
+          var r = card.getBoundingClientRect();
+          var ccx = r.left + r.width / 2, ccy = r.top + r.height / 2;
+          var dist = Math.hypot(e.clientX - ccx, e.clientY - ccy) - Math.max(r.width, r.height) / 2;
+          var eff = Math.max(0, dist);
+          var intensity = 0;
+          if (eff <= proximity) intensity = 1;
+          else if (eff <= fadeDistance) intensity = (fadeDistance - eff) / (fadeDistance - proximity);
+          var rx = ((e.clientX - r.left) / r.width) * 100;
+          var ry = ((e.clientY - r.top) / r.height) * 100;
+          card.style.setProperty('--glow-x', rx + '%');
+          card.style.setProperty('--glow-y', ry + '%');
+          card.style.setProperty('--glow-intensity', intensity.toString());
+        });
+        // 聚光灯跟随鼠标
+        var targetOpacity = minDist <= proximity ? 0.85
+          : minDist <= fadeDistance ? ((fadeDistance - minDist) / (fadeDistance - proximity)) * 0.85 : 0;
+        if (hasGsap){
+          gsap.to(spotlight, {left:e.clientX, top:e.clientY, duration:.1, ease:'power2.out'});
+          gsap.to(spotlight, {opacity:targetOpacity, duration: targetOpacity > 0 ? .2 : .5, ease:'power2.out'});
+        } else {
+          spotlight.style.left = e.clientX + 'px';
+          spotlight.style.top = e.clientY + 'px';
+          spotlight.style.opacity = targetOpacity;
+        }
+      });
+    }
+  }
+
   // ── render dashboard ──
   function renderDashboard(d) {
     const main = document.getElementById('mainContent');
@@ -990,6 +1137,7 @@ body{
     wireSetPassword(d);
     wireChangePassword(d);
     fetchGlobalStats();
+    initMagicBento(main);   // 展示卡片悬停增强（边框光晕/聚光灯/3D倾斜/磁吸）
   }
 
   // ── password strength checker ──
