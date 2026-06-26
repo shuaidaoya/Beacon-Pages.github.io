@@ -73,6 +73,22 @@ body{
   letter-spacing:.5px;position:relative;z-index:1;
 }
 
+/* ── hero glare hover ── */
+.hero-glare{
+  position:absolute;inset:0;pointer-events:none;z-index:2;
+  background:linear-gradient(-30deg,
+    hsla(0,0%,0%,0) 60%,
+    rgba(245,158,11,.5) 70%,
+    hsla(0,0%,0%,0),
+    hsla(0,0%,0%,0) 100%);
+  background-size:300% 300%;
+  background-repeat:no-repeat;
+  background-position:-100% -100%;
+  transition:background-position 800ms ease;
+}
+.hero:hover .hero-glare{background-position:100% 100%}
+@media(prefers-reduced-motion:reduce){.hero-glare{transition:none}}
+
 /* ── section title ── */
 .sec-title{
   font-size:15px;font-weight:700;color:#334155;margin:0 0 14px;
@@ -695,6 +711,7 @@ body{
     }
     main.innerHTML = `
       <div class="hero">
+        <div class="hero-glare"></div>
         <h1>欢迎回来，${esc(d.account || '用户')}</h1>
         <p>Beacon 灯塔 · 用户面板</p>
         ${d.uuid ? '<div class="uuid-badge">UUID: ' + esc(d.uuid.slice(0,8) + '...') + '</div>' : ''}
